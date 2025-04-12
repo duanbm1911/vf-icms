@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+
+{% block title %}
+ICMS | IP Plan summary
+{% endblock title %}
+
+{% block content %}
+<div class="content">
+    <div class="form-group text-center">
+      <legend>
+        <h3 style="color: #4A4A4A;">IP PLAN DASHBOARD</h3>
+      </legend>
+    </div>
+  
+    <div class="row">
+      <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="panel panel-default" style="border-left: 5px solid #28A745;">
+          <div class="panel-heading" style="background-color: #EDEDED;">
+            <h4 class="panel-title" style="color: #28A745;">{{ db_01 }}</h4>
+          </div>
+          <div class="panel-body">
+            <div id="chartContainer-01" style="height: 300px; width: 100%;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="panel panel-default" style="border-left: 5px solid #28A745;">
+          <div class="panel-heading" style="background-color: #EDEDED;">
+            <h4 class="panel-title" style="color: #28A745;">{{ db_02 }}</h4>
+          </div>
+          <div class="panel-body">
+            <div id="chartContainer-02" style="height: 300px; width: 100%;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="row">
+      <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="panel panel-default" style="border-left: 5px solid #28A745;">
+          <div class="panel-heading" style="background-color: #EDEDED;">
+            <h4 class="panel-title" style="color: #28A745;">{{ db_03 }}</h4>
+          </div>
+          <div class="panel-body">
+            <div id="chartContainer-03" style="height: 300px; width: 100%;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+{% endblock content %}
+
+{% block css %}
+<link rel="stylesheet" href="/static/core/css/canvas.css">
+<link rel="stylesheet" href="/static/ipplan/css/dashboard.css">
+{% endblock css %}
+
+{% block js %}
+<script src="/static/core/js/canvas.js"></script>
+<script src="/static/ipplan/js/dashboard-01.js"></script>
+<script src="/static/ipplan/js/dashboard-02.js"></script>
+<script src="/static/ipplan/js/dashboard-03.js"></script>
+{% comment %} <script src="/static/ipplan/js/dashboard-04.js"></script>
+<script src="/static/ipplan/js/dashboard-05.js"></script> {% endcomment %}
+{% endblock js %}

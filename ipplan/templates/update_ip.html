@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block title %} ICMS | Update IP {% endblock title %}
+
+{% block content %}
+
+<div class="col-xs-12 col-sm-12 col-md-5 col-lg-5">
+    <div class="form-group">
+        <legend>Update IP</legend>
+    </div>
+    <div class="form-group">
+        <form action method="post">
+            {% csrf_token %}
+            {{ form | crispy }}
+            <button type="submit" class="btn btn-primary">Update</button>
+            <button onclick="history.back()" class="btn btn-warning">Back</button>
+        </form>
+    </div>
+</div>
+
+{% endblock content %}

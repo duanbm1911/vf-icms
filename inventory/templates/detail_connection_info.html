@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  {{ banner }}
+{% endblock %}
+
+{% block content %}
+  <div class="container mt-4">
+    <div class="table-responsive">
+      <table class="table table-hover table-bordered">
+        <thead>
+          <tr class="info">
+            <th class="text-center" style="width: 25%;">Item</th>
+            <th class="text-center" style="width: 75%;">Detail Information</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for field_name, field_value in fields %}
+            <tr>
+              <td><strong>{{ field_name|capfirst }}</strong></td>
+              <td>{{ field_value }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mt-4">
+      <button type="button" id="back-btn" class="btn btn-warning btn-lg" onclick="window.history.back();">
+        <i class="glyphicon glyphicon-arrow-left"></i> Back
+      </button>
+    </div>
+  </div>
+{% endblock %}

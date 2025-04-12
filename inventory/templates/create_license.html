@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  {{ banner }}
+{% endblock %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <div class="panel panel-primary" style="border-color: #28A745;">
+      <div class="panel-heading" style="background-color: #28A745; color: white;">
+        <h3 class="panel-title"><i class="glyphicon glyphicon-plus"></i> {{ banner }}</h3>
+      </div>
+      <div class="panel-body">
+        <form action="{% url 'create_license' %}" method="POST" class="form-horizontal" role="form">
+          {% csrf_token %}
+          <fieldset>
+            <div class="row container-fluid">
+              <!-- System Name -->
+              <div class="col-md-5">{{ form.system_name|as_crispy_field }}</div>
+              <!-- Application -->
+              <div class="col-md-5 col-md-offset-2">{{ form.application|as_crispy_field }}</div>
+            </div>
+            <div class="row container-fluid">
+              <!-- License Name -->
+              <div class="col-md-5">{{ form.license_name|as_crispy_field }}</div>
+              <!-- License Type -->
+              <div class="col-md-5 col-md-offset-2">{{ form.license_type|as_crispy_field }}</div>
+            </div>
+            <div class="row container-fluid">
+              <!-- License Count -->
+              <div class="col-md-5">{{ form.license_count|as_crispy_field }}</div>
+              <!-- License Contract -->
+              <div class="col-md-5 col-md-offset-2">{{ form.license_contract|as_crispy_field }}</div>
+            </div>
+            <div class="row container-fluid">
+              <!-- License End Date -->
+              <div class="col-md-5">{{ form.license_end_date|as_crispy_field }}</div>
+
+              <!-- License Start Date -->
+              <div class="col-md-5 col-md-offset-2">{{ form.license_start_date|as_crispy_field }}</div>
+            </div>
+            <div class="row container-fluid">
+              <!-- Department -->
+              <div class="col-md-5">{{ form.department|as_crispy_field }}</div>
+              <!-- Description -->
+              <div class="col-md-5 col-md-offset-2">{{ form.description|as_crispy_field }}</div>
+            </div>
+          </fieldset>
+          <!-- Buttons -->
+          <div class="form-group">
+            <div class="col-sm-12 text-center">
+              <button type="submit" class="btn btn-success btn-lg" style="background-color: #28A745; border-color: #28A745;"><i class="glyphicon glyphicon-ok"></i> Create</button>
+              <button type="button" id="back-btn" class="btn btn-warning btn-lg" onclick="window.history.back();"><i class="glyphicon glyphicon-arrow-left"></i> Back</button>
+              <a href="{% url 'create_multiple_license' %}" class="btn btn-info btn-lg"><i class="glyphicon glyphicon-file"></i> Create from file</a>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}

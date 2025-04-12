@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block title %}ICMS | List Site{% endblock title %}
+{% block content %}
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <div class="table-responsive">
+        <table class="table table-hover table-bordered" id="list-site-table">
+            <thead>
+                <th>Site</th>
+                <th>SMC</th>
+                <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                {% for obj in objects %}
+                <tr>
+                    <td>{{ obj.site }}</td>
+                    <td>{{ obj.smc }}</td>
+                    <td>
+                        <a href="/cm/checkpoint/site/update/{{ obj.id }}"><span
+                                class="glyphicon glyphicon-wrench" aria-hidden="true"></span></a>
+                        <a data-toggle="modal" href='#delete-site-modal' id="{{ obj.id }}"><span
+                                class="glyphicon glyphicon-trash" aria-hidden="true" id="{{ obj.id }}"></span></a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <a href="{% url 'checkpoint_create_site' %}"><button type="button" class="btn btn-primary">Create</button></a>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="delete-site-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action method="post" id='delete-site-from'>
+                {% csrf_token %}
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Delete Site</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure to delete this site?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+{% endblock content %}
+
+{% block css %}
+<link rel="stylesheet" href="/static/core/css/jquery-datatable.css">
+{% endblock css %}
+
+{% block js %}
+<script src="/static/core/js/jquery-datatable.js"></script>
+<script src="/static/cm/checkpoint/js/list-site.js"></script>
+<script src="/static/core/js/sweet-alert.js"></script>
+{% if messages %}
+{% for message in messages %}
+{% if message.tags == 'error' %}
+<script>
+    Swal.fire({
+        text: "{{ message }}",
+        icon: "error"
+    });
+</script>
+{% else %}
+<script>
+    Swal.fire({
+        text: "{{ message }}",
+        icon: "success"
+    });
+</script>
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endblock js %}

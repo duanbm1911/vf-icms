@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %} ICMS | Create Object {% endblock title %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
+  <form action method="POST" class="form-horizontal" role="form">
+    {% csrf_token %}
+    <legend class="form-group">Create policy</legend>
+    {{ form | crispy }}
+    <div class="form-group">
+      <button type="submit" class="btn btn-primary">Create</button>
+      <a href="{% url 'checkpoint_list_policy' %}"><button type="button" class="btn btn-warning">Back</button></a>
+    </div>
+  </form>
+</div>
+{% endblock content %}
+
+{% block css %}
+<link rel="stylesheet" href="/static/core/css/selectize.css">
+{% endblock css %}
+
+{% block js %}
+<script src="/static/core/js/selectize.js"></script>
+{% endblock js %}

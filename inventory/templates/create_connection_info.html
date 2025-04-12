@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  {{ banner }}
+{% endblock %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <div class="panel panel-primary" style="border-color: #28A745;">
+      <div class="panel-heading" style="background-color: #28A745; color: white;">
+        <h3 class="panel-title"><i class="glyphicon glyphicon-plus"></i> {{ banner }}</h3>
+      </div>
+      <div class="panel-body">
+        <form action="{% url 'create_connection_info' %}" method="POST" class="form-horizontal" role="form">
+          {% csrf_token %}
+          <fieldset>
+            <div class="row container-fluid">
+              <div class="col-md-5">{{ form.name|as_crispy_field }}</div>
+            </div>
+            <div class="row container-fluid">
+              <div class="col-md-5">{{ form.start_point|as_crispy_field }}</div>
+              <div class="col-md-5 col-md-offset-2">{{ form.end_point|as_crispy_field }}</div>
+            </div>
+            <div class="row container-fluid">
+              <!-- Location -->
+              <div class="col-md-5">{{ form.location|as_crispy_field }}</div>
+              <!-- Connection Type -->
+              <div class="col-md-5 col-md-offset-2">{{ form.connection_type|as_crispy_field }}</div>
+            </div>
+            <div class="row container-fluid">
+              <!-- Connected Device -->
+              <div class="col-md-5">{{ form.connected_device|as_crispy_field }}</div>
+              <!-- VLAN ID -->
+              <div class="col-md-5 col-md-offset-2">{{ form.vlan_id|as_crispy_field }}</div>
+            </div>
+            <div class="row container-fluid">
+              <!-- Provider -->
+              <div class="col-md-5">{{ form.provider|as_crispy_field }}</div>
+              <!-- Sub Contract -->
+              <div class="col-md-5 col-md-offset-2">{{ form.sub_contract|as_crispy_field }}</div>
+            </div>
+            <div class="row container-fluid">
+              <!-- Contract Code Reference -->
+              <div class="col-md-5">{{ form.contract_code_reference|as_crispy_field }}</div>
+              <!-- Bandwidth -->
+              <div class="col-md-5 col-md-offset-2">{{ form.bandwidth|as_crispy_field }}</div>
+            </div>
+            <div class="row container-fluid">
+              <!-- Acceptance Date -->
+              <div class="col-md-5">{{ form.acceptance_date|as_crispy_field }}</div>
+              <!-- Monthly Fee Excl VAT -->
+              <div class="col-md-5 col-md-offset-2">{{ form.monthly_fee_excl_vat|as_crispy_field }}</div>
+            </div>
+            <div class="row container-fluid">
+              <!-- Termination Date -->
+              <div class="col-md-5">{{ form.termination_date|as_crispy_field }}</div>
+              <!-- Status -->
+              <div class="col-md-5 col-md-offset-2">{{ form.status|as_crispy_field }}</div>
+            </div>
+            <div class="row container-fluid">
+              <!-- Notes -->
+              <div class="col-md-12">{{ form.notes|as_crispy_field }}</div>
+            </div>
+          </fieldset>
+          <!-- Buttons -->
+          <div class="form-group">
+            <div class="col-sm-12 text-center">
+              <button type="submit" class="btn btn-success btn-lg" style="background-color: #28A745; border-color: #28A745;"><i class="glyphicon glyphicon-ok"></i> Create</button>
+              <button type="button" id="back-btn" class="btn btn-warning btn-lg" onclick="window.history.back();"><i class="glyphicon glyphicon-arrow-left"></i> Back</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  {{ banner }}
+{% endblock %}
+
+{% block content %}
+  <div class="row mb-4 d-flex justify-content-between align-items-center">
+    <div class="col-xs-6">
+      <legend>
+        <h3>{{ banner }}</h3>
+      </legend>
+    </div>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover table-bordered" id="table">
+      <thead>
+        <th>Branch</th>
+        <th>Province</th>
+        <th>Device name</th>
+        <th>Device IP</th>
+        <th>Configuration standardized</th>
+        <th>Device monitor by SLW</th>
+        <th>Device Backup configuration</th>
+      </thead>
+      <tbody>
+        {% for obj in devices %}
+          <tr>
+            <td>{{ obj.device_ip.device_branch }}</td>
+            <td>{{ obj.device_ip.device_province }}</td>
+            <td>{{ obj.device_ip.device_name }}</td>
+            <td>{{ obj.device_ip }}</td>
+            {% if obj.device_config_standardized == null %}
+            <td class="error">No data</td>
+            {% elif obj.device_config_standardized == True %}
+              <td>✅ YES</td>
+            {% elif obj.device_config_standardized == False %}
+              <td>❌ NO</td>
+            {% else %}
+              <td>{{ obj.device_config_standardized }}</td>
+            {% endif %}
+            {% if obj.device_monitored == null %}
+            <td class="error">No data</td>
+            {% elif obj.device_monitored == False %}
+              <td>❌ NO</td>
+            {% elif obj.device_monitored == True %}
+              <td>✅ YES</td>
+            {% else %}
+              <td>{{ obj.device_monitored }}</td>
+            {% endif %}
+            {% if obj.device_backup_config == null %}
+            <td class="error">No data</td>
+            {% elif obj.device_backup_config == False %}
+              <td>❌ NO</td>
+            {% elif obj.device_backup_config == True %}
+              <td>✅ YES</td>
+            {% else %}
+              <td>{{ obj.device_backup_config }}</td>
+            {% endif %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}
+
+{% block js %}
+  <script src="/static/inventory/js/list-device-configuration.js"></script>
+  <script src="/static/inventory/js/common.js"></script>
+{% endblock %}
