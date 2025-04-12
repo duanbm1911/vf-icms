@@ -56,9 +56,9 @@ urlpatterns = [
     path("cm/fmc/update/rule-status", views.cm_fmc_update_rule_status),
     path("cm/fmc/update/rule-category", views.cm_fmc_update_rule_category),
     path("cm/fmc/category", views.cm_fmc_get_list_rule_category),
+    path("cm/fmc/domain", views.cm_fmc_get_list_domain),
     path("cm/fmc/site", views.cm_fmc_get_list_site),
     path("cm/fmc/gateway", views.cm_fmc_get_list_gateway),
-    path("cm/fmc/category", views.cm_fmc_get_list_rule_category),
     path("cm/fmc/dashboard-01", views.fmc_dashboard_01),
     path("cm/fmc/dashboard-02", views.fmc_dashboard_02)
 ]

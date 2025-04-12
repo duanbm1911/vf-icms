@@ -1072,3 +1072,73 @@ class FMCRuleUpdateView(UpdateView):
         form.instance.user_created = str(self.request.user)
         messages.add_message(self.request, constants.SUCCESS, "Update success")
         return super().form_valid(form)
+##domain
+
+class FMCDomainCreateView(CreateView):
+    model = FMCDomain
+    form_class = FMCDomainForm
+    template_name = "fmc/domain/create.html"
+    success_url = reverse_lazy("fmc_list_domain")
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.groups.filter(name="ADMIN").exists():
+            return render(request, template_name="fmc/common/403.html")
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        form.instance.user_created = str(self.request.user)
+        messages.add_message(self.request, constants.SUCCESS, "Create success")
+        return super().form_valid(form)
+
+
+class FMCDomainListView(ListView):
+    model = FMCDomain
+    context_object_name = "objects"
+    template_name = "fmc/domain/list.html"
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+
+
+class FMCDomainUpdateView(UpdateView):
+    model = FMCDomain
+    form_class = FMCDomainForm
+    template_name = "fmc/domain/update.html"
+    success_url = reverse_lazy("fmc_list_domain")
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.groups.filter(name="ADMIN").exists():
+            return render(request, template_name="fmc/common/403.html")
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        form.instance.user_created = str(self.request.user)
+        messages.add_message(self.request, constants.SUCCESS, "Update success")
+        return super().form_valid(form)
+
+
+class FMCDomainDeleteView(DeleteView):
+    model = FMCDomain
+    template_name = "fmc/domain/list.html"
+    success_url = reverse_lazy("fmc_list_domain")
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.groups.filter(name="ADMIN").exists():
+            return render(request, template_name="fmc/common/403.html")
+        return super().dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        try:
+            super().post(request, *args, **kwargs)
+            messages.add_message(self.request, constants.SUCCESS, "Delete success")
+        except ProtectedError:
+            messages.add_message(
+                self.request, constants.ERROR, "This object has been protected"
+            )
+        except Exception as error:
+            messages.add_message(self.request, constants.ERROR, error)
+        return redirect(self.success_url)

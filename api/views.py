@@ -1393,15 +1393,10 @@ def cm_fmc_create_rule(request):
 def cm_fmc_get_list_policy(request):
     if request.user.groups.filter(name="ADMIN").exists():
         if request.method == "GET":
-            site = request.GET.get("site", None)
-            if site is None:
-                datalist = FMCPolicy.objects.all().values_list(
-                    "policy", flat=True
-                )
-            else:
-                datalist = FMCPolicy.objects.filter(site__site=site).values_list(
-                    "policy", flat=True
-                )
+            domain = request.GET.get("domain", None)
+            datalist = []
+            if domain:
+                datalist = FMCPolicy.objects.filter(policy__gateway__gateway__domain=domain).values_list("policy", flat=True)
             return JsonResponse({"data": list(datalist)}, status=200)
         else:
             return JsonResponse({"erorr": "Method is not allowed"}, status=405)
@@ -1466,6 +1461,16 @@ def cm_fmc_get_list_rule_category(request):
 
 
 @logged_in_or_basicauth()
+def cm_fmc_get_list_domain(request):
+    if request.method == "GET":
+        datalist = list()
+        datalist = FMCDomain.objects.all().values_list("domain", flat=True)
+        return JsonResponse({"status": "success", "datalist": list(datalist)})
+    else:
+        return JsonResponse({"erorr": "Method is not allowed"}, status=405)
+
+
+@logged_in_or_basicauth()
 def cm_fmc_get_list_site(request):
     if request.method == "GET":
         datalist = list()
@@ -1488,17 +1493,18 @@ def cm_fmc_get_list_site(request):
 def cm_fmc_get_list_rule(request):
     if request.method == "GET":
         data = dict()
-        list_site = FMCPolicy.objects.all().values_list(
-            "site__site", "site__fmc"
+        list_site = FMCSite.objects.all().values_list(
+            "site", "fmc"
         )
         list_site = [list(i) for i in list_site]
         if list_site:
             for item in list_site:
                 rules = FMCRule.objects.filter(
                     Q(status="Created") | Q(status="Install-Only"),
-                    policy__site__site=item[0],
+                    policy__gateway__domain__site__site=item[0],
                 ).values_list(
                     "id",
+                    "policy__gateway__domain__domain_id",
                     "policy__policy",
                     "gateway",
                     "description",
@@ -1517,7 +1523,7 @@ def cm_fmc_get_list_rule(request):
                         obj[5] = json.loads(obj[5])
                         obj[6] = json.loads(obj[6])
                 site = item[0]
-                data[site] = {"smc": item[1], "rules": rules}
+                data[site] = {"fmc": item[1], "rules": rules}
         return JsonResponse({"data": data}, status=200)
     else:
         return JsonResponse({"erorr": "Method is not allowed"}, status=405)

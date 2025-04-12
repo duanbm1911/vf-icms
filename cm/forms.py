@@ -64,7 +64,7 @@ class FMCPolicyForm(forms.ModelForm):
     class Meta:
 
         model = FMCPolicy
-        fields = ["policy", "site"]
+        fields = ["policy", "gateway"]
 
 
 class FMCSiteForm(forms.ModelForm):
@@ -78,7 +78,14 @@ class FMCGatewayForm(forms.ModelForm):
     class Meta:
 
         model = FMCGateway
-        fields = ["site", "gateway"]
+        fields = ["gateway", "domain"]
+
+
+class FMCDomainForm(forms.ModelForm):
+    class Meta:
+
+        model = FMCDomain
+        fields = ["site", "domain", "domain_id"]
 
 
 class FMCRuleForm(forms.ModelForm):

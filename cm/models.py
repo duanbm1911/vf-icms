@@ -52,13 +52,6 @@ class CheckpointRule(models.Model):
 
     def __str__(self):
         return str(self.id)
-    
-class FMCPolicy(models.Model):
-    policy = models.CharField(max_length=200, unique=True)
-    site = models.ForeignKey("FMCSite", on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.policy
 
 
 class FMCSite(models.Model):
@@ -69,20 +62,34 @@ class FMCSite(models.Model):
         return self.site
 
 
+class FMCDomain(models.Model):
+    site = models.ForeignKey('FMCSite', on_delete=models.CASCADE)
+    domain = models.CharField(max_length=500, unique=True)
+    domain_id = models.CharField(max_length=500)
+    
+    def __str__(self):
+        return self.domain
+    
+class FMCGateway(models.Model):
+    domain = models.ForeignKey('FMCDomain', on_delete=models.CASCADE)
+    gateway = models.CharField(max_length=500, unique=True)
+    
+    def __str__(self):
+        return self.gateway
+
+class FMCPolicy(models.Model):
+    policy = models.CharField(max_length=200, unique=True)
+    gateway = models.ForeignKey("FMCGateway", on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.policy
+
 class FMCRuleCategory(models.Model):
     policy = models.ForeignKey("FMCPolicy", on_delete=models.CASCADE)
     category = models.CharField(max_length=100, blank=True)
 
     def __str__(self):
         return self.category
-    
-class FMCGateway(models.Model):
-    site = models.ForeignKey('FMCSite', on_delete=models.CASCADE)
-    gateway = models.CharField(max_length=500, unique=True)
-    
-    def __str__(self):
-        return self.gateway
-
 
 class FMCRule(models.Model):
     policy = models.ForeignKey("FMCPolicy", on_delete=models.CASCADE)
