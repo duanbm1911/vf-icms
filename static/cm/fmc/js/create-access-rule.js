@@ -98,7 +98,6 @@ $(document).ready(function () {
       type: "GET",
       url: '/api/cm/fmc/gateway?policy=' + policy,
       success: function (response) {
-        console.log(response)
         cellProperties.chosenOptions.data = response.datalist
       }
     })
