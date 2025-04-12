@@ -1521,7 +1521,6 @@ def cm_fmc_get_list_rule(request):
                 rules = [list(i) for i in rules]
                 if rules:
                     for obj in rules:
-                        print(obj)
                         obj[3] = json.loads(obj[3])
                         obj[5] = json.loads(obj[5])
                         obj[6] = json.loads(obj[6])
