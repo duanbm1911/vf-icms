@@ -31,7 +31,7 @@ $(document).ready(function () {
             }
           })
         },
-        strict: true,
+        strict: false,
         allowInvalid: false
       },
       {
@@ -47,7 +47,7 @@ $(document).ready(function () {
             }
           })
         },
-        strict: true,
+        strict: false,
         allowInvalid: false
       },
       {
@@ -72,7 +72,7 @@ $(document).ready(function () {
       },
       {
         type: 'autocomplete',
-        strict: true,
+        strict: false,
         allowInvalid: false,
         source(query, process) {
           let row = this.row
@@ -92,7 +92,8 @@ $(document).ready(function () {
   });
   function customDropdownRenderer(instance, td, row, col, prop, value, cellProperties) {
     var selectedId;
-    var policy = instance.getDataAtRow(row)[0]
+    var policy = instance.getDataAtRow(row)[1]
+    console.log(policy)
     $.ajax({
       type: "GET",
       url: '/api/cm/fmc/gateway?policy=' + policy,

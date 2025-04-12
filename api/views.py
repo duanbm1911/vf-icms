@@ -12,6 +12,7 @@ from inventory.models import *
 from ipplan.models import *
 from src.ipplan.func import *
 from src.cm.checkpoint.func import *
+from src.cm.fmc.func import *
 from cm.models import *
 from ipaddress import ip_network
 from django.db.models import Count
@@ -564,7 +565,7 @@ def cm_checkpoint_create_rule(request):
                 for obj in list_obj:
                     index = list_obj.index(obj)
                     data = request.POST.getlist(obj)
-                    error_message = check_access_rule_input(data, index)
+                    error_message = check_cp_access_rule_input(data, index)
                     if not error_message:
                         policy = data[0]
                         gateway = data[1].split(",")
@@ -1320,25 +1321,26 @@ def cm_fmc_create_rule(request):
                 for obj in list_obj:
                     index = list_obj.index(obj)
                     data = request.POST.getlist(obj)
-                    error_message = check_access_rule_input(data, index)
+                    error_message = check_fmc_access_rule_input(data, index)
                     if not error_message:
-                        policy = data[0]
-                        gateway = data[1].split(",")
-                        description = data[2].replace(" ", "-")
+                        domain = data[0]
+                        policy = data[1]
+                        gateway = data[2].split(",")
+                        description = data[3].replace(" ", "-")
                         source = [
-                            i.replace(" ", "").replace("\r", "")
-                            for i in data[3].split("\n")
-                        ]
-                        destination = [
                             i.replace(" ", "").replace("\r", "")
                             for i in data[4].split("\n")
                         ]
-                        protocol = [
+                        destination = [
                             i.replace(" ", "").replace("\r", "")
                             for i in data[5].split("\n")
                         ]
-                        schedule = data[6]
-                        category = data[7]
+                        protocol = [
+                            i.replace(" ", "").replace("\r", "")
+                            for i in data[6].split("\n")
+                        ]
+                        schedule = data[7]
+                        category = data[8]
                         datalist.append(
                             [
                                 policy,
@@ -1396,14 +1398,15 @@ def cm_fmc_get_list_policy(request):
             domain = request.GET.get("domain", None)
             datalist = []
             if domain:
-                datalist = FMCPolicy.objects.filter(policy__gateway__gateway__domain=domain).values_list("policy", flat=True)
+                datalist = FMCPolicy.objects.filter(gateway__domain__domain=domain).values_list("policy", flat=True)
             return JsonResponse({"data": list(datalist)}, status=200)
         else:
             return JsonResponse({"erorr": "Method is not allowed"}, status=405)
     else:
         return JsonResponse({"erorr": "forbidden"}, status=403)
     
-    
+
+@login_required()
 def cm_fmc_get_list_gateway(request):
     if request.user.groups.filter(name="ADMIN").exists():
         datalist = []
@@ -1412,11 +1415,11 @@ def cm_fmc_get_list_gateway(request):
             if policy:
                 try:
                     object = FMCPolicy.objects.get(policy=policy)
-                    site = object.site
+                    domain = object.gateway.domain.domain
                 except FMCPolicy.DoesNotExist:
                     return JsonResponse({"erorr": f"Policy name: {policy} dose not exists"}, status=401)
                 else:
-                    objects = FMCGateway.objects.filter(site=site).values_list('gateway', flat=True)
+                    objects = FMCGateway.objects.filter(domain__domain=domain).values_list('gateway', flat=True)
                     
                     for item in list(objects):
                         datalist.append({"id": item, "label": item})
@@ -1518,10 +1521,11 @@ def cm_fmc_get_list_rule(request):
                 rules = [list(i) for i in rules]
                 if rules:
                     for obj in rules:
-                        obj[2] = json.loads(obj[2])
-                        obj[4] = json.loads(obj[4])
+                        print(obj)
+                        obj[3] = json.loads(obj[3])
                         obj[5] = json.loads(obj[5])
                         obj[6] = json.loads(obj[6])
+                        obj[7] = json.loads(obj[7])
                 site = item[0]
                 data[site] = {"fmc": item[1], "rules": rules}
         return JsonResponse({"data": data}, status=200)

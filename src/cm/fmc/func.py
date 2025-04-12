@@ -84,18 +84,19 @@ def check_list_protocol(datalist):
         return False
 
 
-def check_cp_access_rule_input(data, index):
+def check_fmc_access_rule_input(data, index):
     rule_index = index + 1
     error_message = str()
     if data != []:
-        policy = data[0]
-        rule_name = data[2]
-        source = [i.replace(" ", "").replace("\r", "") for i in data[3].split("\n")]
+        domain = data[0]
+        policy = data[1]
+        rule_name = data[3]
+        source = [i.replace(" ", "").replace("\r", "") for i in data[4].split("\n")]
         destination = [
-            i.replace(" ", "").replace("\r", "") for i in data[4].split("\n")
+            i.replace(" ", "").replace("\r", "") for i in data[5].split("\n")
         ]
-        protocol = [i.replace(" ", "").replace("\r", "") for i in data[5].split("\n")]
-        section = data[7]
+        protocol = [i.replace(" ", "").replace("\r", "") for i in data[6].split("\n")]
+        section = data[8]
         if policy == "":
             error_message = (
                 f"Rule index {rule_index}: Policy template name can not be empty"
