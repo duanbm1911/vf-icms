@@ -44,7 +44,7 @@
 
                         {% for obj in list_rule_created %}
                         <tr>
-                            <td>{{ obj.policy.site.site }}</td>
+                            <td>{{ obj.policy.gateway.domain.site.site }}</td>
                             <td>{{ obj.policy }}</td>
                             <td>{{ obj.description }}</td>
                             <td>{{ obj.source }}</td>
@@ -105,7 +105,7 @@
 
                         {% for obj in list_rule_process %}
                         <tr>
-                            <td>{{ obj.policy.site.site }}</td>
+                            <td>{{ obj.policy.gateway.domain.site.site }}</td>
                             <td>{{ obj.policy }}</td>
                             <td>{{ obj.description }}</td>
                             <td>{{ obj.source }}</td>
@@ -164,7 +164,7 @@
 
                         {% for obj in list_rule_failed %}
                         <tr>
-                            <td>{{ obj.policy.site.site }}</td>
+                            <td>{{ obj.policy.gateway.domain.site.site }}</td>
                             <td>{{ obj.policy }}</td>
                             <td>{{ obj.description }}</td>
                             <td>{{ obj.source }}</td>
@@ -223,7 +223,7 @@
 
                         {% for obj in list_rule_success %}
                         <tr>
-                            <td>{{ obj.policy.site.site }}</td>
+                            <td>{{ obj.policy.gateway.domain.site.site }}</td>
                             <td>{{ obj.policy }}</td>
                             <td>{{ obj.description }}</td>
                             <td>{{ obj.source }}</td>
