@@ -1,5 +1,5 @@
 $(document).ready(function () {
-  var initData = [["","","","","","","",""]];
+  var initData = [["","","","","","","","",""]];
   var container = document.getElementById('dataTable');
   var hot = new Handsontable(container, {
     data: initData,
@@ -8,6 +8,7 @@ $(document).ready(function () {
     rowHeights: 100,
     stretchH: 'all',
     colHeaders: [
+      'Domain',
       'Policy', 
       'Gateway', 
       'Name', 
@@ -24,13 +25,29 @@ $(document).ready(function () {
         source(query, process) {
           $.ajax({
             type: "GET",
-            url: '/api/cm/fmc/policy',
+            url: '/api/cm/fmc/domain',
+            success: function (response) {
+              process(response.datalist)
+            }
+          })
+        },
+        strict: false,
+        allowInvalid: false
+      },
+      {
+        type: 'autocomplete',
+        source(query, process) {
+          let row = this.row
+          let domain = hot.getDataAtCell(row, 0)
+          $.ajax({
+            type: "GET",
+            url: '/api/cm/fmc/policy?domain=' + domain,
             success: function (response) {
               process(response.data)
             }
           })
         },
-        strict: true,
+        strict: false,
         allowInvalid: false
       },
       {
@@ -55,11 +72,11 @@ $(document).ready(function () {
       },
       {
         type: 'autocomplete',
-        strict: true,
+        strict: false,
         allowInvalid: false,
         source(query, process) {
           let row = this.row
-          let policy = hot.getDataAtCell(row, 0)
+          let policy = hot.getDataAtCell(row, 1)
           $.ajax({
             type: "GET",
             url: '/api/cm/fmc/category?policy=' + policy,
@@ -75,12 +92,12 @@ $(document).ready(function () {
   });
   function customDropdownRenderer(instance, td, row, col, prop, value, cellProperties) {
     var selectedId;
-    var policy = instance.getDataAtRow(row)[0]
+    var policy = instance.getDataAtRow(row)[1]
+    console.log(policy)
     $.ajax({
       type: "GET",
       url: '/api/cm/fmc/gateway?policy=' + policy,
       success: function (response) {
-        console.log(response)
         cellProperties.chosenOptions.data = response.datalist
       }
     })

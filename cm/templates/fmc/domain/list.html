@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
-{% block title %}ICMS | List gateway{% endblock title %}
+{% block title %}ICMS | List domain{% endblock title %}
 {% block content %}
 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
     <div class="table-responsive">
-        <table class="table table-hover table-bordered" id="list-gateway-table">
+        <table class="table table-hover table-bordered" id="list-domain-table">
             <thead>
-                <th>Domain</th>
-                <th>gateway</th>
+                <th>Site</th>
+                <th>domain</th>
                 <th>Action</th>
                 </tr>
             </thead>
@@ -14,34 +14,34 @@
 
                 {% for obj in objects %}
                 <tr>
-                    <td>{{ obj.domain.domain }}</td>
-                    <td>{{ obj.gateway }}</td>
+                    <td>{{ obj.site.site }}</td>
+                    <td>{{ obj.domain }}</td>
                     <td>
-                        <a href="/cm/fmc/gateway/update/{{ obj.id }}"><span
+                        <a href="/cm/fmc/domain/update/{{ obj.id }}"><span
                                 class="glyphicon glyphicon-wrench" aria-hidden="true"></span></a>
-                        <a data-toggle="modal" href='#delete-gateway-modal' id="{{ obj.id }}"><span
+                        <a data-toggle="modal" href='#delete-domain-modal' id="{{ obj.id }}"><span
                                 class="glyphicon glyphicon-trash" aria-hidden="true" id="{{ obj.id }}"></span></a>
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
-        <a href="{% url 'fmc_create_gateway' %}"><button type="button" class="btn btn-primary">Create</button></a>
+        <a href="{% url 'fmc_create_domain' %}"><button type="button" class="btn btn-primary">Create</button></a>
     </div>
 </div>
 
 <!-- Modal -->
-<div class="modal fade" id="delete-gateway-modal">
+<div class="modal fade" id="delete-domain-modal">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form action method="post" id='delete-gateway-from'>
+            <form action method="post" id='delete-domain-from'>
                 {% csrf_token %}
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Delete gateway</h4>
+                    <h4 class="modal-title">Delete domain</h4>
                 </div>
                 <div class="modal-body">
-                    <p>Are you sure to delete this gateway template?</p>
+                    <p>Are you sure to delete this domain template?</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -61,5 +61,5 @@
 
 {% block js %}
 <script src="/static/core/js/jquery-datatable.js"></script>
-<script src="/static/cm/fmc/js/list-gateway.js"></script>
+<script src="/static/cm/fmc/js/list-domain.js"></script>
 {% endblock js %}

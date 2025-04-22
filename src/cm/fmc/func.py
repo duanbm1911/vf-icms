@@ -25,13 +25,18 @@ def is_domain(domain):
         return True
     else:
         return False
-
-
-def is_user(user):
-    obj = user.split("/")
-    if len(obj) == 2 and "user" == obj[0] or "partner" == obj[0]:
-        return True
-    return False
+    
+def is_netrange(range):
+    range = range.split("-")
+    if len(range) == 2:
+        try:
+            IPv4Address(range[0])
+            IPv4Address(range[1])
+            return True
+        except:
+            return False
+    else:
+        return False
 
 
 def check_list_object(datalist):
@@ -40,9 +45,9 @@ def check_list_object(datalist):
             pass
         elif item != "any" and is_subnet(item) is True:
             pass
-        elif item != "any" and is_domain(item) is True:
+        elif item != "any" and is_netrange(item) is True:
             pass
-        elif item != "any" and is_user(item) is True:
+        elif item != "any" and is_domain(item) is True:
             pass
         elif item == "any" and len(datalist) == 1:
             pass
@@ -84,18 +89,19 @@ def check_list_protocol(datalist):
         return False
 
 
-def check_cp_access_rule_input(data, index):
+def check_fmc_access_rule_input(data, index):
     rule_index = index + 1
     error_message = str()
     if data != []:
-        policy = data[0]
-        rule_name = data[2]
-        source = [i.replace(" ", "").replace("\r", "") for i in data[3].split("\n")]
+        domain = data[0]
+        policy = data[1]
+        rule_name = data[3]
+        source = [i.replace(" ", "").replace("\r", "") for i in data[4].split("\n")]
         destination = [
-            i.replace(" ", "").replace("\r", "") for i in data[4].split("\n")
+            i.replace(" ", "").replace("\r", "") for i in data[5].split("\n")
         ]
-        protocol = [i.replace(" ", "").replace("\r", "") for i in data[5].split("\n")]
-        section = data[7]
+        protocol = [i.replace(" ", "").replace("\r", "") for i in data[6].split("\n")]
+        section = data[8]
         if policy == "":
             error_message = (
                 f"Rule index {rule_index}: Policy template name can not be empty"
@@ -120,14 +126,4 @@ def check_cp_access_rule_input(data, index):
             error_message = f"Rule index {rule_index}: Protocol is invalid"
         elif section == "":
             error_message = f"Rule index {rule_index}: Rule section is invalid"
-    return error_message
-
-
-def check_update_local_user_input(data, index):
-    rule_index = index + 1
-    error_message = str()
-    if data != []:
-        note = data[3]
-        if note == "":
-            error_message = f"Rule index {rule_index}: Note can not be empty"
     return error_message

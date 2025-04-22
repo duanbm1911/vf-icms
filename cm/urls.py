@@ -60,5 +60,9 @@ urlpatterns = [
     path("fmc/site/list",FMCSiteListView.as_view(),name="fmc_list_site"),
     path("fmc/site/update/<int:pk>",FMCSiteUpdateView.as_view(),name="fmc_update_site"),
     path("fmc/site/delete/<int:pk>",FMCSiteDeleteView.as_view(),name="fmc_delete_site"),
-    path("fmc/dashboard",views.fmc_dashboard,name="fmc_dashboard")
+    path("fmc/dashboard",views.fmc_dashboard,name="fmc_dashboard"),
+    path("fmc/domain/create",FMCDomainCreateView.as_view(),name="fmc_create_domain"),
+    path("fmc/domain/list",FMCDomainListView.as_view(),name="fmc_list_domain"),
+    path("fmc/domain/update/<int:pk>",FMCDomainUpdateView.as_view(),name="fmc_update_domain"),
+    path("fmc/domain/delete/<int:pk>",FMCDomainDeleteView.as_view(),name="fmc_delete_domain")
 ]

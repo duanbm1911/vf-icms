@@ -18,8 +18,7 @@ from inventory.forms import *
 import csv
 import datetime
 import openpyxl
-
-
+import re
 
 
 MESSAGE_TAGS = {
@@ -130,7 +129,7 @@ class DeviceProvinceListView(ListView):
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['banner'] = "List device provinces"
@@ -424,7 +423,7 @@ class DeviceUpdateView(UpdateView):
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
-    
+
     def get_success_url(self):
         success_url = self.request.GET.get('next', reverse('list_device'))
         return success_url
@@ -470,10 +469,12 @@ class DeviceDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         obj = self.get_object()
-        fields = [(field.verbose_name, field.value_from_object(obj)) for field in obj._meta.fields]
+        fields = [(field.verbose_name, field.value_from_object(obj))
+                  for field in obj._meta.fields]
         context['fields'] = fields
         context['banner'] = 'Device detail informations'
         return context
+
 
 @login_required()
 def create_multiple_device(request):
@@ -489,7 +490,7 @@ def create_multiple_device(request):
                 for item in worksheet_01.iter_rows(min_row=2, values_only=True):
                     item = ["" if i is None else i for i in item]
                     DeviceBranch.objects.update_or_create(device_branch=item[2], defaults={
-                                                        'user_created': str(request.user)})
+                        'user_created': str(request.user)})
                     DeviceProvince.objects.update_or_create(device_province=item[3], defaults={
                                                             'user_created': str(request.user)})
                     DeviceType.objects.update_or_create(device_type=item[4], defaults={
@@ -497,11 +498,11 @@ def create_multiple_device(request):
                     DeviceCategory.objects.update_or_create(device_category=item[5], defaults={
                                                             'user_created': str(request.user)})
                     DeviceVendor.objects.update_or_create(device_vendor=item[6], defaults={
-                                                        'user_created': str(request.user)})
+                        'user_created': str(request.user)})
                     DeviceOS.objects.update_or_create(device_os=item[7], defaults={
-                                                    'user_created': str(request.user)})
+                        'user_created': str(request.user)})
                     DeviceGroup.objects.update_or_create(device_group=item[8], defaults={
-                                                    'user_created': str(request.user)})
+                        'user_created': str(request.user)})
                     device_stack = item[9]
                     if device_stack == 'TRUE' or device_stack == 'YES':
                         device_stack = True
@@ -524,7 +525,8 @@ def create_multiple_device(request):
                         }
                     )
                 for item in worksheet_02.iter_rows(min_row=2, values_only=True):
-                    obj_count_01 = Device.objects.filter(device_ip=item[1]).count()
+                    obj_count_01 = Device.objects.filter(
+                        device_ip=item[1]).count()
                     if obj_count_01 > 0:
                         DeviceManagement.objects.update_or_create(
                             device_serial_number=item[2],
@@ -542,7 +544,8 @@ def create_multiple_device(request):
                         )
                 for item in worksheet_03.iter_rows(min_row=2, values_only=True):
                     item = ["" if i is None else i for i in item]
-                    obj_count_01 = Device.objects.filter(device_ip=item[1]).count()
+                    obj_count_01 = Device.objects.filter(
+                        device_ip=item[1]).count()
                     obj_count_02 = DeviceManagement.objects.filter(
                         device_serial_number=item[2]).count()
                     if obj_count_01 > 0 and obj_count_02 > 0:
@@ -559,7 +562,8 @@ def create_multiple_device(request):
                 messages.add_message(
                     request, constants.SUCCESS, 'Upload file success')
         else:
-            messages.add_message(request, constants.ERROR, f"Only support file type *.xlsx")
+            messages.add_message(request, constants.ERROR,
+                                 f"Only support file type *.xlsx")
     except Exception as error:
         messages.add_message(request, constants.ERROR,
                              f"An error occurred: {error}")
@@ -596,11 +600,13 @@ class DeviceManagementListView(ListView):
             return DeviceManagement.objects.none()
         else:
             if form.cleaned_data['device_branch']:
-                queryset = queryset.filter(device_ip__device_branch__in=form.cleaned_data['device_branch'])
+                queryset = queryset.filter(
+                    device_ip__device_branch__in=form.cleaned_data['device_branch'])
             if form.cleaned_data['device_ip']:
-                queryset = queryset.filter(device_ip=form.cleaned_data['device_ip'])
+                queryset = queryset.filter(
+                    device_ip=form.cleaned_data['device_ip'])
             return queryset
-        
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form'] = DeviceManagementSearchForm(self.request.GET)
@@ -717,7 +723,8 @@ class DeviceManagementDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         obj = self.get_object()
-        fields = [(field.verbose_name, field.value_from_object(obj)) for field in obj._meta.fields]
+        fields = [(field.verbose_name, field.value_from_object(obj))
+                  for field in obj._meta.fields]
         context['fields'] = fields
         context['banner'] = 'Device management informations'
         return context
@@ -751,11 +758,12 @@ class DeviceRackLayoutDetailView(DetailView):
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         obj = self.get_object()
-        fields = [(field.verbose_name, field.value_from_object(obj)) for field in obj._meta.fields]
+        fields = [(field.verbose_name, field.value_from_object(obj))
+                  for field in obj._meta.fields]
         context['fields'] = fields
         context['banner'] = 'Device rack layout informations'
         return context
@@ -809,7 +817,7 @@ class DeviceOSListView(ListView):
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['banner'] = "List device OS"
@@ -1228,7 +1236,7 @@ class DeviceBranchListView(ListView):
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['banner'] = "List device branchs"
