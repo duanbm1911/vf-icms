@@ -25,7 +25,7 @@ class CheckpointPolicyForm(forms.ModelForm):
     class Meta:
 
         model = CheckpointPolicy
-        fields = ["policy", "layer", "site"]
+        fields = ["site", "policy", "layer"]
 
 
 class CheckpointSiteForm(forms.ModelForm):
@@ -260,3 +260,27 @@ class F5ExportForm(forms.Form):
         ('1', 'Virtual server'),)
     database_table = forms.ChoiceField(
         label=False, choices=CHOICES, required=False)
+
+
+class CheckpointCreateUserForm(forms.ModelForm):
+    expiration_date = forms.DateField(widget=forms.TextInput(attrs={"type": "date"}), required=False)
+    class Meta:
+        model = CheckpointUser
+        fields = [
+           "smc",
+           "username",
+           "password",
+           "expiration_date",
+           "is_local_user"
+        ]
+        
+class CheckpointUpdateUserForm(forms.ModelForm):
+    expiration_date = forms.DateField(widget=forms.TextInput(attrs={"type": "date"}), required=False)
+    class Meta:
+        model = CheckpointUser
+        fields = [
+           "smc",
+           "username",
+           "expiration_date",
+           "is_local_user"
+        ]

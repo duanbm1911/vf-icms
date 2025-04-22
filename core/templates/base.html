@@ -172,6 +172,7 @@
                   <ul class="dropdown-menu">
                     <li>
                       <a href="{% url 'checkpoint_create_task_access_rule' %}">Access rule</a>
+                      <a href="{% url 'checkpoint_create_task_user' %}">User</a>
                     </li>
                   </ul>
                 </li>
@@ -190,8 +191,18 @@
                     </li>
                   </ul>
                 </li>
-                <li>
-                  <a href="{% url 'checkpoint_list_task_access_rule' %}">List tasks</a>
+                <li class="dropdown-submenu">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                    aria-expanded="false">List tasks</a>
+                  <ul class="dropdown-menu">
+                    <li>
+                      <a href="{% url 'checkpoint_list_task_access_rule' %}">Access rule</a>
+                    </li>
+                    <li>
+                      <a href="{% url 'checkpoint_list_task_user' %}">User</a>
+                    </li>
+                    </li>
+                  </ul>
                 </li>
               </ul>
             </li>

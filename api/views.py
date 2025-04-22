@@ -727,10 +727,34 @@ def cm_checkpoint_get_list_site(request):
         return JsonResponse({"status": "success", "datalist": list(datalist)})
     else:
         return JsonResponse({"erorr": "Method is not allowed"}, status=405)
+    
+
+@logged_in_or_basicauth()
+def cm_checkpoint_get_list_task_user(request):
+    if request.method == "GET":
+        data = dict()
+        list_site = CheckpointSite.objects.all().values_list("site", "smc")
+        list_site = [list(i) for i in list_site]
+        if list_site:
+            for item in list_site:
+                users = CheckpointUser.objects.filter(Q(status="Created") | Q(status="Install-Only"), smc__site=item[0]).values_list(
+                    "id",
+                    "username", 
+                    "password",
+                    "is_local_user",
+                    "expiration_date",
+                    "status"
+                )
+                users = [list(i) for i in users]
+                site = item[0]
+                data[site] = {"smc": item[1], "users": users}
+        return JsonResponse({"data": data}, status=200)
+    else:
+        return JsonResponse({"erorr": "Method is not allowed"}, status=405)
 
 
 @logged_in_or_basicauth()
-def cm_checkpoint_get_list_rule(request):
+def cm_checkpoint_get_list_task_rule(request):
     if request.method == "GET":
         data = dict()
         list_site = CheckpointPolicy.objects.all().values_list(
@@ -781,6 +805,22 @@ def cm_checkpoint_update_rule_status(request):
         return JsonResponse({"status": "success"})
     else:
         return JsonResponse({"erorr": "Method is not allowed"}, status=405)
+    
+    
+@csrf_exempt
+@logged_in_or_basicauth()
+def cm_checkpoint_update_task_user(request):
+    if request.method == "POST":
+        dataset = json.loads(request.body.decode("utf-8"))
+        for task_id, data in dataset.items():
+            checklist = CheckpointUser.objects.filter(id=int(task_id)).count()
+            if checklist > 0:
+                status = data[0]
+                message = data[1]
+                CheckpointUser.objects.update_or_create(id=task_id, defaults={"status": status, "message": message})
+        return JsonResponse({"status": "success"}, status=200)
+    else:
+        return JsonResponse({"error_message": "method not allowed"}, status=405)
 
 
 @logged_in_or_basicauth()
@@ -1118,7 +1158,7 @@ def cm_f5_update_task_limit_connection(request):
         return JsonResponse({"status": "success"}, status=200)
     else:
         return JsonResponse({"error_message": "method not allowed"}, status=405)
-
+    
 
 @csrf_exempt
 @logged_in_or_basicauth()

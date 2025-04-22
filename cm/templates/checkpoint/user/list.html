@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% block title %}ICMS | {{ banner }} {% endblock title %}
+{% block content %}
+
+<div class="table-responsive">
+    <h3>{{ banner }}</h3>
+    <br>
+    <table class="table table-hover table-bordered" id="list-user-table">
+        <thead>
+            <th>SMC</th>
+            <th>Username</th>
+            <th>Type</th>
+            <th>Expiration date</th>
+            <th>User created</th>
+            <th>Status</th>
+            <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            {% for obj in objects %}
+            <tr>
+                <td>{{ obj.smc.smc }}</td>
+                <td>{{ obj.username }}</td>
+                {% if obj.is_local_user == True %}
+                <td>User local</td>
+                {% else %}
+                <td>User AD</td>
+                {% endif %}
+                <td>{{ obj.expiration_date }}</td>
+                <td>{{ obj.user_created }}</td>
+                {% if obj.status == 'Processing' %}
+                <td style="color: rgb(210, 11, 241)"><strong>{{ obj.status }}</strong></td>
+                {% elif obj.status == 'Success' %}
+                <td style="color: green"><strong>{{ obj.status }}</strong></td>
+                {% elif obj.status == 'Created' %}
+                <td style="color: blue"><strong>{{ obj.status }}</strong></td>
+                {% elif obj.status == 'Install-Only' %}
+                <td style="color: rgb(231, 105, 27)"><strong>{{ obj.status }}</strong></td>
+                {% elif obj.status == 'Failed' %}
+                <td style="color: red"><strong>{{ obj.status }}</strong></td>
+                {% else %}
+                <td><strong>{{ obj.status }}</strong></td>
+                {% endif %}
+                <td>
+                    <a href="/cm/checkpoint/user/update/{{ obj.id }}"><span class="glyphicon glyphicon-wrench" aria-hidden="true"></span></a>
+                    <a href="/cm/checkpoint/user/detail/{{ obj.id }}"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></a>
+                    <a data-toggle="modal" href='#delete-user-modal' id="{{ obj.id }}"><span class="glyphicon glyphicon-trash" aria-hidden="true" id="{{ obj.id }}"></span></a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="delete-user-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action method="post" id='delete-user-form'>
+                {% csrf_token %}
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Delete user</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure to delete this user?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block css %}
+<link rel="stylesheet" href="/static/core/css/jquery-datatable.css">
+{% endblock css %}
+
+{% block js %}
+<script src="/static/core/js/jquery-datatable.js"></script>
+<script src="/static/cm/checkpoint/js/list-user.js"></script>
+{% endblock js %}
