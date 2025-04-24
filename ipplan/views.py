@@ -23,7 +23,7 @@ import csv
 
 
 def is_xss_validate(list_string):
-    regex = "<([A-Za-z_{}()/]+(\s|=)*)+>(.*<[A-Za-z/>]+)*"
+    regex = "<([A-Za-z_{}()/]+(|=)*)+>(.*<[A-Za-z/>]+)*"
     for string in list_string:
         result = re.search(regex, string)
         if result:
@@ -216,7 +216,7 @@ def create_multiple_subnet(request):
     try:
         if request.method == "POST" and request.FILES.get("upload-file"):
             uploaded_file = request.FILES["upload-file"]
-            if uploaded_file.lower().endswith(".xlsx"):
+            if str(uploaded_file).lower().endswith(".xlsx"):
                 wb = openpyxl.load_workbook(uploaded_file)
                 worksheet = wb["subnets"]
                 for item in worksheet.iter_rows(min_row=2):
@@ -299,7 +299,7 @@ def request_multiple_ip(request):
     try:
         if request.method == "POST" and request.FILES.get("upload-file"):
             uploaded_file = request.FILES["upload-file"]
-            if uploaded_file.lower().endswith(".xlsx"):
+            if str(uploaded_file).lower().endswith(".xlsx"):
                 wb = openpyxl.load_workbook(uploaded_file)
                 worksheet = wb["list_ip"]
                 list_subnet = Subnet.objects.all().values_list("subnet", flat=True)

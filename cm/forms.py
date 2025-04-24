@@ -267,11 +267,13 @@ class CheckpointCreateUserForm(forms.ModelForm):
     class Meta:
         model = CheckpointUser
         fields = [
-           "smc",
-           "username",
-           "password",
-           "expiration_date",
-           "is_local_user"
+            "smc",
+            "username",
+            "password",
+            "email",
+            "phone",
+            "expiration_date",
+            "is_local_user"
         ]
         
 class CheckpointUpdateUserForm(forms.ModelForm):
@@ -279,8 +281,10 @@ class CheckpointUpdateUserForm(forms.ModelForm):
     class Meta:
         model = CheckpointUser
         fields = [
-           "smc",
-           "username",
-           "expiration_date",
-           "is_local_user"
+            "smc",
+            "username",
+            "email",
+            "phone",
+            "expiration_date",
+            "is_local_user"
         ]
