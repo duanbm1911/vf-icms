@@ -75,11 +75,6 @@ class CheckpointPolicyUpdateView(UpdateView):
         form.instance.user_created = str(self.request.user)
         messages.add_message(self.request, constants.SUCCESS, "Update success")
         return super().form_valid(form)
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['banner'] = "Update Checkpoint Policy"
-        return context
 
 
 class CheckpointPolicyDeleteView(DeleteView):
@@ -151,10 +146,6 @@ class CheckpointSiteUpdateView(UpdateView):
         messages.add_message(self.request, constants.SUCCESS, "Update success")
         return super().form_valid(form)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['banner'] = "Update Checkpoint Site"
-        return context
 
 class CheckpointSiteDeleteView(DeleteView):
     model = CheckpointSite
@@ -225,10 +216,6 @@ class CheckpointGatewayUpdateView(UpdateView):
         messages.add_message(self.request, constants.SUCCESS, "Update success")
         return super().form_valid(form)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['banner'] = "Update Checkpoint Gateway"
-        return context
 
 class CheckpointGatewayDeleteView(DeleteView):
     model = CheckpointGateway
@@ -323,11 +310,6 @@ class CheckpointRuleUpdateView(UpdateView):
         form.instance.user_created = str(self.request.user)
         messages.add_message(self.request, constants.SUCCESS, "Update success")
         return super().form_valid(form)
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['banner'] = "Update Checkpoint Rule"
-        return context
 
 
 class F5TaskListView(ListView):
@@ -1160,107 +1142,3 @@ class FMCDomainDeleteView(DeleteView):
         except Exception as error:
             messages.add_message(self.request, constants.ERROR, error)
         return redirect(self.success_url)
-    
-### CP user
-
-class CheckpointUserCreateView(CreateView):
-    model = CheckpointUser
-    form_class = CheckpointCreateUserForm
-    template_name = "checkpoint/user/create.html"
-    success_url = reverse_lazy("checkpoint_list_task_user")
-
-    @method_decorator(login_required)
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.groups.filter(name="ADMIN").exists():
-            return render(request, template_name="checkpoint/common/403.html")
-        return super().dispatch(request, *args, **kwargs)
-
-    def form_valid(self, form):
-        form.instance.user_created = str(self.request.user)
-        messages.add_message(self.request, constants.SUCCESS, "Create success")
-        return super().form_valid(form)
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['banner'] = "Create Checkpoint User"
-        return context
-
-
-class CheckpointUserListView(ListView):
-    model = CheckpointUser
-    context_object_name = "objects"
-    template_name = "checkpoint/user/list.html"
-
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['banner'] = "List Checkpoint User"
-        return context
-
-
-class CheckpointUserUpdateView(UpdateView):
-    model = CheckpointUser
-    form_class = CheckpointUpdateUserForm
-    template_name = "checkpoint/user/update.html"
-    success_url = reverse_lazy("checkpoint_list_task_user")
-
-    @method_decorator(login_required)
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.groups.filter(name="ADMIN").exists():
-            return render(request, template_name="checkpoint/common/403.html")
-        return super().dispatch(request, *args, **kwargs)
-
-    def form_valid(self, form):
-        form.instance.user_created = str(self.request.user)
-        messages.add_message(self.request, constants.SUCCESS, "Update success")
-        return super().form_valid(form)
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['banner'] = "Update Checkpoint User"
-        return context
-
-
-class CheckpointUserDeleteView(DeleteView):
-    model = CheckpointUser
-    template_name = "checkpoint/user/list.html"
-    success_url = reverse_lazy("checkpoint_list_task_user")
-
-    @method_decorator(login_required)
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.groups.filter(name="ADMIN").exists():
-            return render(request, template_name="checkpoint/common/403.html")
-        return super().dispatch(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        try:
-            super().post(request, *args, **kwargs)
-            messages.add_message(self.request, constants.SUCCESS, "Delete success")
-        except ProtectedError:
-            messages.add_message(
-                self.request, constants.ERROR, "This object has been protected"
-            )
-        except Exception as error:
-            messages.add_message(self.request, constants.ERROR, error)
-        return redirect(self.success_url)
-    
-    
-class CheckpointUserDetailView(DetailView):
-    model = CheckpointUser
-    template_name = "checkpoint/user/detail.html"
-
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        obj = self.get_object()
-        fields = [(field.verbose_name, field.value_from_object(obj))
-                  for field in obj._meta.fields]
-        context['fields'] = fields
-        context['banner'] = 'Device detail informations'
-        return context

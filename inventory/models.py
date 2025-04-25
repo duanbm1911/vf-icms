@@ -7,7 +7,7 @@ from django.core.exceptions import ValidationError
 
 
 class DeviceProvince(models.Model):
-    device_province = models.CharField(max_length=200, unique=True)
+    device_province = models.CharField(max_length=200, unique=True, verbose_name="P&L")
     description = models.CharField(max_length=200)
     creation_time = models.DateTimeField(auto_now=True)
     user_created = models.CharField(max_length=100)

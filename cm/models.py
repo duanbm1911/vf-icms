@@ -238,19 +238,3 @@ class F5Template(models.Model):
 
     def __str__(self):
         return str(self.template_name)
-
-
-class CheckpointUser(models.Model):
-    smc = models.ForeignKey('CheckpointSite', on_delete=models.CASCADE)
-    username = models.CharField(max_length=200, unique=True)
-    password = models.CharField(max_length=200, blank=True, null=True)
-    email = models.CharField(max_length=200, blank=True, null=True)
-    phone = models.CharField(max_length=200, blank=True, null=True)
-    expiration_date = models.CharField(max_length=200)
-    is_local_user = models.BooleanField(default=False)
-    user_created = models.CharField(max_length=200)
-    status = models.CharField(max_length=200, default="Created")
-    message = models.CharField(max_length=500, blank=True, null=True)
-    
-    def __str__(self):
-        return str(self.username)

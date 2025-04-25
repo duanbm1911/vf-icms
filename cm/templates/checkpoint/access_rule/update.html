@@ -1,35 +1,22 @@
 {% extends 'base.html' %}
 
-{% block title %}
-  {{ banner }}
-{% endblock %}
+{% block title %} ICMS | Update Rule {% endblock title %}
 
 {% load crispy_forms_tags %}
 
 {% block content %}
-  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-    <div class="panel panel-primary" style="border-color: #28A745;">
-      <div class="panel-heading" style="background-color: #28A745; color: white;">
-        <h3 class="panel-title"><i class="glyphicon glyphicon-pencil"></i> {{ banner }}</h3>
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+  <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
+    <form action method="POST" class="form-horizontal" role="form">
+      {% csrf_token %}
+      <div class="form-group">
+        {{ form | crispy }}
       </div>
-      <div class="panel-body">
-        <form action="" method="POST" class="form-horizontal" role="form">
-          {% csrf_token %}
-          <fieldset>
-            <div class="row container-fluid">
-              <!-- Render the crispy form fields -->
-              <div class="col-md-6">{{ form|crispy }}</div>
-            </div>
-          </fieldset>
-          <!-- Buttons -->
-          <div class="form-group">
-            <div class="col-sm-8">
-              <button type="submit" id="update-btn" class="btn btn-primary" style="background-color: #28A745; border-color: #28A745;"><i class="glyphicon glyphicon-ok"></i> Update</button>
-              <button type="button" id="back-btn" class="btn btn-warning" onclick="window.history.back();"><i class="glyphicon glyphicon-arrow-left"></i> Back</button>
-            </div>
-          </div>
-        </form>
+      <div class="form-group">
+        <button type="submit" class="btn btn-primary form-group">Update</button>
       </div>
-    </div>
+    </form>
   </div>
-{% endblock %}
+</div>
+
+{% endblock content %}
