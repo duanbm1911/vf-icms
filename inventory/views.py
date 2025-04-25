@@ -27,7 +27,7 @@ MESSAGE_TAGS = {
 
 
 def is_xss_validate(list_string):
-    regex = "<([A-Za-z_{}()/]+(\s|=)*)+>(.*<[A-Za-z/>]+)*"
+    regex = "<([A-Za-z_{}()/]+(|=)*)+>(.*<[A-Za-z/>]+)*"
     for string in list_string:
         result = re.search(regex, string)
         if result:
@@ -73,7 +73,7 @@ class DeviceProvinceCreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['banner'] = "Create P&L"
+        context['banner'] = "Create device province"
         return context
 
 
@@ -96,7 +96,6 @@ class DeviceProvinceUpdateView(UpdateView):
         context = super().get_context_data(**kwargs)
         context['banner'] = "Update device province"
         return context
-
 
 
 class DeviceProvinceDeleteView(DeleteView):
@@ -133,7 +132,7 @@ class DeviceProvinceListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['banner'] = "List P&L"
+        context['banner'] = "List device provinces"
         return context
 
 
@@ -483,7 +482,7 @@ def create_multiple_device(request):
     try:
         if request.method == "POST" and request.FILES.get("upload-file"):
             uploaded_file = request.FILES["upload-file"]
-            if uploaded_file.lower().endswith(".xlsx"):
+            if str(uploaded_file).lower().endswith(".xlsx"):
                 wb = openpyxl.load_workbook(uploaded_file)
                 worksheet_01 = wb["Device"]
                 worksheet_02 = wb["DeviceManagement"]
@@ -562,9 +561,8 @@ def create_multiple_device(request):
                         )
                 messages.add_message(
                     request, constants.SUCCESS, 'Upload file success')
-        else:
-            messages.add_message(request, constants.ERROR,
-                                 f"Only support file type *.xlsx")
+            else:
+                messages.add_message(request, constants.ERROR, f"Only support file type *.xlsx")
     except Exception as error:
         messages.add_message(request, constants.ERROR,
                              f"An error occurred: {error}")
@@ -1261,7 +1259,7 @@ class DeviceGroupCreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['banner'] = "Create device tag"
+        context['banner'] = "Create device group"
         return context
 
 
@@ -1282,7 +1280,7 @@ class DeviceGroupUpdateView(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['banner'] = "Update device tag"
+        context['banner'] = "Update device group"
         return context
 
 
@@ -1320,5 +1318,5 @@ class DeviceGroupListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['banner'] = "List device tags"
+        context['banner'] = "List device group"
         return context

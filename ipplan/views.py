@@ -23,7 +23,7 @@ import csv
 
 
 def is_xss_validate(list_string):
-    regex = "<([A-Za-z_{}()/]+(\s|=)*)+>(.*<[A-Za-z/>]+)*"
+    regex = "<([A-Za-z_{}()/]+(|=)*)+>(.*<[A-Za-z/>]+)*"
     for string in list_string:
         result = re.search(regex, string)
         if result:
