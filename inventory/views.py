@@ -73,7 +73,7 @@ class DeviceProvinceCreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['banner'] = "Create device province"
+        context['banner'] = "Create P&L"
         return context
 
 
@@ -96,6 +96,7 @@ class DeviceProvinceUpdateView(UpdateView):
         context = super().get_context_data(**kwargs)
         context['banner'] = "Update device province"
         return context
+
 
 
 class DeviceProvinceDeleteView(DeleteView):
@@ -132,7 +133,7 @@ class DeviceProvinceListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['banner'] = "List device provinces"
+        context['banner'] = "List P&L"
         return context
 
 

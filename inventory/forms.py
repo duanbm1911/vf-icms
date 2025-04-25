@@ -34,7 +34,7 @@ class DeviceForm(forms.ModelForm):
 
 
 class DeviceProvinceForm(forms.ModelForm):
-    device_province = forms.CharField(validators=[is_xss_validate])
+    device_province = forms.CharField(validators=[is_xss_validate], label="P&L")
     description = forms.CharField(validators=[is_xss_validate])
 
     class Meta:
