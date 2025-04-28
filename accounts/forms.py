@@ -58,3 +58,26 @@ class UserSelectForm(forms.Form):
         label="Select User",
         widget=forms.Select(attrs={'class': 'form-control'})
     )
+    
+    
+class EditUserForm(forms.ModelForm):
+    password = forms.CharField(
+        required=False,
+        widget=forms.PasswordInput,
+        label="New Password (leave blank to keep current password)"
+    )
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'first_name', 'last_name', 'is_active', 'is_staff', 'groups', 'password']
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        password = self.cleaned_data.get('password')
+        groups = self.cleaned_data.get('groups')
+        if password:
+            user.set_password(password)
+            user.save()
+        if groups:
+            self.save_m2m()
+        return user

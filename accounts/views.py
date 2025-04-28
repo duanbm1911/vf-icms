@@ -1,20 +1,22 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth import update_session_auth_hash
-from django.contrib import messages
-from django.shortcuts import render
 from django.contrib.auth import logout as auth_logout, login as auth_login
+from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+from django.db.models import ProtectedError
+from django.views.generic import UpdateView, DeleteView, DetailView
+from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate
 from django.contrib.auth import authenticate
 from django.contrib.messages import constants
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.views.generic import ListView
-from django.utils.decorators import method_decorator
+from django.urls import reverse_lazy
+from django.contrib import messages
+from django.shortcuts import render
 from accounts.models import *
 from accounts.forms import *
 from io import BytesIO
-from django.http import HttpResponse
 import base64
 import pyotp
 import qrcode
@@ -49,7 +51,7 @@ def change_password(request):
             messages.error(request, "Please correct the error below.")
     else:
         form = ValidatingPasswordChangeForm(request.user)
-    return render(request, "registration/change_password.html", {"form": form})
+    return render(request, "user/change_password.html", {"form": form})
 
 
 def login(request):
@@ -103,7 +105,7 @@ def login(request):
                 constants.ERROR,
                 f"Account: {username} has been locked, please contact with Administrator",
             )
-    return render(request, "registration/login.html")
+    return render(request, "user/login.html")
 
 
 def verify_otp(user, otp):
@@ -139,8 +141,8 @@ def register(request):
                 messages.add_message(
                     request, constants.SUCCESS, "Register user success"
                 )
-                return redirect("/accounts/list-users")
-        return render(request, "registration/register.html", {"form": form})
+                return redirect(reverse_lazy('list_user'))
+        return render(request, "user/register.html", {"form": form})
     else:
         return render(request, template_name="403.html")
 
@@ -148,7 +150,7 @@ def register(request):
 class UserListView(ListView):
     model = User
     context_object_name = "objects"
-    template_name = "list_user.html"
+    template_name = "user/list.html"
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
@@ -188,9 +190,81 @@ def get_qrcode(request):
                         qr.save(qr_image)
                         qr_image.seek(0)
                         qr_code = base64.b64encode(qr_image.getvalue()).decode("utf-8")
-                        return render(request, 'get_qrcode_result.html', {'qr_code': qr_code, 'user': user})
+                        return render(request, 'user/get_qrcode_result.html', {'qr_code': qr_code, 'user': user})
         else:
             form = UserSelectForm()
-        return render(request, 'get_qrcode.html', {'form': form})
+        return render(request, 'user/get_qrcode.html', {'form': form})
     else:
         return render(request, template_name="403.html")
+    
+    
+class UserUpdateView(UpdateView):
+    model = User
+    form_class = EditUserForm
+    template_name = 'user/update.html'
+    success_url = reverse_lazy('list_user')
+    
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        if not self.request.user.is_superuser:
+            return render(self.request, template_name="403.html")
+        return super().dispatch(*args, **kwargs)
+    
+    def form_valid(self, form):
+        form.instance.user_created = str(self.request.user)
+        messages.add_message(self.request, constants.SUCCESS, "Update success")
+        return super().form_valid(form)
+
+    def get_object(self, queryset=None):
+        return User.objects.get(pk=self.kwargs['pk']) 
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['banner'] = "Update User"
+        return context
+    
+    
+class UserDetailView(DetailView):
+    model = User
+    template_name = 'user/detail.html'
+    
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        if not self.request.user.is_superuser:
+            return render(self.request, template_name="403.html")
+        return super().dispatch(*args, **kwargs)
+
+    def get_object(self, queryset=None):
+        return User.objects.get(pk=self.kwargs['pk'])
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        obj = self.get_object()
+        fields = [(field.verbose_name, field.value_from_object(obj))
+                  for field in obj._meta.fields]
+        context['fields'] = fields
+        context['banner'] = "User Detail"
+        return context
+    
+    
+class UserDeleteView(DeleteView):
+    model = User
+    template_name = 'user/list.html'
+    success_url = reverse_lazy('list_user')
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        try:
+            super().post(request, *args, **kwargs)
+            messages.add_message(
+                self.request, constants.SUCCESS, "Delete success")
+        except ProtectedError:
+            messages.add_message(
+                self.request, constants.ERROR, "This object has been protected"
+            )
+        except Exception as error:
+            messages.add_message(self.request, constants.ERROR, error)
+        return redirect(self.success_url)

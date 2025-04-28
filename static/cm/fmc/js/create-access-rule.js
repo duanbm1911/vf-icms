@@ -1,5 +1,5 @@
 $(document).ready(function () {
-  var initData = [["","","","","","","","",""]];
+  var initData = [["", "", "", "", "", "", "", "", ""]];
   var container = document.getElementById('dataTable');
   var hot = new Handsontable(container, {
     data: initData,
@@ -9,13 +9,13 @@ $(document).ready(function () {
     stretchH: 'all',
     colHeaders: [
       'Domain',
-      'Policy', 
-      'Gateway', 
-      'Name', 
-      'Source', 
+      'Policy',
+      'Gateway',
+      'Name',
+      'Source',
       'Destination',
       'Protocol',
-      'Schedule', 
+      'Schedule',
       'Section'
     ],
     manualColumnResize: true,
@@ -102,7 +102,7 @@ $(document).ready(function () {
       }
     })
     var optionsList = cellProperties.chosenOptions.data;
-    if(typeof optionsList === "undefined" || typeof optionsList.length === "undefined" || optionsList.length === 0 || !optionsList.length) {
+    if (typeof optionsList === "undefined" || typeof optionsList.length === "undefined" || optionsList.length === 0 || !optionsList.length) {
       Handsontable.cellTypes.text.renderer(instance, td, row, col, prop, value, cellProperties);
       return td;
     }
@@ -111,10 +111,10 @@ $(document).ready(function () {
     value = [];
     for (var index = 0; index < optionsList.length; index++) {
 
-        if (values.indexOf(optionsList[index].id + "") > -1) {
-            selectedId = optionsList[index].id;
-            value.push(optionsList[index].label);
-        }
+      if (values.indexOf(optionsList[index].id + "") > -1) {
+        selectedId = optionsList[index].id;
+        value.push(optionsList[index].label);
+      }
     }
     value = value.join(", ");
     Handsontable.cellTypes.text.renderer(instance, td, row, col, prop, value, cellProperties);
