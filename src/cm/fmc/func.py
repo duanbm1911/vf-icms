@@ -1,6 +1,7 @@
 from ipaddress import IPv4Address
 from ipaddress import ip_network
-import re
+from cm.models import *
+import re, json
 
 
 def is_subnet(subnet):
@@ -102,14 +103,11 @@ def check_fmc_access_rule_input(data, index):
         ]
         protocol = [i.replace(" ", "").replace("\r", "") for i in data[6].split("\n")]
         section = data[8]
+        
         if policy == "":
-            error_message = (
-                f"Rule index {rule_index}: Policy template name can not be empty"
-            )
+            error_message = f"Rule index {rule_index}: Policy template name can not be empty"
         elif rule_name == "":
-            error_message = (
-                f"Rule index {rule_index}: Policy template rule_name can not be empty"
-            )
+            error_message = f"Rule index {rule_index}: Policy template rule_name can not be empty"
         elif source == [""]:
             error_message = f"Rule index {rule_index}: Source address is invalid"
         elif "any" in source and len(source) > 1:
@@ -126,4 +124,22 @@ def check_fmc_access_rule_input(data, index):
             error_message = f"Rule index {rule_index}: Protocol is invalid"
         elif section == "":
             error_message = f"Rule index {rule_index}: Rule section is invalid"
+        
+        if not error_message:
+            normalized_source = json.dumps(sorted(source))
+            normalized_destination = json.dumps(sorted(destination))
+            normalized_protocol = json.dumps(sorted(protocol))
+            
+            duplicate_rules = FMCRule.objects.filter(
+                source=normalized_source,
+                destination=normalized_destination,
+                protocol=normalized_protocol,
+                policy__policy=policy 
+            )
+            
+            if duplicate_rules.exists():
+                duplicate_ids = ", ".join(str(rule.id) for rule in duplicate_rules)
+                error_message = (f"Rule index {rule_index}: Duplicate rule detected! "
+                               f"Existing rule ID(s): {duplicate_ids}")
+    
     return error_message

@@ -28,6 +28,7 @@
             <div class="table-responsive">
                 <table class="table table-hover table-bordered" id="list-created-rule-table">
                     <thead>
+                        <th>ID</th>
                         <th>Site</th>
                         <th>Policy</th>
                         <th>Description</th>
@@ -44,6 +45,7 @@
 
                         {% for obj in list_rule_created %}
                         <tr>
+                            <td>{{ obj.id }}</td>
                             <td>{{ obj.policy.site.site }}</td>
                             <td>{{ obj.policy }}</td>
                             <td>{{ obj.description }}</td>
@@ -89,6 +91,7 @@
             <div class="table-responsive">
                 <table class="table table-hover table-bordered" id="list-process-rule-table">
                     <thead>
+                        <th>ID</th>
                         <th>Site</th>
                         <th>Policy</th>
                         <th>Description</th>
@@ -105,6 +108,7 @@
 
                         {% for obj in list_rule_process %}
                         <tr>
+                            <td>{{ obj.id }}</td>
                             <td>{{ obj.policy.site.site }}</td>
                             <td>{{ obj.policy }}</td>
                             <td>{{ obj.description }}</td>
@@ -148,6 +152,7 @@
             <div class="table-responsive">
                 <table class="table table-hover table-bordered" id="list-failed-rule-table">
                     <thead>
+                        <th>ID</th>
                         <th>Site</th>
                         <th>Policy</th>
                         <th>Description</th>
@@ -164,6 +169,7 @@
 
                         {% for obj in list_rule_failed %}
                         <tr>
+                            <td>{{ obj.id }}</td>
                             <td>{{ obj.policy.site.site }}</td>
                             <td>{{ obj.policy }}</td>
                             <td>{{ obj.description }}</td>
@@ -207,6 +213,7 @@
             <div class="table-responsive">
                 <table class="table table-hover table-bordered" id="list-success-rule-table">
                     <thead>
+                        <th>ID</th>
                         <th>Site</th>
                         <th>Policy</th>
                         <th>Description</th>
@@ -223,6 +230,7 @@
 
                         {% for obj in list_rule_success %}
                         <tr>
+                            <td>{{ obj.id }}</td>
                             <td>{{ obj.policy.site.site }}</td>
                             <td>{{ obj.policy }}</td>
                             <td>{{ obj.description }}</td>

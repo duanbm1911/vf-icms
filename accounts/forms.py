@@ -64,20 +64,27 @@ class EditUserForm(forms.ModelForm):
     password = forms.CharField(
         required=False,
         widget=forms.PasswordInput,
-        label="New Password (leave blank to keep current password)"
+        label="New Password (leave blank to keep current password)",
+        help_text="Leave empty to keep current password",
     )
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'first_name', 'last_name', 'is_active', 'is_staff', 'groups', 'password']
+        fields = ['username', 'email', 'first_name', 'last_name', 'is_active', 'is_staff', 'groups']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['password'].required = False
 
     def save(self, commit=True):
         user = super().save(commit=False)
-        password = self.cleaned_data.get('password')
-        groups = self.cleaned_data.get('groups')
+        password = self.cleaned_data.get('password', '').strip() 
+        
         if password:
             user.set_password(password)
+        
+        if commit:
             user.save()
-        if groups:
             self.save_m2m()
+        
         return user
