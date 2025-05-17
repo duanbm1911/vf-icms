@@ -139,6 +139,7 @@ MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
 DEFAULT_AUTO_FIELD = os.getenv("DEFAULT_AUTO_FIELD")
 CRISPY_TEMPLATE_PACK = os.getenv("CRISPY_TEMPLATE_PACK")
+LOGIN_URL = os.getenv("LOGIN_URL")
 LOGOUT_REDIRECT_URL = os.getenv("LOGOUT_REDIRECT_URL")
 LOGIN_REDIRECT_URL = os.getenv("LOGIN_REDIRECT_URL")
 CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS").split(",")
