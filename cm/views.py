@@ -47,6 +47,11 @@ class CheckpointPolicyCreateView(CreateView):
         form.instance.user_created = str(self.request.user)
         messages.add_message(self.request, constants.SUCCESS, "Create success")
         return super().form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['banner'] = "Create policy"
+        return context
 
 
 class CheckpointPolicyListView(ListView):
@@ -118,6 +123,11 @@ class CheckpointSiteCreateView(CreateView):
         messages.add_message(self.request, constants.SUCCESS, "Create success")
         return super().form_valid(form)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['banner'] = "Create site"
+        return context
+
 
 class CheckpointSiteListView(ListView):
     model = CheckpointSite
@@ -187,6 +197,11 @@ class CheckpointGatewayCreateView(CreateView):
         form.instance.user_created = str(self.request.user)
         messages.add_message(self.request, constants.SUCCESS, "Create success")
         return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['banner'] = "Create gateway"
+        return context
 
 
 class CheckpointGatewayListView(ListView):
@@ -481,6 +496,11 @@ class F5LimitConnectionCreateView(CreateView):
         kwargs["request"] = self.request
         return kwargs
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['banner'] = "Create litmit connection"
+        return context
+
 
 class F5DeviceCreateView(CreateView):
     model = F5Device
@@ -498,6 +518,11 @@ class F5DeviceCreateView(CreateView):
         form.instance.user_created = str(self.request.user)
         messages.add_message(self.request, constants.SUCCESS, "Create success")
         return super().form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['banner'] = "Create device"
+        return context
 
 
 class F5VirtualServerDeleteView(DeleteView):
@@ -605,6 +630,11 @@ class F5CreateVirtualServerCreateView(CreateView):
         if not request.user.groups.filter(name="ADMIN").exists():
             return render(request, template_name="f5/403.html")
         return super().dispatch(request, *args, **kwargs)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['banner'] = "Create virtual server"
+        return context
 
 
 class F5TemplateUpdateView(UpdateView):
@@ -670,6 +700,11 @@ class F5TemplateCreateView(CreateView):
         if not request.user.groups.filter(name="ADMIN").exists():
             return render(request, template_name="f5/403.html")
         return super().dispatch(request, *args, **kwargs)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['banner'] = "Create template"
+        return context
 
 
 class F5TemplateDetailView(DetailView):
@@ -809,6 +844,11 @@ class FMCPolicyCreateView(CreateView):
         form.instance.user_created = str(self.request.user)
         messages.add_message(self.request, constants.SUCCESS, "Create success")
         return super().form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['banner'] = "Create policy"
+        return context
 
 
 class FMCPolicyListView(ListView):
@@ -880,6 +920,11 @@ class FMCSiteCreateView(CreateView):
         messages.add_message(self.request, constants.SUCCESS, "Create success")
         return super().form_valid(form)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['banner'] = "Create site"
+        return context
+    
 
 class FMCSiteListView(ListView):
     model = FMCSite
@@ -949,6 +994,11 @@ class FMCGatewayCreateView(CreateView):
         form.instance.user_created = str(self.request.user)
         messages.add_message(self.request, constants.SUCCESS, "Create success")
         return super().form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['banner'] = "Create gateway"
+        return context
 
 
 class FMCGatewayListView(ListView):
@@ -1090,6 +1140,11 @@ class FMCDomainCreateView(CreateView):
         form.instance.user_created = str(self.request.user)
         messages.add_message(self.request, constants.SUCCESS, "Create success")
         return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['banner'] = "Create domain"
+        return context
 
 
 class FMCDomainListView(ListView):
