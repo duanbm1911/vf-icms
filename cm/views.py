@@ -50,7 +50,7 @@ class CheckpointPolicyCreateView(CreateView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['banner'] = "Create policy"
+        context['banner'] = f"Create {self.model.__name__}"
         return context
 
 
@@ -80,6 +80,11 @@ class CheckpointPolicyUpdateView(UpdateView):
         form.instance.user_created = str(self.request.user)
         messages.add_message(self.request, constants.SUCCESS, "Update success")
         return super().form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['banner'] = f"Update {self.model.__name__}"
+        return context
 
 
 class CheckpointPolicyDeleteView(DeleteView):
@@ -125,7 +130,7 @@ class CheckpointSiteCreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['banner'] = "Create site"
+        context['banner'] = f"Create {self.model.__name__}"
         return context
 
 
@@ -156,6 +161,11 @@ class CheckpointSiteUpdateView(UpdateView):
         messages.add_message(self.request, constants.SUCCESS, "Update success")
         return super().form_valid(form)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['banner'] = f"Update {self.model.__name__}"
+        return context
+    
 
 class CheckpointSiteDeleteView(DeleteView):
     model = CheckpointSite
@@ -200,7 +210,7 @@ class CheckpointGatewayCreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['banner'] = "Create gateway"
+        context['banner'] = f"Create {self.model.__name__}"
         return context
 
 
@@ -230,6 +240,11 @@ class CheckpointGatewayUpdateView(UpdateView):
         form.instance.user_created = str(self.request.user)
         messages.add_message(self.request, constants.SUCCESS, "Update success")
         return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['banner'] = f"Update {self.model.__name__}"
+        return context
 
 
 class CheckpointGatewayDeleteView(DeleteView):
@@ -325,6 +340,11 @@ class CheckpointRuleUpdateView(UpdateView):
         form.instance.user_created = str(self.request.user)
         messages.add_message(self.request, constants.SUCCESS, "Update success")
         return super().form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['banner'] = f"Update {self.model.__name__}"
+        return context
 
 
 class F5TaskListView(ListView):
@@ -400,6 +420,11 @@ class F5TaskUpdateView(UpdateView):
         kwargs = super(F5TaskUpdateView, self).get_form_kwargs()
         kwargs["request"] = self.request
         return kwargs
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['banner'] = f"Update {self.model.__name__}"
+        return context
 
 
 class F5TaskDeleteView(DeleteView):
@@ -438,6 +463,11 @@ class F5VirtualServerPermissionUpdateView(UpdateView):
         form.instance.user_created = str(self.request.user)
         messages.add_message(self.request, constants.SUCCESS, "Update success")
         return super().form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['banner'] = f"Update {self.model.__name__}"
+        return context
 
 
 class F5VirtualServerPermissionListView(ListView):
@@ -475,6 +505,12 @@ class F5VirtualServerUpdateView(UpdateView):
         form.instance.user_created = str(self.request.user)
         messages.add_message(self.request, constants.SUCCESS, "Update success")
         return super().form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['banner'] = f"Update {self.model.__name__}"
+        return context
+    
 
 class F5LimitConnectionCreateView(CreateView):
     model = F5LimitConnection
@@ -498,7 +534,7 @@ class F5LimitConnectionCreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['banner'] = "Create litmit connection"
+        context['banner'] = f"Create {self.model.__name__}"
         return context
 
 
@@ -521,9 +557,9 @@ class F5DeviceCreateView(CreateView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['banner'] = "Create device"
+        context['banner'] = f"Create {self.model.__name__}"
         return context
-
+    
 
 class F5VirtualServerDeleteView(DeleteView):
     model = F5VirtualServer
@@ -565,6 +601,11 @@ class F5DeviceUpdateView(UpdateView):
         form.instance.user_created = str(self.request.user)
         messages.add_message(self.request, constants.SUCCESS, "Update success")
         return super().form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['banner'] = f"Update {self.model.__name__}"
+        return context
 
 
 class F5DeviceDeleteView(DeleteView):
@@ -633,7 +674,7 @@ class F5CreateVirtualServerCreateView(CreateView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['banner'] = "Create virtual server"
+        context['banner'] = f"Create {self.model.__name__}"
         return context
 
 
@@ -653,6 +694,11 @@ class F5TemplateUpdateView(UpdateView):
         form.instance.user_created = str(self.request.user)
         messages.add_message(self.request, constants.SUCCESS, "Update success")
         return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['banner'] = f"Update {self.model.__name__}"
+        return context
 
 
 class F5TemplateDeleteView(DeleteView):
@@ -703,7 +749,7 @@ class F5TemplateCreateView(CreateView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['banner'] = "Create template"
+        context['banner'] = f"Create {self.model.__name__}"
         return context
 
 
@@ -847,7 +893,7 @@ class FMCPolicyCreateView(CreateView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['banner'] = "Create policy"
+        context['banner'] = f"Create {self.model.__name__}"
         return context
 
 
@@ -878,6 +924,11 @@ class FMCPolicyUpdateView(UpdateView):
         messages.add_message(self.request, constants.SUCCESS, "Update success")
         return super().form_valid(form)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['banner'] = f"Update {self.model.__name__}"
+        return context
+    
 
 class FMCPolicyDeleteView(DeleteView):
     model = FMCPolicy
@@ -922,7 +973,7 @@ class FMCSiteCreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['banner'] = "Create site"
+        context['banner'] = f"Create {self.model.__name__}"
         return context
     
 
@@ -952,6 +1003,11 @@ class FMCSiteUpdateView(UpdateView):
         form.instance.user_created = str(self.request.user)
         messages.add_message(self.request, constants.SUCCESS, "Update success")
         return super().form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['banner'] = f"Update {self.model.__name__}"
+        return context
 
 
 class FMCSiteDeleteView(DeleteView):
@@ -997,7 +1053,7 @@ class FMCGatewayCreateView(CreateView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['banner'] = "Create gateway"
+        context['banner'] = f"Create {self.model.__name__}"
         return context
 
 
@@ -1027,6 +1083,11 @@ class FMCGatewayUpdateView(UpdateView):
         form.instance.user_created = str(self.request.user)
         messages.add_message(self.request, constants.SUCCESS, "Update success")
         return super().form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['banner'] = f"Update {self.model.__name__}"
+        return context
 
 
 class FMCGatewayDeleteView(DeleteView):
@@ -1122,6 +1183,11 @@ class FMCRuleUpdateView(UpdateView):
         form.instance.user_created = str(self.request.user)
         messages.add_message(self.request, constants.SUCCESS, "Update success")
         return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['banner'] = f"Update {self.model.__name__}"
+        return context
 ##domain
 
 class FMCDomainCreateView(CreateView):
@@ -1143,7 +1209,7 @@ class FMCDomainCreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['banner'] = "Create domain"
+        context['banner'] = f"Create {self.model.__name__}"
         return context
 
 
@@ -1173,6 +1239,11 @@ class FMCDomainUpdateView(UpdateView):
         form.instance.user_created = str(self.request.user)
         messages.add_message(self.request, constants.SUCCESS, "Update success")
         return super().form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['banner'] = f"Update {self.model.__name__}"
+        return context
 
 
 class FMCDomainDeleteView(DeleteView):

@@ -1,282 +1,44 @@
 {% extends 'base.html' %}
-{% block title %}ICMS | List Rules{% endblock title %}
+{% block title %}ICMS | List local user{% endblock title %}
 {% block content %}
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <div class="table-responsive">
+        <table class="table table-hover table-bordered" id="list-local-user-table">
+            <thead>
+                <th></th>
+                </tr>
+            </thead>
+            <tbody>
 
-
-<div role="tabpanel">
-    <!-- Nav tabs -->
-    <ul class="nav nav-tabs" role="tablist" id="rule-list">
-        <li role="presentation">
-            <a href="#created" aria-controls="created" role="tab" data-toggle="tab" style="color: blue;">CREATED <span class="badge badge-primary">{{ list_rule_created | length }}</span></a>
-        </li>
-        <li role="presentation">
-            <a href="#processing" aria-controls="processing" role="tab" data-toggle="tab"
-                style="color:fuchsia;">PROCESSING <span class="badge badge-warning">{{ list_rule_process | length}}</span></a>
-        </li>
-        <li role="presentation">
-            <a href="#failed" aria-controls="failed" role="tab" data-toggle="tab" style="color: red;">FAILED <span class="badge badge-danger">{{ list_rule_failed | length }}</span></a>
-        </li>
-        <li role="presentation">
-            <a href="#success" aria-controls="success" role="tab" data-toggle="tab" style="color: green;">SUCCESS <span class="badge badge-success">{{ list_rule_success | length }}</span></a>
-        </li>
-    </ul>
-
-    <!-- Tab panes -->
-    <div class="tab-content">
-        <div role="tabpanel" class="tab-pane active" id="created">
-            <br>
-            <div class="table-responsive">
-                <table class="table table-hover table-bordered" id="list-created-rule-table">
-                    <thead>
-                        <th>Site</th>
-                        <th>Policy</th>
-                        <th>Description</th>
-                        <th>Source</th>
-                        <th>Destination</th>
-                        <th>Protocol</th>
-                        <th>Schedule</th>
-                        <th>User created</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-
-                        {% for obj in list_rule_created %}
-                        <tr>
-                            <td>{{ obj.policy.site.site }}</td>
-                            <td>{{ obj.policy }}</td>
-                            <td>{{ obj.description }}</td>
-                            <td>{{ obj.source }}</td>
-                            <td>{{ obj.destination }}</td>
-                            <td>{{ obj.protocol }}</td>
-                            {% if obj.schedule != '' %}
-                            <td>{{ obj.schedule }}</td>
-                            {% else %}
-                            <td>Forever</td>
-                            {% endif %}
-                            <td>{{ obj.user_created }}</td>
-                            {% if obj.status == 'Processing' %}
-                            <td style="color: rgb(210, 11, 241)"><strong>{{ obj.status }}</strong></td>
-                            {% elif obj.status == 'Success' %}
-                            <td style="color: green"><strong>{{ obj.status }}</strong></td>
-                            {% elif obj.status == 'Created' %}
-                            <td style="color: blue"><strong>{{ obj.status }}</strong></td>
-                            {% elif obj.status == 'Install-Only' %}
-                            <td style="color: rgb(231, 105, 27)"><strong>{{ obj.status }}</strong></td>
-                            {% elif obj.status == 'Failed' %}
-                            <td style="color: red"><strong>{{ obj.status }}</strong></td>
-                            {% else %}
-                            <td><strong>{{ obj.status }}</strong></td>
-                            {% endif %}
-                            <td>
-                                <a href="/cm/checkpoint/update-rule/{{ obj.id }}"><span
-                                    class="glyphicon glyphicon-wrench" aria-hidden="true"></span></a>
-                                <a href="/cm/checkpoint/detail-rule/{{ obj.id }}"><span
-                                        class="glyphicon glyphicon-search" aria-hidden="true"></span></a>
-                                <a data-toggle="modal" href='#delete-rule-modal' id="{{ obj.id }}"><span
-                                        class="glyphicon glyphicon-trash" aria-hidden="true"
-                                        id="{{ obj.id }}"></span></a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <div role="tabpanel" class="tab-pane" id="processing">
-            <br>
-            <div class="table-responsive">
-                <table class="table table-hover table-bordered" id="list-process-rule-table">
-                    <thead>
-                        <th>Site</th>
-                        <th>Policy</th>
-                        <th>Description</th>
-                        <th>Source</th>
-                        <th>Destination</th>
-                        <th>Protocol</th>
-                        <th>Schedule</th>
-                        <th>User created</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-
-                        {% for obj in list_rule_process %}
-                        <tr>
-                            <td>{{ obj.policy.site.site }}</td>
-                            <td>{{ obj.policy }}</td>
-                            <td>{{ obj.description }}</td>
-                            <td>{{ obj.source }}</td>
-                            <td>{{ obj.destination }}</td>
-                            <td>{{ obj.protocol }}</td>
-                            {% if obj.schedule != '' %}
-                            <td>{{ obj.schedule }}</td>
-                            {% else %}
-                            <td>Forever</td>
-                            {% endif %}
-                            <td>{{ obj.user_created }}</td>
-                            {% if obj.status == 'Processing' %}
-                            <td style="color: rgb(210, 11, 241)"><strong>{{ obj.status }}</strong></td>
-                            {% elif obj.status == 'Success' %}
-                            <td style="color: green"><strong>{{ obj.status }}</strong></td>
-                            {% elif obj.status == 'Created' %}
-                            <td style="color: blue"><strong>{{ obj.status }}</strong></td>
-                            {% elif obj.status == 'Failed' %}
-                            <td style="color: red"><strong>{{ obj.status }}</strong></td>
-                            {% else %}
-                            <td><strong>{{ obj.status }}</strong></td>
-                            {% endif %}
-                            <td>
-                                <a href="/cm/checkpoint/update-rule/{{ obj.id }}"><span
-                                    class="glyphicon glyphicon-wrench" aria-hidden="true"></span></a>
-                                <a href="/cm/checkpoint/detail-rule/{{ obj.id }}"><span
-                                        class="glyphicon glyphicon-search" aria-hidden="true"></span></a>
-                                <a data-toggle="modal" href='#delete-rule-modal' id="{{ obj.id }}"><span
-                                        class="glyphicon glyphicon-trash" aria-hidden="true"
-                                        id="{{ obj.id }}"></span></a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <div role="tabpanel" class="tab-pane" id="failed">
-            <br>
-            <div class="table-responsive">
-                <table class="table table-hover table-bordered" id="list-failed-rule-table">
-                    <thead>
-                        <th>Site</th>
-                        <th>Policy</th>
-                        <th>Description</th>
-                        <th>Source</th>
-                        <th>Destination</th>
-                        <th>Protocol</th>
-                        <th>Schedule</th>
-                        <th>User created</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-
-                        {% for obj in list_rule_failed %}
-                        <tr>
-                            <td>{{ obj.policy.site.site }}</td>
-                            <td>{{ obj.policy }}</td>
-                            <td>{{ obj.description }}</td>
-                            <td>{{ obj.source }}</td>
-                            <td>{{ obj.destination }}</td>
-                            <td>{{ obj.protocol }}</td>
-                            {% if obj.schedule != '' %}
-                            <td>{{ obj.schedule }}</td>
-                            {% else %}
-                            <td>Forever</td>
-                            {% endif %}
-                            <td>{{ obj.user_created }}</td>
-                            {% if obj.status == 'Processing' %}
-                            <td style="color: rgb(210, 11, 241)"><strong>{{ obj.status }}</strong></td>
-                            {% elif obj.status == 'Success' %}
-                            <td style="color: green"><strong>{{ obj.status }}</strong></td>
-                            {% elif obj.status == 'Created' %}
-                            <td style="color: blue"><strong>{{ obj.status }}</strong></td>
-                            {% elif obj.status == 'Failed' %}
-                            <td style="color: red"><strong>{{ obj.status }}</strong></td>
-                            {% else %}
-                            <td><strong>{{ obj.status }}</strong></td>
-                            {% endif %}
-                            <td>
-                                <a href="/cm/checkpoint/update-rule/{{ obj.id }}"><span
-                                        class="glyphicon glyphicon-wrench" aria-hidden="true"></span></a>
-                                <a href="/cm/checkpoint/detail-rule/{{ obj.id }}"><span
-                                        class="glyphicon glyphicon-search" aria-hidden="true"></span></a>
-                                <a data-toggle="modal" href='#delete-rule-modal' id="{{ obj.id }}"><span
-                                        class="glyphicon glyphicon-trash" aria-hidden="true"
-                                        id="{{ obj.id }}"></span></a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <div role="tabpanel" class="tab-pane" id="success">
-            <br>
-            <div class="table-responsive">
-                <table class="table table-hover table-bordered" id="list-success-rule-table">
-                    <thead>
-                        <th>Site</th>
-                        <th>Policy</th>
-                        <th>Description</th>
-                        <th>Source</th>
-                        <th>Destination</th>
-                        <th>Protocol</th>
-                        <th>Schedule</th>
-                        <th>User created</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-
-                        {% for obj in list_rule_success %}
-                        <tr>
-                            <td>{{ obj.policy.site.site }}</td>
-                            <td>{{ obj.policy }}</td>
-                            <td>{{ obj.description }}</td>
-                            <td>{{ obj.source }}</td>
-                            <td>{{ obj.destination }}</td>
-                            <td>{{ obj.protocol }}</td>
-                            {% if obj.schedule != '' %}
-                            <td>{{ obj.schedule }}</td>
-                            {% else %}
-                            <td>Forever</td>
-                            {% endif %}
-                            <td>{{ obj.user_created }}</td>
-                            {% if obj.status == 'Processing' %}
-                            <td style="color: rgb(210, 11, 241)"><strong>{{ obj.status }}</strong></td>
-                            {% elif obj.status == 'Success' %}
-                            <td style="color: green"><strong>{{ obj.status }}</strong></td>
-                            {% elif obj.status == 'Created' %}
-                            <td style="color: blue"><strong>{{ obj.status }}</strong></td>
-                            {% elif obj.status == 'Failed' %}
-                            <td style="color: red"><strong>{{ obj.status }}</strong></td>
-                            {% else %}
-                            <td><strong>{{ obj.status }}</strong></td>
-                            {% endif %}
-                            <td>
-                                <a href="/cm/checkpoint/update-rule/{{ obj.id }}"><span
-                                    class="glyphicon glyphicon-wrench" aria-hidden="true"></span></a>
-                                <a href="/cm/checkpoint/detail-rule/{{ obj.id }}"><span
-                                        class="glyphicon glyphicon-search" aria-hidden="true"></span></a>
-                                <a data-toggle="modal" href='#delete-rule-modal' id="{{ obj.id }}"><span
-                                        class="glyphicon glyphicon-trash" aria-hidden="true"
-                                        id="{{ obj.id }}"></span></a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+                {% for obj in objects %}
+                <tr>
+                    <td></td>
+                    <td>
+                        <a href="/cm/checkpoint/local-user/update/{{ obj.id }}"><span
+                                class="glyphicon glyphicon-wrench" aria-hidden="true"></span></a>
+                        <a data-toggle="modal" href='#delete-local-user-modal' id="{{ obj.id }}"><span
+                                class="glyphicon glyphicon-trash" aria-hidden="true" id="{{ obj.id }}"></span></a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <a href=""><button type="button" class="btn btn-primary">Create</button></a>
     </div>
 </div>
 
-
 <!-- Modal -->
-<div class="modal fade" id="delete-rule-modal">
+<div class="modal fade" id="delete-local-user-modal">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form action method="post" id='delete-rule-from'>
+            <form action method="post" id='delete-local-user-from'>
                 {% csrf_token %}
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Delete Rule</h4>
+                    <h4 class="modal-title">Delete local user</h4>
                 </div>
                 <div class="modal-body">
-                    <p>Are you sure to delete this rule?</p>
+                    <p>Are you sure to delete this local user?</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -287,6 +49,7 @@
     </div>
 </div>
 
+
 {% endblock content %}
 
 {% block css %}
@@ -295,5 +58,5 @@
 
 {% block js %}
 <script src="/static/core/js/jquery-datatable.js"></script>
-<script src="/static/cm/checkpoint/js/list-rule.js"></script>
+<script src="/static/cm/checkpoint/js/list-local-user.js"></script>
 {% endblock js %}
