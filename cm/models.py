@@ -30,6 +30,7 @@ class CheckpointRuleSection(models.Model):
     
 class CheckpointGateway(models.Model):
     site = models.ForeignKey('CheckpointSite', on_delete=models.CASCADE)
+    policy = models.ForeignKey('CheckpointPolicy', on_delete=models.CASCADE, null=True, blank=True)
     gateway = models.CharField(max_length=500, unique=True)
     
     def __str__(self):

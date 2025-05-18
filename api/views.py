@@ -659,14 +659,14 @@ def cm_checkpoint_get_list_gateway(request):
         datalist = []
         if request.method == "GET":
             policy = request.GET.get("policy", None)
+            print(policy)
             if policy:
                 try:
                     object = CheckpointPolicy.objects.get(policy=policy)
-                    site = object.site
                 except CheckpointPolicy.DoesNotExist:
                     return JsonResponse({"erorr": f"Policy name: {policy} dose not exists"}, status=401)
                 else:
-                    objects = CheckpointGateway.objects.filter(site=site).values_list('gateway', flat=True)
+                    objects = CheckpointGateway.objects.filter(policy__policy=policy).values_list('gateway', flat=True)
                     
                     for item in list(objects):
                         datalist.append({"id": item, "label": item})

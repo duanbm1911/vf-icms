@@ -39,7 +39,7 @@ class CheckpointGatewayForm(forms.ModelForm):
     class Meta:
 
         model = CheckpointGateway
-        fields = ["site", "gateway"]
+        fields = ["site", "policy", "gateway"]
 
 
 class CheckpointRuleForm(forms.ModelForm):
