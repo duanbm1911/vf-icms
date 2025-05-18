@@ -290,9 +290,8 @@ def create_multiple_subnet(request):
                 messages.add_message(
                     request, constants.ERROR, f"Only support file type *.xlsx")
     except Exception as error:
-        messages.add_message(request, constants.ERROR,
-                             f"An error occurred: {error}")
-    return render(request, template_name="create_multiple_subnet.html")
+        messages.add_message(request, constants.ERROR, f"An error occurred: {error}")
+    return render(request, template_name="create_multiple_subnet.html", context={"banner": "Create multiple subnet"})
 
 
 @login_required()
@@ -300,7 +299,7 @@ def request_multiple_ip(request):
     try:
         if request.method == "POST" and request.FILES.get("upload-file"):
             uploaded_file = request.FILES["upload-file"]
-            if uploaded_file.lower().endswith(".xlsx"):
+            if str(uploaded_file).lower().endswith(".xlsx"):
                 wb = openpyxl.load_workbook(uploaded_file)
                 worksheet = wb["list_ip"]
                 list_subnet = Subnet.objects.all().values_list("subnet", flat=True)
@@ -334,7 +333,7 @@ def request_multiple_ip(request):
     except Exception as error:
         messages.add_message(request, constants.ERROR,
                              f"An error occurred: {error}")
-    return render(request, template_name="request_multiple_ip.html")
+    return render(request, template_name="request_multiple_ip.html", context={"banner": "Request multiple IP"})
 
 
 @login_required()
