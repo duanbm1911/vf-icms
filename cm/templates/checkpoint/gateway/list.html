@@ -7,6 +7,7 @@
             <thead>
                 <th>Site</th>
                 <th>gateway</th>
+                <th>Policy</th>
                 <th>Action</th>
                 </tr>
             </thead>
@@ -15,6 +16,7 @@
                 {% for obj in objects %}
                 <tr>
                     <td>{{ obj.site.site }}</td>
+                    <td>{{ obj.policy.policy }}</td>
                     <td>{{ obj.gateway }}</td>
                     <td>
                         <a href="/cm/checkpoint/gateway/update/{{ obj.id }}"><span

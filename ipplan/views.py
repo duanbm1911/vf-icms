@@ -283,9 +283,9 @@ def create_multiple_subnet(request):
                             model.description = description
                             model.user_created = user_created
                             model.save()
-                    messages.add_message(
-                        request, constants.SUCCESS, "Import subnet success"
-                    )
+                messages.add_message(
+                    request, constants.SUCCESS, "Import subnet success"
+                )
             else:
                 messages.add_message(
                     request, constants.ERROR, f"Only support file type *.xlsx")

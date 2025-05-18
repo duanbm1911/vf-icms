@@ -25,6 +25,7 @@ load_dotenv()
 # Create your views here.
 
 
+
 def replace_characters(string):
     new_string = (
         str(string)
@@ -659,7 +660,6 @@ def cm_checkpoint_get_list_gateway(request):
         datalist = []
         if request.method == "GET":
             policy = request.GET.get("policy", None)
-            print(policy)
             if policy:
                 try:
                     object = CheckpointPolicy.objects.get(policy=policy)
