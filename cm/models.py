@@ -65,7 +65,7 @@ class FMCSite(models.Model):
 
 class FMCDomain(models.Model):
     site = models.ForeignKey('FMCSite', on_delete=models.CASCADE)
-    domain = models.CharField(max_length=500, unique=True)
+    domain = models.CharField(max_length=500)
     domain_id = models.CharField(max_length=500)
     
     def __str__(self):
