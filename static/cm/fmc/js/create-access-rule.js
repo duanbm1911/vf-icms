@@ -43,6 +43,23 @@ $(document).ready(function () {
           $.ajax({
             type: "GET",
             url: '/api/cm/fmc/domain?site=' + site,
+            url: '/api/cm/fmc/site',
+            success: function (response) {
+              process(response.datalist)
+            }
+          })
+        },
+        strict: false,
+        allowInvalid: false
+      },
+      {
+        type: 'autocomplete',
+        source(query, process) {
+          let row = this.row
+          let site = hot.getDataAtCell(row, 0)
+          $.ajax({
+            type: "GET",
+            url: '/api/cm/fmc/domain?site=' + site,
             success: function (response) {
               process(response.datalist)
             }
@@ -95,6 +112,7 @@ $(document).ready(function () {
         source(query, process) {
           let row = this.row
           let policy = hot.getDataAtCell(row, 2)
+          let policy = hot.getDataAtCell(row, 2)
           $.ajax({
             type: "GET",
             url: '/api/cm/fmc/category?policy=' + policy,
@@ -110,6 +128,7 @@ $(document).ready(function () {
   });
   function customDropdownRenderer(instance, td, row, col, prop, value, cellProperties) {
     var selectedId;
+    var policy = instance.getDataAtRow(row)[2]
     var policy = instance.getDataAtRow(row)[2]
     $.ajax({
       type: "GET",
