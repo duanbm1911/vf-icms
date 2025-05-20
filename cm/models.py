@@ -72,16 +72,16 @@ class FMCDomain(models.Model):
         return self.domain
     
 class FMCGateway(models.Model):
-    domain = models.ForeignKey('FMCDomain', on_delete=models.CASCADE)
+    policy = models.ForeignKey('FMCPolicy', on_delete=models.CASCADE, blank=True, null=True)
     gateway = models.CharField(max_length=500, unique=True)
     
     def __str__(self):
         return self.gateway
 
 class FMCPolicy(models.Model):
+    domain = models.ForeignKey('FMCDomain', on_delete=models.CASCADE, blank=True, null=True)
     policy = models.CharField(max_length=200, unique=True)
-    gateway = models.ForeignKey("FMCGateway", on_delete=models.CASCADE)
-
+    
     def __str__(self):
         return self.policy
 

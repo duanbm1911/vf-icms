@@ -5,7 +5,7 @@
     <div class="table-responsive">
         <table class="table table-hover table-bordered" id="list-policy-table">
             <thead>
-                <th>Gateway</th>
+                <th>Domain</th>
                 <th>Policy</th>
                 <th>Action</th>
                 </tr>
@@ -14,7 +14,7 @@
 
                 {% for obj in objects %}
                 <tr>
-                    <td>{{ obj.gateway.gateway }}</td>
+                    <td>{{ obj.domain }}</td>
                     <td>{{ obj.policy }}</td>
                     <td>
                         <a href="/cm/fmc/policy/update/{{ obj.id }}"><span

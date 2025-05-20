@@ -64,7 +64,20 @@ class FMCPolicyForm(forms.ModelForm):
     class Meta:
 
         model = FMCPolicy
-        fields = ["policy", "gateway"]
+        fields = ["domain", "policy"]
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        domains = FMCDomain.objects.select_related('site')
+        
+        self.fields['domain'] = forms.ModelChoiceField(
+            queryset=domains,
+            label="Domain",
+            widget=forms.Select(attrs={'class': 'form-control'}),
+        )
+        
+        self.fields['domain'].label_from_instance = lambda obj: f"{obj.domain} ({obj.site})"
 
 
 class FMCSiteForm(forms.ModelForm):
@@ -78,20 +91,7 @@ class FMCGatewayForm(forms.ModelForm):
     class Meta:
 
         model = FMCGateway
-        fields = ["domain", "gateway"]
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        
-        domains = FMCDomain.objects.select_related('site')
-        
-        self.fields['domain'] = forms.ModelChoiceField(
-            queryset=domains,
-            label="Domain",
-            widget=forms.Select(attrs={'class': 'form-control'}),
-        )
-        
-        self.fields['domain'].label_from_instance = lambda obj: f"{obj.domain} ({obj.site})"
+        fields = ["policy", "gateway"]
 
 
 class FMCDomainForm(forms.ModelForm):

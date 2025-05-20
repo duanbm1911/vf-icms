@@ -1323,28 +1323,27 @@ def cm_fmc_create_rule(request):
                     data = request.POST.getlist(obj)
                     error_message = check_fmc_access_rule_input(data, index)
                     if not error_message:
-                        domain = data[0]
                         policy = data[1]
-                        gateway = data[2].split(",")
-                        description = data[3].replace(" ", "-")
+                        description = data[2].replace(" ", "-")
                         source = [
                             i.replace(" ", "").replace("\r", "")
-                            for i in data[4].split("\n")
+                            for i in data[3].split("\n")
                         ]
                         destination = [
                             i.replace(" ", "").replace("\r", "")
-                            for i in data[5].split("\n")
+                            for i in data[4].split("\n")
                         ]
                         protocol = [
                             i.replace(" ", "").replace("\r", "")
-                            for i in data[6].split("\n")
+                            for i in data[5].split("\n")
                         ]
-                        schedule = data[7]
-                        category = data[8]
+                        schedule = data[6]
+                        category = data[7]
+                        gateway = FMCGateway.objects.filter(policy__policy=policy).values_list('gateway', flat=True)
                         datalist.append(
                             [
                                 policy,
-                                json.dumps(gateway),
+                                json.dumps(list(gateway)),
                                 description,
                                 json.dumps(source),
                                 json.dumps(destination),
@@ -1395,11 +1394,10 @@ def cm_fmc_create_rule(request):
 def cm_fmc_get_list_policy(request):
     if request.user.groups.filter(name="ADMIN").exists():
         if request.method == "GET":
-            domain = request.GET.get("domain", None)
             site = request.GET.get("site", None)
             datalist = []
-            if domain:
-                datalist = FMCPolicy.objects.filter(gateway__domain__domain=domain, gateway__domain__site__site=site).values_list("policy", flat=True)
+            if site:
+                datalist = FMCPolicy.objects.filter(domain__site__site=site).values_list("policy", flat=True)
             return JsonResponse({"data": list(datalist)}, status=200)
         else:
             return JsonResponse({"erorr": "Method is not allowed"}, status=405)

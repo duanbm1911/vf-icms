@@ -177,13 +177,12 @@ def check_fmc_access_rule_input(data, index):
     rule_index = index + 1
     error_message = str()
     if data != []:
-        domain = data[0]
         policy = data[1]
-        rule_name = data[3]
-        source = [i.replace(" ", "").replace("\r", "") for i in data[4].split("\n") if i.strip()]
-        destination = [i.replace(" ", "").replace("\r", "") for i in data[5].split("\n") if i.strip()]
-        protocol = [i.replace(" ", "").replace("\r", "") for i in data[6].split("\n") if i.strip()]
-        section = data[8]
+        rule_name = data[2]
+        source = [i.replace(" ", "").replace("\r", "") for i in data[3].split("\n") if i.strip()]
+        destination = [i.replace(" ", "").replace("\r", "") for i in data[4].split("\n") if i.strip()]
+        protocol = [i.replace(" ", "").replace("\r", "") for i in data[5].split("\n") if i.strip()]
+        section = data[7]
         
         if policy == "":
             error_message = f"Rule index {rule_index}: Policy template name can not be empty"
