@@ -1396,9 +1396,10 @@ def cm_fmc_get_list_policy(request):
     if request.user.groups.filter(name="ADMIN").exists():
         if request.method == "GET":
             domain = request.GET.get("domain", None)
+            site = request.GET.get("site", None)
             datalist = []
             if domain:
-                datalist = FMCPolicy.objects.filter(gateway__domain__domain=domain).values_list("policy", flat=True)
+                datalist = FMCPolicy.objects.filter(gateway__domain__domain=domain, gateway__domain__site__site=site).values_list("policy", flat=True)
             return JsonResponse({"data": list(datalist)}, status=200)
         else:
             return JsonResponse({"erorr": "Method is not allowed"}, status=405)
@@ -1467,7 +1468,11 @@ def cm_fmc_get_list_rule_category(request):
 def cm_fmc_get_list_domain(request):
     if request.method == "GET":
         datalist = list()
-        datalist = FMCDomain.objects.all().values_list("domain", flat=True)
+        site = request.GET.get("site", None)
+        if site:
+            datalist = FMCDomain.objects.filter(site__site=site).values_list("domain", flat=True)
+        else:
+            datalist = FMCDomain.objects.all().values_list("domain", flat=True)
         return JsonResponse({"status": "success", "datalist": list(datalist)})
     else:
         return JsonResponse({"erorr": "Method is not allowed"}, status=405)
@@ -1477,16 +1482,7 @@ def cm_fmc_get_list_domain(request):
 def cm_fmc_get_list_site(request):
     if request.method == "GET":
         datalist = list()
-        list_smc = FMCSite.objects.all()
-        for item in list_smc:
-            data = {}
-            list_policy = FMCPolicy.objects.filter(
-                site__smc=item.smc
-            ).values_list("policy", flat=True)
-            data["smc"] = item.smc
-            data["site"] = item.site
-            data["policy"] = list(list_policy)
-            datalist.append(data)
+        datalist = FMCSite.objects.all().values_list("site", flat=True)
         return JsonResponse({"status": "success", "datalist": list(datalist)})
     else:
         return JsonResponse({"erorr": "Method is not allowed"}, status=405)

@@ -1,5 +1,5 @@
 $(document).ready(function () {
-  var initData = [["", "", "", "", "", "", "", "", ""]];
+  var initData = [["", "", "", "", "", "", "", "", "", ""]];
   var container = document.getElementById('dataTable');
   var hot = new Handsontable(container, {
     data: initData,
@@ -8,6 +8,7 @@ $(document).ready(function () {
     rowHeights: 100,
     stretchH: 'all',
     colHeaders: [
+      'Site',
       'Domain',
       'Policy',
       'Gateway',
@@ -25,7 +26,7 @@ $(document).ready(function () {
         source(query, process) {
           $.ajax({
             type: "GET",
-            url: '/api/cm/fmc/domain',
+            url: '/api/cm/fmc/site',
             success: function (response) {
               process(response.datalist)
             }
@@ -38,10 +39,27 @@ $(document).ready(function () {
         type: 'autocomplete',
         source(query, process) {
           let row = this.row
-          let domain = hot.getDataAtCell(row, 0)
+          let site = hot.getDataAtCell(row, 0)
           $.ajax({
             type: "GET",
-            url: '/api/cm/fmc/policy?domain=' + domain,
+            url: '/api/cm/fmc/domain?site=' + site,
+            success: function (response) {
+              process(response.datalist)
+            }
+          })
+        },
+        strict: false,
+        allowInvalid: false
+      },
+      {
+        type: 'autocomplete',
+        source(query, process) {
+          let row = this.row
+          let site = hot.getDataAtCell(row, 0)
+          let domain = hot.getDataAtCell(row, 1)
+          $.ajax({
+            type: "GET",
+            url: '/api/cm/fmc/policy?domain=' + domain + '&site=' + site,
             success: function (response) {
               process(response.data)
             }
@@ -76,7 +94,7 @@ $(document).ready(function () {
         allowInvalid: false,
         source(query, process) {
           let row = this.row
-          let policy = hot.getDataAtCell(row, 1)
+          let policy = hot.getDataAtCell(row, 2)
           $.ajax({
             type: "GET",
             url: '/api/cm/fmc/category?policy=' + policy,
@@ -92,8 +110,7 @@ $(document).ready(function () {
   });
   function customDropdownRenderer(instance, td, row, col, prop, value, cellProperties) {
     var selectedId;
-    var policy = instance.getDataAtRow(row)[1]
-    console.log(policy)
+    var policy = instance.getDataAtRow(row)[2]
     $.ajax({
       type: "GET",
       url: '/api/cm/fmc/gateway?policy=' + policy,

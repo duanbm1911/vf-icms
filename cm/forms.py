@@ -80,6 +80,19 @@ class FMCGatewayForm(forms.ModelForm):
         model = FMCGateway
         fields = ["domain", "gateway"]
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        domains = FMCDomain.objects.select_related('site')
+        
+        self.fields['domain'] = forms.ModelChoiceField(
+            queryset=domains,
+            label="Domain",
+            widget=forms.Select(attrs={'class': 'form-control'}),
+        )
+        
+        self.fields['domain'].label_from_instance = lambda obj: f"{obj.domain} ({obj.site})"
+
 
 class FMCDomainForm(forms.ModelForm):
     class Meta:

@@ -21,6 +21,7 @@ import io, csv, openpyxl
 # Create your views here.
 
 
+
 class CheckpointRuleView(TemplateView):
     template_name = "checkpoint/access_rule/create.html"
 
