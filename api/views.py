@@ -761,8 +761,9 @@ def cm_checkpoint_get_list_rule(request):
                         obj[4] = json.loads(obj[4])
                         obj[5] = json.loads(obj[5])
                         obj[6] = json.loads(obj[6])
+                        obj.append(item[2])
                 site = item[0]
-                data[site] = {"smc": item[1], "layer": item[2], "rules": rules}
+                data[site] = {"smc": item[1], "rules": rules}
         return JsonResponse({"data": data}, status=200)
     else:
         return JsonResponse({"erorr": "Method is not allowed"}, status=405)

@@ -5,6 +5,8 @@
     <div class="table-responsive">
         <table class="table table-hover table-bordered" id="list-gateway-table">
             <thead>
+                <th>Site</th>
+                <th>Domain</th>
                 <th>Policy</th>
                 <th>gateway</th>
                 <th>Action</th>
@@ -13,6 +15,8 @@
 
                 {% for obj in objects %}
                 <tr>
+                    <td>{{ obj.policy.domain.site.site }}</td>
+                    <td>{{ obj.policy.domain.domain }}</td>
                     <td>{{ obj.policy }}</td>
                     <td>{{ obj.gateway }}</td>
                     <td>

@@ -5,15 +5,16 @@
     <div class="table-responsive">
         <table class="table table-hover table-bordered" id="list-policy-table">
             <thead>
+                <th>Site</th>
                 <th>Domain</th>
                 <th>Policy</th>
                 <th>Action</th>
-                </tr>
             </thead>
             <tbody>
 
                 {% for obj in objects %}
                 <tr>
+                    <td>{{ obj.domain.site.site }}</td>
                     <td>{{ obj.domain }}</td>
                     <td>{{ obj.policy }}</td>
                     <td>
