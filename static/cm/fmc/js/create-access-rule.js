@@ -112,7 +112,6 @@ $(document).ready(function () {
         source(query, process) {
           let row = this.row
           let policy = hot.getDataAtCell(row, 2)
-          let policy = hot.getDataAtCell(row, 2)
           $.ajax({
             type: "GET",
             url: '/api/cm/fmc/category?policy=' + policy,
