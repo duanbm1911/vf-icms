@@ -25,7 +25,7 @@
                     <td>{{ obj.phone_number }}</td>
                     <td>{{ obj.expiration_date }}</td>
                     <td>{{ obj.user_created }}</td>
-                    <td>{{ obj.time_created }}</td>
+                    <td>{{ obj.time_created|date:'h:iA - d/m/Y' }}</td>
                     <td>{{ obj.status }}</td>
                     <td>
                         <a href="/cm/checkpoint/local-user/update/{{ obj.id }}"><span

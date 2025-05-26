@@ -38,6 +38,7 @@
                         <th>Protocol</th>
                         <th>Schedule</th>
                         <th>UserCreated</th>
+                        <th>TimeCreated</th>
                         <th>Status</th>
                         <th>Action</th>
                     </thead>
@@ -59,6 +60,7 @@
                             <td>Forever</td>
                             {% endif %}
                             <td>{{ obj.user_created }}</td>
+                            <td>{{ obj.time_created|date:'h:iA - d/m/Y' }}</td>
                             {% if obj.status == 'Processing' %}
                             <td style="color: rgb(210, 11, 241)"><strong>{{ obj.status }}</strong></td>
                             {% elif obj.status == 'Success' %}
@@ -102,6 +104,7 @@
                         <th>Protocol</th>
                         <th>Schedule</th>
                         <th>UserCreated</th>
+                        <th>TimeCreated</th>
                         <th>Status</th>
                         <th>Action</th>
                     </thead>
@@ -123,6 +126,7 @@
                             <td>Forever</td>
                             {% endif %}
                             <td>{{ obj.user_created }}</td>
+                            <td>{{ obj.time_created|date:'h:iA - d/m/Y' }}</td>
                             {% if obj.status == 'Processing' %}
                             <td style="color: rgb(210, 11, 241)"><strong>{{ obj.status }}</strong></td>
                             {% elif obj.status == 'Success' %}
@@ -164,6 +168,7 @@
                         <th>Protocol</th>
                         <th>Schedule</th>
                         <th>UserCreated</th>
+                        <th>TimeCreated</th>
                         <th>Status</th>
                         <th>Action</th>
                     </thead>
@@ -185,6 +190,7 @@
                             <td>Forever</td>
                             {% endif %}
                             <td>{{ obj.user_created }}</td>
+                            <td>{{ obj.time_created|date:'h:iA - d/m/Y' }}</td>
                             {% if obj.status == 'Processing' %}
                             <td style="color: rgb(210, 11, 241)"><strong>{{ obj.status }}</strong></td>
                             {% elif obj.status == 'Success' %}
@@ -226,6 +232,7 @@
                         <th>Protocol</th>
                         <th>Schedule</th>
                         <th>UserCreated</th>
+                        <th>TimeCreated</th>
                         <th>Status</th>
                         <th>Action</th>
                     </thead>
@@ -247,6 +254,7 @@
                             <td>Forever</td>
                             {% endif %}
                             <td>{{ obj.user_created }}</td>
+                            <td>{{ obj.time_created|date:'h:iA - d/m/Y' }}</td>
                             {% if obj.status == 'Processing' %}
                             <td style="color: rgb(210, 11, 241)"><strong>{{ obj.status }}</strong></td>
                             {% elif obj.status == 'Success' %}
