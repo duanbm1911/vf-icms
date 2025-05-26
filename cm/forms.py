@@ -1,3 +1,5 @@
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 from django import forms
 from cm.models import *
 
@@ -25,7 +27,7 @@ class CheckpointPolicyForm(forms.ModelForm):
     class Meta:
 
         model = CheckpointPolicy
-        fields = ["policy", "layer", "site"]
+        fields = ["site", "policy", "layer"]
 
 
 class CheckpointSiteForm(forms.ModelForm):
@@ -58,6 +60,34 @@ class CheckpointRuleForm(forms.ModelForm):
             "schedule",
             "status",
         ]
+    
+
+class CheckpointLocalUserForm(forms.ModelForm):
+    password = forms.CharField(widget=forms.PasswordInput, required=False)
+    expiration_date = forms.DateField(widget=forms.TextInput(attrs={"type": "date"}), required=True)
+    
+    class Meta:
+
+        model = CheckpointLocalUser
+        fields = ["smc", "user_name", "password", "email", "phone_number", "expiration_date"]
+        
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        
+        try:
+            validate_email(email)
+        except ValidationError:
+            raise forms.ValidationError("Invalid email. Please enter correct format.")
+            
+        return email
+    
+    def clean_smc(self):
+        smc = self.cleaned_data.get('smc')
+        
+        if not smc:
+            raise forms.ValidationError("Invalid SMC. Please select a SMC")
+            
+        return smc
 
 
 class FMCPolicyForm(forms.ModelForm):

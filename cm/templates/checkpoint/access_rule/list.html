@@ -259,13 +259,9 @@
                             <td><strong>{{ obj.status }}</strong></td>
                             {% endif %}
                             <td>
-                                <a href="/cm/checkpoint/access-rule/update/{{ obj.id }}"><span
-                                    class="glyphicon glyphicon-wrench" aria-hidden="true"></span></a>
-                                <a href="/cm/checkpoint/access-rule/detail/{{ obj.id }}"><span
-                                        class="glyphicon glyphicon-search" aria-hidden="true"></span></a>
-                                <a data-toggle="modal" href='#delete-rule-modal' id="{{ obj.id }}"><span
-                                        class="glyphicon glyphicon-trash" aria-hidden="true"
-                                        id="{{ obj.id }}"></span></a>
+                                <a href="/cm/checkpoint/access-rule/update/{{ obj.id }}"><span class="glyphicon glyphicon-wrench" aria-hidden="true"></span></a>
+                                <a href="/cm/checkpoint/access-rule/detail/{{ obj.id }}"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></a>
+                                <a data-toggle="modal" href='#delete-rule-modal' id="{{ obj.id }}"><span class="glyphicon glyphicon-trash" aria-hidden="true" id="{{ obj.id }}"></span></a>
                             </td>
                         </tr>
                         {% endfor %}
@@ -274,6 +270,7 @@
             </div>
         </div>
     </div>
+    <a href="{% url 'checkpoint_create_task_access_rule' %}"><button type="button" class="btn btn-primary">Create</button></a>
 </div>
 
 

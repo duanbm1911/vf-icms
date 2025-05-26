@@ -64,5 +64,11 @@ urlpatterns = [
     path("fmc/domain/create",FMCDomainCreateView.as_view(),name="fmc_create_domain"),
     path("fmc/domain/list",FMCDomainListView.as_view(),name="fmc_list_domain"),
     path("fmc/domain/update/<int:pk>",FMCDomainUpdateView.as_view(),name="fmc_update_domain"),
-    path("fmc/domain/delete/<int:pk>",FMCDomainDeleteView.as_view(),name="fmc_delete_domain")
+    path("fmc/domain/delete/<int:pk>",FMCDomainDeleteView.as_view(),name="fmc_delete_domain"),
+    path("checkpoint/local-user/create",CheckpointLocalUserCreateView.as_view(),name="checkpoint_create_task_local_user"),
+    path("checkpoint/local-user/list",CheckpointLocalUserListView.as_view(),name="checkpoint_list_task_local_user"),
+    path("checkpoint/local-user/update/<int:pk>",CheckpointLocalUserUpdateView.as_view(),name="checkpoint_update_local_user"),
+    path("checkpoint/local-user/delete/<int:pk>",CheckpointLocalUserDeleteView.as_view(),name="checkpoint_delete_local_user"),
+    path("checkpoint/local-user/detail/<int:pk>",CheckpointLocalUserDetailView.as_view(),name="checkpoint_detail_local_user")
+
 ]

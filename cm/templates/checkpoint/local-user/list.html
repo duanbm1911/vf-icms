@@ -5,25 +5,40 @@
     <div class="table-responsive">
         <table class="table table-hover table-bordered" id="list-local-user-table">
             <thead>
-                <th></th>
-                </tr>
+                <th>SMC</th>
+                <th>UserName</th>
+                <th>Mail</th>
+                <th>PhoneNumber</th>
+                <th>ExpirationDate</th>
+                <th>UserCreate</th>
+                <th>TimeCreate</th>
+                <th>Status</th>
+                <th>Action</th>
             </thead>
             <tbody>
 
                 {% for obj in objects %}
                 <tr>
-                    <td></td>
+                    <td>{{ obj.smc }}</td>
+                    <td>{{ obj.user_name }}</td>
+                    <td>{{ obj.email }}</td>
+                    <td>{{ obj.phone_number }}</td>
+                    <td>{{ obj.expiration_date }}</td>
+                    <td>{{ obj.user_created }}</td>
+                    <td>{{ obj.time_created }}</td>
+                    <td>{{ obj.status }}</td>
                     <td>
                         <a href="/cm/checkpoint/local-user/update/{{ obj.id }}"><span
                                 class="glyphicon glyphicon-wrench" aria-hidden="true"></span></a>
                         <a data-toggle="modal" href='#delete-local-user-modal' id="{{ obj.id }}"><span
                                 class="glyphicon glyphicon-trash" aria-hidden="true" id="{{ obj.id }}"></span></a>
+                        <a href="{% url 'checkpoint_detail_local_user' obj.id %}"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></a>
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
-        <a href=""><button type="button" class="btn btn-primary">Create</button></a>
+        <a href="{% url 'checkpoint_create_task_local_user' %}"><button type="button" class="btn btn-primary">Create</button></a>
     </div>
 </div>
 

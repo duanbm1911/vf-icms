@@ -53,6 +53,21 @@ class CheckpointRule(models.Model):
 
     def __str__(self):
         return str(self.id)
+    
+class CheckpointLocalUser(models.Model):
+    smc = models.ForeignKey("CheckpointSite", on_delete=models.CASCADE, blank=True, null=True)
+    user_name = models.CharField(max_length=200, unique=True)
+    password = models.CharField(max_length=200, blank=True, null=True)
+    email = models.CharField(max_length=200)
+    phone_number = models.IntegerField(default=0000000000)
+    expiration_date = models.CharField(max_length=200)
+    user_created = models.CharField(max_length=200)
+    time_created = models.DateTimeField(auto_now=True)
+    status = models.CharField(max_length=200, default='Created')
+    message = models.CharField(max_length=3000, blank=True, null=True)
+    
+    def __str__(self):
+        return self.user_name
 
 
 class FMCSite(models.Model):
@@ -108,7 +123,7 @@ class FMCRule(models.Model):
 
     def __str__(self):
         return str(self.id)
-
+    
 
 class F5Device(models.Model):
     f5_device_ip = models.CharField(max_length=200)
@@ -116,7 +131,7 @@ class F5Device(models.Model):
 
     def __str__(self):
         return str(self.f5_device_ip)
-
+    
 
 class F5CreateVirtualServer(models.Model):
     f5_device_ip = models.ForeignKey("F5Device", on_delete=models.PROTECT)

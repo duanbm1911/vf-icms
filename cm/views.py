@@ -1269,3 +1269,103 @@ class FMCDomainDeleteView(DeleteView):
         except Exception as error:
             messages.add_message(self.request, constants.ERROR, error)
         return redirect(self.success_url)
+
+## local user
+
+class CheckpointLocalUserCreateView(CreateView):
+    model = CheckpointLocalUser
+    form_class = CheckpointLocalUserForm
+    template_name = "checkpoint/local-user/create.html"
+    success_url = reverse_lazy("checkpoint_list_task_local_user")
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.groups.filter(name="ADMIN").exists():
+            return render(request, template_name="checkpoint/common/403.html")
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        form.instance.user_created = str(self.request.user)
+        messages.add_message(self.request, constants.SUCCESS, "Create success")
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['banner'] = f"Create {self.model.__name__}"
+        return context
+
+
+class CheckpointLocalUserListView(ListView):
+    model = CheckpointLocalUser
+    context_object_name = "objects"
+    template_name = "checkpoint/local-user/list.html"
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+
+
+class CheckpointLocalUserUpdateView(UpdateView):
+    model = CheckpointLocalUser
+    form_class = CheckpointLocalUserForm
+    template_name = "checkpoint/local-user/update.html"
+    success_url = reverse_lazy("checkpoint_list_task_local_user")
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.groups.filter(name="ADMIN").exists():
+            return render(request, template_name="checkpoint/common/403.html")
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        form.instance.user_created = str(self.request.user)
+        messages.add_message(self.request, constants.SUCCESS, "Update success")
+        return super().form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['banner'] = f"Update {self.model.__name__}"
+        return context
+
+
+class CheckpointLocalUserDeleteView(DeleteView):
+    model = CheckpointLocalUser
+    template_name = "checkpoint/local-user/list.html"
+    success_url = reverse_lazy("checkpoint_list_task_local_user")
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.groups.filter(name="ADMIN").exists():
+            return render(request, template_name="checkpoint/common/403.html")
+        return super().dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        try:
+            super().post(request, *args, **kwargs)
+            messages.add_message(self.request, constants.SUCCESS, "Delete success")
+        except ProtectedError:
+            messages.add_message(
+                self.request, constants.ERROR, "This object has been protected"
+            )
+        except Exception as error:
+            messages.add_message(self.request, constants.ERROR, error)
+        return redirect(self.success_url)
+    
+
+class CheckpointLocalUserDetailView(DetailView):
+    model = CheckpointLocalUser
+    template_name = "checkpoint/local-user/detail.html"
+    exclude_fields = ["password", "smc"]
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        obj = self.get_object()
+        fields = [(field.verbose_name, field.value_from_object(obj))
+                  for field in obj._meta.fields if field.verbose_name not in self.exclude_fields]
+        context['fields'] = fields
+        context['banner'] = f'{self.model.__name__} detail informations'
+        return context
