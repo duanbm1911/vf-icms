@@ -1499,10 +1499,10 @@ def cm_fmc_get_list_rule(request):
             for item in list_site:
                 rules = FMCRule.objects.filter(
                     Q(status="Created") | Q(status="Install-Only"),
-                    policy__gateway__domain__site__site=item[0],
+                    policy__domain__site__site=item[0],
                 ).values_list(
                     "id",
-                    "policy__gateway__domain__domain_id",
+                    "policy__domain__domain_id",
                     "policy__policy",
                     "gateway",
                     "description",
