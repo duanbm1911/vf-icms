@@ -6,7 +6,8 @@
         <table class="table table-hover table-bordered" id="list-site-table">
             <thead>
                 <th>Site</th>
-                <th>SMC</th>
+                <th>SMC IP</th>
+                <th>SMC Hostname</th>
                 <th>Action</th>
                 </tr>
             </thead>
@@ -16,6 +17,7 @@
                 <tr>
                     <td>{{ obj.site }}</td>
                     <td>{{ obj.smc }}</td>
+                    <td>{{ obj.smc_hostname }}</td>
                     <td>
                         <a href="/cm/checkpoint/site/update/{{ obj.id }}"><span
                                 class="glyphicon glyphicon-wrench" aria-hidden="true"></span></a>

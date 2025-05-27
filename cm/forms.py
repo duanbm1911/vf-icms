@@ -10,6 +10,11 @@ CHECKPOINT_ACCESS_RULE_STATUS = (
     ("Install-Only", "Install-Only"),
 )
 
+CHECKPOINT_LOCAL_USER_STATUS = (
+    ("Created", "Created"),
+    ("Success", "Success")
+)
+
 FMC_ACCESS_RULE_STATUS = (
     ("Created", "Created"),
     ("Success", "Success"),
@@ -34,7 +39,7 @@ class CheckpointSiteForm(forms.ModelForm):
     class Meta:
 
         model = CheckpointSite
-        fields = ["site", "smc"]
+        fields = ["site", "smc", "smc_hostname"]
 
 
 class CheckpointGatewayForm(forms.ModelForm):
@@ -65,11 +70,12 @@ class CheckpointRuleForm(forms.ModelForm):
 class CheckpointLocalUserForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput, required=False)
     expiration_date = forms.DateField(widget=forms.TextInput(attrs={"type": "date"}), required=True)
+    status = forms.ChoiceField(choices=CHECKPOINT_LOCAL_USER_STATUS)
     
     class Meta:
 
         model = CheckpointLocalUser
-        fields = ["smc", "user_name", "password", "email", "phone_number", "expiration_date"]
+        fields = ["site", "user_name", "password", "email", "phone_number", "expiration_date", "status"]
         
     def clean_email(self):
         email = self.cleaned_data.get('email')

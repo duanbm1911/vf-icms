@@ -18,12 +18,13 @@ from ipaddress import ip_network
 from django.db.models import Count
 from operator import itemgetter
 from dotenv import load_dotenv
-import datetime, base64, json
+import datetime
+import base64
+import json
 
 load_dotenv()
 
 # Create your views here.
-
 
 
 def replace_characters(string):
@@ -119,7 +120,8 @@ def inventory_dashboard_02(request):
     This dashboard will be display count of device by vendor
     """
     vendor_count = list()
-    list_vendor = list(DeviceVendor.objects.values_list("device_vendor", flat=True))
+    list_vendor = list(DeviceVendor.objects.values_list(
+        "device_vendor", flat=True))
     for obj in list_vendor:
         count = Device.objects.filter(device_vendor__device_vendor=obj).count()
         vendor_count.append(
@@ -138,7 +140,8 @@ def inventory_dashboard_04(request):
     This dashboard will be display count of device by vendor
     """
     type_count = list()
-    list_vendor = list(DeviceType.objects.values_list("device_type", flat=True))
+    list_vendor = list(DeviceType.objects.values_list(
+        "device_type", flat=True))
     for obj in list_vendor:
         count = Device.objects.filter(device_type__device_type=obj).count()
         type_count.append(
@@ -161,7 +164,8 @@ def inventory_dashboard_05(request):
         DeviceProvince.objects.values_list("device_province", flat=True)
     )
     for obj in list_location:
-        count = Device.objects.filter(device_province__device_province=obj).count()
+        count = Device.objects.filter(
+            device_province__device_province=obj).count()
         location_count.append(
             {
                 "label": str(obj),
@@ -356,9 +360,11 @@ def ipplan_dashboard_03(request):
 def ipplan_get_list_ip_available(request):
     subnet = request.GET.get("subnet", None)
     if is_subnet(subnet):
-        list_ip_used = list(IpAddressModel.objects.filter(subnet__subnet=subnet).values_list("ip", flat=True))
+        list_ip_used = list(IpAddressModel.objects.filter(
+            subnet__subnet=subnet).values_list("ip", flat=True))
         subnet = ip_network(subnet).hosts()
-        ip_available = [ str(ip) for ip in subnet if str(ip) not in list_ip_used]
+        ip_available = [str(ip)
+                        for ip in subnet if str(ip) not in list_ip_used]
         return JsonResponse({"status": "success", "data": ip_available})
     else:
         return JsonResponse({"status": "failed", "error": "Subnet is invalid"})
@@ -505,7 +511,8 @@ def device_firmmware_report():
         "device_type__device_type", "firmware"
     )
     list_device_type = DeviceType.objects.all().values_list("device_type", flat=True)
-    list_device_province = DeviceProvince.objects.all().values_list("device_province", flat=True)
+    list_device_province = DeviceProvince.objects.all(
+    ).values_list("device_province", flat=True)
     datalist01 = list()
     datalist02 = list()
     for item in list_device_firmware:
@@ -521,7 +528,8 @@ def device_firmmware_report():
     for device_province in list_device_province:
         count = datalist01.count(device_province)
         if count != 0:
-            datalist02.append({"device_province": device_province, "count": count})
+            datalist02.append(
+                {"device_province": device_province, "count": count})
     return sorted(datalist02, key=itemgetter('count'), reverse=True)
 
 
@@ -607,7 +615,8 @@ def cm_checkpoint_create_rule(request):
                 else:
                     for item in datalist:
                         model = CheckpointRule(
-                            policy=CheckpointPolicy.objects.get(policy=item[0]),
+                            policy=CheckpointPolicy.objects.get(
+                                policy=item[0]),
                             gateway=item[1],
                             description=item[2],
                             source=item[3],
@@ -653,8 +662,8 @@ def cm_checkpoint_get_list_policy(request):
             return JsonResponse({"erorr": "Method is not allowed"}, status=405)
     else:
         return JsonResponse({"erorr": "forbidden"}, status=403)
-    
-    
+
+
 def cm_checkpoint_get_list_gateway(request):
     if request.user.groups.filter(name="ADMIN").exists():
         datalist = []
@@ -666,11 +675,12 @@ def cm_checkpoint_get_list_gateway(request):
                 except CheckpointPolicy.DoesNotExist:
                     return JsonResponse({"erorr": f"Policy name: {policy} dose not exists"}, status=401)
                 else:
-                    objects = CheckpointGateway.objects.filter(policy__policy=policy).values_list('gateway', flat=True)
-                    
+                    objects = CheckpointGateway.objects.filter(
+                        policy__policy=policy).values_list('gateway', flat=True)
+
                     for item in list(objects):
                         datalist.append({"id": item, "label": item})
-                    return JsonResponse({"datalist": list(datalist)}, status=200) 
+                    return JsonResponse({"datalist": list(datalist)}, status=200)
             else:
                 return JsonResponse({"erorr": f"Policy parameter is missing"}, status=401)
         else:
@@ -858,7 +868,8 @@ def cm_f5_create_task_virtual_server(request):
                         vs_ip = item[2].split(":")[0]
                         vs_port = item[2].split(":")[1]
                         model = F5CreateVirtualServer(
-                            f5_device_ip=F5Device.objects.get(f5_device_ip=item[0]),
+                            f5_device_ip=F5Device.objects.get(
+                                f5_device_ip=item[0]),
                             service_name=item[1],
                             vs_ip=vs_ip,
                             vs_port=vs_port,
@@ -871,7 +882,8 @@ def cm_f5_create_task_virtual_server(request):
                             server_ssl_profile=item[7],
                             irules=item[8],
                             waf_profile=item[9],
-                            f5_template=F5Template.objects.get(template_name=item[10]),
+                            f5_template=F5Template.objects.get(
+                                template_name=item[10]),
                             status=status,
                             user_created=user_created,
                         )
@@ -1001,10 +1013,12 @@ def cm_f5_update_client_ssl_profile(request):
     if request.method == "POST":
         dataset = json.loads(request.body.decode("utf-8"))
         for f5_device_ip, list_client_ssl_profile in dataset.items():
-            checklist = F5Device.objects.filter(f5_device_ip=f5_device_ip).count()
+            checklist = F5Device.objects.filter(
+                f5_device_ip=f5_device_ip).count()
             if checklist > 0:
                 for client_ssl_profile in list_client_ssl_profile:
-                    f5_device_obj = F5Device.objects.get(f5_device_ip=f5_device_ip)
+                    f5_device_obj = F5Device.objects.get(
+                        f5_device_ip=f5_device_ip)
                     F5ClientSSLProfile.objects.update_or_create(
                         f5_device_ip=f5_device_obj, profile_name=client_ssl_profile
                     )
@@ -1019,10 +1033,12 @@ def cm_f5_update_server_ssl_profile(request):
     if request.method == "POST":
         dataset = json.loads(request.body.decode("utf-8"))
         for f5_device_ip, list_server_ssl_profile in dataset.items():
-            checklist = F5Device.objects.filter(f5_device_ip=f5_device_ip).count()
+            checklist = F5Device.objects.filter(
+                f5_device_ip=f5_device_ip).count()
             if checklist > 0:
                 for server_ssl_profile in list_server_ssl_profile:
-                    f5_device_obj = F5Device.objects.get(f5_device_ip=f5_device_ip)
+                    f5_device_obj = F5Device.objects.get(
+                        f5_device_ip=f5_device_ip)
                     F5ServerSSLProfile.objects.update_or_create(
                         f5_device_ip=f5_device_obj, profile_name=server_ssl_profile
                     )
@@ -1037,10 +1053,12 @@ def cm_f5_update_irule_profile(request):
     if request.method == "POST":
         dataset = json.loads(request.body.decode("utf-8"))
         for f5_device_ip, list_irule_profile in dataset.items():
-            checklist = F5Device.objects.filter(f5_device_ip=f5_device_ip).count()
+            checklist = F5Device.objects.filter(
+                f5_device_ip=f5_device_ip).count()
             if checklist > 0:
                 for irule_profile in list_irule_profile:
-                    f5_device_obj = F5Device.objects.get(f5_device_ip=f5_device_ip)
+                    f5_device_obj = F5Device.objects.get(
+                        f5_device_ip=f5_device_ip)
                     F5Irule.objects.update_or_create(
                         f5_device_ip=f5_device_obj, irule_name=irule_profile
                     )
@@ -1055,10 +1073,12 @@ def cm_f5_update_waf_profile(request):
     if request.method == "POST":
         dataset = json.loads(request.body.decode("utf-8"))
         for f5_device_ip, list_waf_profile in dataset.items():
-            checklist = F5Device.objects.filter(f5_device_ip=f5_device_ip).count()
+            checklist = F5Device.objects.filter(
+                f5_device_ip=f5_device_ip).count()
             if checklist > 0:
                 for waf_profile in list_waf_profile:
-                    f5_device_obj = F5Device.objects.get(f5_device_ip=f5_device_ip)
+                    f5_device_obj = F5Device.objects.get(
+                        f5_device_ip=f5_device_ip)
                     F5WafProfile.objects.update_or_create(
                         f5_device_ip=f5_device_obj, waf_profile=waf_profile
                     )
@@ -1073,10 +1093,12 @@ def cm_f5_update_pool_monitor(request):
     if request.method == "POST":
         dataset = json.loads(request.body.decode("utf-8"))
         for f5_device_ip, list_pool_monitor in dataset.items():
-            checklist = F5Device.objects.filter(f5_device_ip=f5_device_ip).count()
+            checklist = F5Device.objects.filter(
+                f5_device_ip=f5_device_ip).count()
             if checklist > 0:
                 for pool_monitor in list_pool_monitor:
-                    f5_device_obj = F5Device.objects.get(f5_device_ip=f5_device_ip)
+                    f5_device_obj = F5Device.objects.get(
+                        f5_device_ip=f5_device_ip)
                     F5PoolMemberMonitor.objects.update_or_create(
                         f5_device_ip=f5_device_obj, pool_monitor=pool_monitor
                     )
@@ -1091,7 +1113,8 @@ def cm_f5_update_task_virtual_server(request):
     if request.method == "POST":
         dataset = json.loads(request.body.decode("utf-8"))
         for task_id, data in dataset.items():
-            checklist = F5CreateVirtualServer.objects.filter(id=task_id).count()
+            checklist = F5CreateVirtualServer.objects.filter(
+                id=task_id).count()
             if checklist > 0:
                 status = data[0]
                 message = data[1]
@@ -1217,7 +1240,8 @@ def cm_f5_update_virtual_server(request):
     if request.method == "POST":
         dataset = json.loads(request.body.decode("utf-8"))
         for f5_device_ip, datalist in dataset.items():
-            checklist = F5Device.objects.filter(f5_device_ip=f5_device_ip).count()
+            checklist = F5Device.objects.filter(
+                f5_device_ip=f5_device_ip).count()
             if checklist > 0:
                 for data in datalist:
                     vs_name = data[0]
@@ -1226,7 +1250,8 @@ def cm_f5_update_virtual_server(request):
                     client_ssl_profile = data[3]
                     server_ssl_profile = data[4]
                     object, created = F5VirtualServer.objects.update_or_create(
-                        f5_device_ip=F5Device.objects.get(f5_device_ip=f5_device_ip),
+                        f5_device_ip=F5Device.objects.get(
+                            f5_device_ip=f5_device_ip),
                         vs_name=vs_name,
                         defaults={
                             'vs_ip': vs_ip,
@@ -1235,38 +1260,43 @@ def cm_f5_update_virtual_server(request):
                             'server_ssl_profile': server_ssl_profile
                         }
                     )
-                    object.group_permission.set(Group.objects.filter(name="ADMIN"))
+                    object.group_permission.set(
+                        Group.objects.filter(name="ADMIN"))
                     object.save()
         return JsonResponse({"status": "success"}, status=200)
     else:
         return JsonResponse({"error_message": "method not allowed"}, status=405)
 
+
 @login_required()
 def checkpoint_dashboard_01(request):
     results = list()
-    status_counts = CheckpointRule.objects.values('status').annotate(count=Count('status'))
+    status_counts = CheckpointRule.objects.values(
+        'status').annotate(count=Count('status'))
     for item in status_counts:
         label = item['status']
         count = item['count']
         results.append(
             {
-                "label":label,
+                "label": label,
                 "y": count,
                 "toolTipContent": f"{replace_characters(label)}:{count}",
             }
         )
     return JsonResponse({"data": results})
 
+
 @login_required()
 def checkpoint_dashboard_02(request):
     results = list()
-    user_counts = CheckpointRule.objects.values('user_created').annotate(count=Count('user_created'))
+    user_counts = CheckpointRule.objects.values(
+        'user_created').annotate(count=Count('user_created'))
     for item in user_counts:
         label = item['user_created']
         count = item['count']
         results.append(
             {
-                "label":label,
+                "label": label,
                 "y": count,
                 "toolTipContent": f"{replace_characters(label)}:{count}",
             }
@@ -1275,16 +1305,18 @@ def checkpoint_dashboard_02(request):
 
 #####
 
+
 @login_required()
 def fmc_dashboard_01(request):
     results = list()
-    status_counts = FMCRule.objects.values('status').annotate(count=Count('status'))
+    status_counts = FMCRule.objects.values(
+        'status').annotate(count=Count('status'))
     for item in status_counts:
         label = item['status']
         count = item['count']
         results.append(
             {
-                "label":label,
+                "label": label,
                 "y": count,
                 "toolTipContent": f"{replace_characters(label)}:{count}",
             }
@@ -1295,13 +1327,14 @@ def fmc_dashboard_01(request):
 @login_required()
 def fmc_dashboard_02(request):
     results = list()
-    user_counts = FMCRule.objects.values('user_created').annotate(count=Count('user_created'))
+    user_counts = FMCRule.objects.values(
+        'user_created').annotate(count=Count('user_created'))
     for item in user_counts:
         label = item['user_created']
         count = item['count']
         results.append(
             {
-                "label":label,
+                "label": label,
                 "y": count,
                 "toolTipContent": f"{replace_characters(label)}:{count}",
             }
@@ -1340,7 +1373,8 @@ def cm_fmc_create_rule(request):
                         ]
                         schedule = data[6]
                         category = data[7]
-                        gateway = FMCGateway.objects.filter(policy__policy=policy).values_list('gateway', flat=True)
+                        gateway = FMCGateway.objects.filter(
+                            policy__policy=policy).values_list('gateway', flat=True)
                         datalist.append(
                             [
                                 policy,
@@ -1398,13 +1432,62 @@ def cm_fmc_get_list_policy(request):
             site = request.GET.get("site", None)
             datalist = []
             if site:
-                datalist = FMCPolicy.objects.filter(domain__site__site=site).values_list("policy", flat=True)
+                datalist = FMCPolicy.objects.filter(
+                    domain__site__site=site).values_list("policy", flat=True)
             return JsonResponse({"data": list(datalist)}, status=200)
         else:
             return JsonResponse({"erorr": "Method is not allowed"}, status=405)
     else:
         return JsonResponse({"erorr": "forbidden"}, status=403)
-    
+
+
+@logged_in_or_basicauth()
+def cm_checkpoint_get_list_local_user(request):
+    if request.user.groups.filter(name="ADMIN").exists():
+        if request.method == "GET":
+            datalist = []
+            sites = CheckpointSite.objects.all()
+            for site in sites:
+                users = []
+                items = CheckpointLocalUser.objects.filter(
+                    Q(status="Created") | Q(status="Install-Only"), site=site)
+                for item in items:
+                    users.append({
+                        "id": item.id,
+                        "user_name": item.user_name,
+                        "password": item.password,
+                        "phone_number": item.phone_number,
+                        "email": item.email,
+                        "expiration_date": item.expiration_date
+                    })
+
+                datalist.append({
+                    "smc": site.smc,
+                    "smc_hostname": site.smc_hostname,
+                    "users": users
+                    })
+            return JsonResponse({"data": datalist}, status=200)
+        else:
+            return JsonResponse({"erorr": "Method is not allowed"}, status=405)
+    else:
+        return JsonResponse({"erorr": "forbidden"}, status=403)
+
+
+@csrf_exempt
+@logged_in_or_basicauth()
+def cm_checkpoint_update_local_user(request):
+    if request.method == "POST":
+        dataset = request.POST.dict()
+        if dataset:
+            user_id = dataset["user_id"]
+            status = dataset["status"]
+            message = dataset["message"]
+            model = CheckpointLocalUser.objects.filter(id=user_id)
+            model.update(status=status, message=message)
+        return JsonResponse({"status": "success"})
+    else:
+        return JsonResponse({"erorr": "Method is not allowed"}, status=405)
+
 
 @login_required()
 def cm_fmc_get_list_gateway(request):
@@ -1419,11 +1502,12 @@ def cm_fmc_get_list_gateway(request):
                 except FMCPolicy.DoesNotExist:
                     return JsonResponse({"erorr": f"Policy name: {policy} dose not exists"}, status=401)
                 else:
-                    objects = FMCGateway.objects.filter(domain__domain=domain).values_list('gateway', flat=True)
-                    
+                    objects = FMCGateway.objects.filter(
+                        domain__domain=domain).values_list('gateway', flat=True)
+
                     for item in list(objects):
                         datalist.append({"id": item, "label": item})
-                    return JsonResponse({"datalist": list(datalist)}, status=200) 
+                    return JsonResponse({"datalist": list(datalist)}, status=200)
             else:
                 return JsonResponse({"erorr": f"Policy parameter is missing"}, status=401)
         else:
@@ -1469,7 +1553,8 @@ def cm_fmc_get_list_domain(request):
         datalist = list()
         site = request.GET.get("site", None)
         if site:
-            datalist = FMCDomain.objects.filter(site__site=site).values_list("domain", flat=True)
+            datalist = FMCDomain.objects.filter(
+                site__site=site).values_list("domain", flat=True)
         else:
             datalist = FMCDomain.objects.all().values_list("domain", flat=True)
         return JsonResponse({"status": "success", "datalist": list(datalist)})

@@ -5,7 +5,7 @@
     <div class="table-responsive">
         <table class="table table-hover table-bordered" id="list-local-user-table">
             <thead>
-                <th>SMC</th>
+                <th>Site</th>
                 <th>UserName</th>
                 <th>Mail</th>
                 <th>PhoneNumber</th>
@@ -19,7 +19,7 @@
 
                 {% for obj in objects %}
                 <tr>
-                    <td>{{ obj.smc }}</td>
+                    <td>{{ obj.site.site }}</td>
                     <td>{{ obj.user_name }}</td>
                     <td>{{ obj.email }}</td>
                     <td>{{ obj.phone_number }}</td>
