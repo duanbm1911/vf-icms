@@ -69,6 +69,11 @@ urlpatterns = [
     path("checkpoint/local-user/list",CheckpointLocalUserListView.as_view(),name="checkpoint_list_task_local_user"),
     path("checkpoint/local-user/update/<int:pk>",CheckpointLocalUserUpdateView.as_view(),name="checkpoint_update_local_user"),
     path("checkpoint/local-user/delete/<int:pk>",CheckpointLocalUserDeleteView.as_view(),name="checkpoint_delete_local_user"),
-    path("checkpoint/local-user/detail/<int:pk>",CheckpointLocalUserDetailView.as_view(),name="checkpoint_detail_local_user")
+    path("checkpoint/local-user/detail/<int:pk>",CheckpointLocalUserDetailView.as_view(),name="checkpoint_detail_local_user"),
+    path("checkpoint/local-user-template/list",CheckpointLocalUserTemplateListView.as_view(),name="checkpoint_list_local_user_template"),
+    path("checkpoint/local-user-template/create",CheckpointLocalUserTemplateCreateView.as_view(),name="checkpoint_create_local_user_template"),
+    path("checkpoint/local-user-template/update/<int:pk>",CheckpointLocalUserTemplateUpdateView.as_view(),name="checkpoint_update_local_user_template"),
+    path("checkpoint/local-user-template/delete/<int:pk>",CheckpointLocalUserTemplateDeleteView.as_view(),name="checkpoint_delete_local_user_template"),
+    path("checkpoint/local-user-template/detail/<int:pk>",CheckpointLocalUserTemplateDetailView.as_view(),name="checkpoint_detail_local_user_template")
 
 ]

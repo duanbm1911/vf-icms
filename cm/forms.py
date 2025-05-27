@@ -65,6 +65,16 @@ class CheckpointRuleForm(forms.ModelForm):
             "schedule",
             "status",
         ]
+
+class CheckpointLocalUserTemplateForm(forms.ModelForm):
+
+    class Meta:
+        model = CheckpointLocalUserTemplate
+        fields = [
+            "name",
+            "site",
+            "radius_group_server"
+        ]
     
 
 class CheckpointLocalUserForm(forms.ModelForm):

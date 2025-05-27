@@ -17,7 +17,6 @@ class CheckpointSite(models.Model):
     site = models.CharField(max_length=100, unique=True)
     smc = models.CharField(max_length=100, blank=True, null=True)
     smc_hostname = models.CharField(max_length=100, blank=True, null=True)
-    radius_group = models.CharField(max_length=100, blank=True, null=True)
 
     def __str__(self):
         return self.site
