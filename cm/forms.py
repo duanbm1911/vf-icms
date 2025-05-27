@@ -75,7 +75,7 @@ class CheckpointLocalUserForm(forms.ModelForm):
     class Meta:
 
         model = CheckpointLocalUser
-        fields = ["site", "user_name", "password", "email", "phone_number", "expiration_date", "status"]
+        fields = ["template", "user_name", "password", "email", "phone_number", "expiration_date", "status"]
         
     def clean_email(self):
         email = self.cleaned_data.get('email')

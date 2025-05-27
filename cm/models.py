@@ -17,9 +17,18 @@ class CheckpointSite(models.Model):
     site = models.CharField(max_length=100, unique=True)
     smc = models.CharField(max_length=100, blank=True, null=True)
     smc_hostname = models.CharField(max_length=100, blank=True, null=True)
+    radius_group = models.CharField(max_length=100, blank=True, null=True)
 
     def __str__(self):
         return self.site
+
+class CheckpointLocalUserTemplate(models.Model):
+    name = models.CharField(max_length=100)
+    site = models.ForeignKey(CheckpointSite, on_delete=models.CASCADE)
+    radius_group_server = models.CharField(max_length=100, blank=True, null=True)
+
+    def __str__(self):
+        return self.name
 
 
 class CheckpointRuleSection(models.Model):
@@ -56,7 +65,7 @@ class CheckpointRule(models.Model):
         return str(self.id)
     
 class CheckpointLocalUser(models.Model):
-    site = models.ForeignKey("CheckpointSite", on_delete=models.CASCADE, blank=True, null=True)
+    template = models.ForeignKey("CheckpointLocalUserTemplate", on_delete=models.CASCADE, blank=True, null=True)
     user_name = models.CharField(max_length=200, unique=True)
     password = models.CharField(max_length=200, blank=True, null=True)
     email = models.CharField(max_length=200)

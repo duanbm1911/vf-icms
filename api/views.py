@@ -1450,7 +1450,7 @@ def cm_checkpoint_get_list_local_user(request):
             for site in sites:
                 users = []
                 items = CheckpointLocalUser.objects.filter(
-                    Q(status="Created") | Q(status="Install-Only"), site=site)
+                    Q(status="Created") | Q(status="Install-Only"), template__site=site)
                 for item in items:
                     users.append({
                         "id": item.id,
@@ -1458,7 +1458,8 @@ def cm_checkpoint_get_list_local_user(request):
                         "password": item.password,
                         "phone_number": item.phone_number,
                         "email": item.email,
-                        "expiration_date": item.expiration_date
+                        "expiration_date": item.expiration_date,
+                        "radius_group": item.template.radius_group_server
                     })
 
                 datalist.append({
