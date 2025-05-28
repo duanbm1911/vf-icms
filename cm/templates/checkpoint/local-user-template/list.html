@@ -8,6 +8,7 @@
                 <th>Name</th>
                 <th>SMC</th>
                 <th>RadiusGroupName</th>
+                <th>DefaultGroup</th>
                 <th>Action</th>
             </thead>
             <tbody>
@@ -16,6 +17,7 @@
                     <td>{{ obj.name }}</td>
                     <td>{{ obj.site.site }}</td>
                     <td>{{ obj.radius_group_server }}</td>
+                    <td>{{ obj.default_group }}</td>
                     <td>
                         <a href="/cm/checkpoint/local-user-template/update/{{ obj.id }}"><span
                                 class="glyphicon glyphicon-wrench" aria-hidden="true"></span></a>

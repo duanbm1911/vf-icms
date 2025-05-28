@@ -1455,10 +1455,14 @@ def cm_checkpoint_get_list_local_user(request):
                     users.append({
                         "id": item.id,
                         "user_name": item.user_name,
+                        "is_partner": item.is_partner,
                         "password": item.password,
                         "phone_number": item.phone_number,
                         "email": item.email,
                         "expiration_date": item.expiration_date,
+                        "user_group": [str(i.group) for i in item.user_group.all()],
+                        "custom_group": "" if not item.custom_group else item.custom_group,
+                        "default_group": item.template.default_group,
                         "radius_group": item.template.radius_group_server
                     })
 

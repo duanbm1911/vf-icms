@@ -23,15 +23,23 @@ class CheckpointSite(models.Model):
 
 class CheckpointLocalUserTemplate(models.Model):
     name = models.CharField(max_length=100)
-    site = models.ForeignKey(CheckpointSite, on_delete=models.CASCADE)
+    site = models.ForeignKey('CheckpointSite', on_delete=models.CASCADE)
+    default_group = models.CharField(max_length=100, blank=True, null=True)
     radius_group_server = models.CharField(max_length=100, blank=True, null=True)
 
     def __str__(self):
         return self.name
+    
+class CheckpointLocalUserGroup(models.Model):
+    site = models.ForeignKey('CheckpointSite', on_delete=models.CASCADE)
+    group = models.CharField(max_length=100)
+    
+    def __str__(self):
+        return f"{self.site} - {self.group}"
 
 
 class CheckpointRuleSection(models.Model):
-    policy = models.ForeignKey("CheckpointPolicy", on_delete=models.CASCADE)
+    policy = models.ForeignKey('CheckpointPolicy', on_delete=models.CASCADE)
     section = models.CharField(max_length=100, blank=True)
 
     def __str__(self):
@@ -66,10 +74,13 @@ class CheckpointRule(models.Model):
 class CheckpointLocalUser(models.Model):
     template = models.ForeignKey("CheckpointLocalUserTemplate", on_delete=models.CASCADE, blank=True, null=True)
     user_name = models.CharField(max_length=200, unique=True)
+    is_partner = models.BooleanField(default=False)
     password = models.CharField(max_length=200, blank=True, null=True)
     email = models.CharField(max_length=200)
     phone_number = models.IntegerField(default=0000000000)
     expiration_date = models.CharField(max_length=200)
+    user_group = models.ManyToManyField("CheckpointLocalUserGroup", blank=True, null=True)
+    custom_group = models.CharField(max_length=200, blank=True, null=True)
     user_created = models.CharField(max_length=200)
     time_created = models.DateTimeField(auto_now=True)
     status = models.CharField(max_length=200, default='Created')

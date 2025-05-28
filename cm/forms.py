@@ -73,6 +73,7 @@ class CheckpointLocalUserTemplateForm(forms.ModelForm):
         fields = [
             "name",
             "site",
+            "default_group",
             "radius_group_server"
         ]
     
@@ -85,7 +86,17 @@ class CheckpointLocalUserForm(forms.ModelForm):
     class Meta:
 
         model = CheckpointLocalUser
-        fields = ["template", "user_name", "password", "email", "phone_number", "expiration_date", "status"]
+        fields = [
+            "template", 
+            "user_name", 
+            "is_partner",
+            "password", 
+            "email", 
+            "phone_number", 
+            "expiration_date", 
+            "user_group", 
+            "custom_group",
+            "status"]
         
     def clean_email(self):
         email = self.cleaned_data.get('email')
