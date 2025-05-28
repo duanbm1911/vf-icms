@@ -1566,6 +1566,21 @@ def cm_fmc_get_list_domain(request):
     else:
         return JsonResponse({"erorr": "Method is not allowed"}, status=405)
 
+@csrf_exempt
+@logged_in_or_basicauth()
+def cm_checkpoint_update_local_user_group(request):
+    if request.method == "POST":
+        dataset = json.loads(request.body.decode("utf-8"))
+        for smc, groups in dataset.items():
+            for group in groups:
+                CheckpointLocalUserGroup.objects.update_or_create(
+                    site=CheckpointSite.objects.get(smc=smc),
+                    group=group
+                )
+        return JsonResponse({"status": "success"})
+    else:
+        return JsonResponse({"erorr": "Method is not allowed"}, status=405)
+
 
 @logged_in_or_basicauth()
 def cm_fmc_get_list_site(request):
