@@ -1455,10 +1455,14 @@ def cm_checkpoint_get_list_local_user(request):
                     users.append({
                         "id": item.id,
                         "user_name": item.user_name,
+                        "is_partner": item.is_partner,
                         "password": item.password,
                         "phone_number": item.phone_number,
                         "email": item.email,
                         "expiration_date": item.expiration_date,
+                        "user_group": [str(i.group) for i in item.user_group.all()],
+                        "custom_group": "" if not item.custom_group else item.custom_group,
+                        "default_group": item.template.default_group,
                         "radius_group": item.template.radius_group_server
                     })
 
@@ -1559,6 +1563,21 @@ def cm_fmc_get_list_domain(request):
         else:
             datalist = FMCDomain.objects.all().values_list("domain", flat=True)
         return JsonResponse({"status": "success", "datalist": list(datalist)})
+    else:
+        return JsonResponse({"erorr": "Method is not allowed"}, status=405)
+
+@csrf_exempt
+@logged_in_or_basicauth()
+def cm_checkpoint_update_local_user_group(request):
+    if request.method == "POST":
+        dataset = json.loads(request.body.decode("utf-8"))
+        for smc, groups in dataset.items():
+            for group in groups:
+                CheckpointLocalUserGroup.objects.update_or_create(
+                    site=CheckpointSite.objects.get(smc=smc),
+                    group=group
+                )
+        return JsonResponse({"status": "success"})
     else:
         return JsonResponse({"erorr": "Method is not allowed"}, status=405)
 

@@ -29,6 +29,7 @@ urlpatterns = [
     path("cm/checkpoint/update/rule-section", views.cm_checkpoint_update_rule_section),
     path("cm/checkpoint/section", views.cm_checkpoint_get_list_rule_section),
     path("cm/checkpoint/site", views.cm_checkpoint_get_list_site),
+    path("cm/checkpoint/update/local-user-group", views.cm_checkpoint_update_local_user_group),
     path("cm/checkpoint/gateway", views.cm_checkpoint_get_list_gateway),
     path("cm/checkpoint/local-user", views.cm_checkpoint_get_list_local_user),
     path("cm/checkpoint/update/local-user", views.cm_checkpoint_update_local_user),
