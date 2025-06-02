@@ -1,1 +1,0 @@
-/usr/bin/python3 /usr/local/bin/gunicorn --bind 0.0.0.0:8000 icms.wsgi --access-logfile /var/log/icms-access-logfile --reload --workers 5 --timeout 300
