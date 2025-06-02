@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  {{ banner }}
+{% endblock %}
+
+{% block content %}
+  <div class="row mb-4 d-flex justify-content-between align-items-center">
+    <div class="col-xs-6">
+      <legend>
+        <h3>{{ banner }}</h3>
+      </legend>
+    </div>
+  </div>
+  <form method="get">
+    <div class="row">
+      <div class="col-md-6 form-group">{{ form.device_ip.label_tag }} {{ form.device_ip }}</div>
+      <div class="col-md-6 form-group">{{ form.device_branch.label_tag }} {{ form.device_branch }}</div>
+    </div>
+    <div class="form-group">
+      <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-search" aria-hidden="true"></span> Search</button>
+      <a href="{% url 'create_device' %}" class="btn btn-success"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create</a>
+    </div>
+  </form>
+  <div class="table-responsive">
+    <table class="table table-hover table-bordered" id="table">
+      <thead>
+        <th>Branch</th>
+        <th>Province</th>
+        <th>Name</th>
+        <th>Device IP</th>
+        <th>Serial number</th>
+        <th>End MA</th>
+        <th>End License</th>
+        <th>End SW SP</th>
+        <th>End HW SP</th>
+        <th>Start used</th>
+        <th>Action</th>
+      </thead>
+      <tbody>
+        {% for obj in devices %}
+          <tr>
+            <td>{{ obj.device_ip.device_branch }}</td>
+            <td>{{ obj.device_ip.device_province }}</td>
+            <td>{{ obj.device_ip.device_name }}</td>
+            <td>{{ obj.device_ip.device_ip }}</td>
+            <td>{{ obj.device_serial_number }}</td>
+            {% if obj.end_ma_date == null %}
+              <td class="error">No data</td>
+            {% else %}
+              <td>{{ obj.end_ma_date|date:'d/m/Y' }}</td>
+            {% endif %}
+            {% if obj.end_license_date == null %}
+            <td class="error">No data</td>
+            {% else %}
+              <td>{{ obj.end_license_date|date:'d/m/Y' }}</td>
+            {% endif %}
+            {% if obj.end_sw_support_date == null %}
+            <td class="error">No data</td>
+            {% else %}
+              <td>{{ obj.end_sw_support_date|date:'d/m/Y' }}</td>
+            {% endif %}
+            {% if obj.end_hw_support_date == null %}
+            <td class="error">No data</td>
+            {% else %}
+              <td>{{ obj.end_hw_support_date|date:'d/m/Y' }}</td>
+            {% endif %}
+            {% if obj.start_used_date == null %}
+            <td class="error">No data</td>
+            {% else %}
+              <td>{{ obj.start_used_date|date:'d/m/Y' }}</td>
+            {% endif %}
+            <td>
+              <a href="{% url 'update_device_management' obj.id %}"><span class="glyphicon glyphicon-wrench" aria-hidden="true"></span></a>
+              <a data-toggle="modal" href="#delete-modal" id="{{ obj.id }}"><span class="glyphicon glyphicon-trash" aria-hidden="true" id="{{ obj.id }}"></span></a>
+              <a href="{% url 'detail_device_management' obj.id %}"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <!-- Modal -->
+  <div class="modal fade" id="delete-modal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form action method="post" id="delete-form">
+          {% csrf_token %}
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Delete Device</h4>
+          </div>
+          <div class="modal-body">
+            <p>Are you sure to delete this device?</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Delete</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block js %}
+  <script src="/static/inventory/js/list-device-management.js"></script>
+  <script src="/static/inventory/js/common.js"></script>
+{% endblock %}

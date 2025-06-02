@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}ICMS | Detail F5 Template{% endblock title %}
+
+{% block content %}
+
+<div class="table-responsive">
+    <table class="table table-hover table-bordered">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Detail information</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Template name</td>
+                <td>{{ object.template_name }}</td>
+            </tr>
+            <tr>
+                <td>Protocol</td>
+                <td>{{ object.protocol }}</td>
+            </tr>
+            <tr>
+                <td>Client protocol profile</td>
+                <td>{{ object.client_protocol_profile }}</td>
+            </tr>
+            <tr>
+                <td>Server protocol profile</td>
+                <td>{{ object.server_protocol_profile }}</td>
+            </tr>
+            <tr>
+                <td>Client http profile</td>
+                <td>{{ object.client_http_profile }}</td>
+            </tr>
+            <tr>
+                <td>Server http profile</td>
+                <td>{{ object.server_http_profile }}</td>
+            </tr>
+            <tr>
+                <td>Snat name</td>
+                <td>{{ object.snat_name }}</td>
+            </tr>
+            <tr>
+                <td>Http analytics profile</td>
+                <td>{{ object.http_analytics_profile }}</td>
+            </tr>
+            <td>Tcp analytics profile</td>
+            <td>{{ object.tcp_analytics_profile }}</td>
+            </tr>
+            <tr>
+                <td>Http compression profile</td>
+                <td>{{ object.http_compression_profile }}</td>
+            </tr>
+            <tr>
+                <td>Web acceleration profile</td>
+                <td>{{ object.web_acceleration_profile }}</td>
+            </tr>
+            <tr>
+                <td>Irules</td>
+                <td>
+                    {% for irule in object.irules.all %}
+                    <li>{{ irule.irule_name }}</li>
+                    {% endfor %}
+                </td>
+            </tr>
+            <tr>
+                <td>Waf profile</td>
+                <td>{{ object.waf_profile }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<a href="{% url 'f5_list_template' %}"><button type="button" class="btn btn-warning">Back</button></a>
+
+{% endblock content %}

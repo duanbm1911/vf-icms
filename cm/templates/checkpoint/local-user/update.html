@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %} ICMS | Update Objects {% endblock title %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+  <div class="panel panel-primary" style="border-color: #28A745;">
+    <div class="panel-heading" style="background-color: #28A745; color: white;">
+      <h3 class="panel-title"><i class="glyphicon glyphicon-pencil"></i> {{ banner }}</h3>
+    </div>
+    <div class="panel-body">
+      <form action="" method="POST" class="form-horizontal" role="form">
+        {% csrf_token %}
+        <fieldset>
+          <div class="row container-fluid">
+            <!-- Render the crispy form fields -->
+            <div class="col-md-6">{{ form|crispy }}</div>
+          </div>
+        </fieldset>
+        <!-- Buttons -->
+        <div class="form-group">
+          <div class="col-sm-8">
+            <button type="submit" id="update-btn" class="btn btn-primary" style="background-color: #28A745; border-color: #28A745;"><i class="glyphicon glyphicon-ok"></i> Update</button>
+            <button type="button" id="back-btn" class="btn btn-warning" onclick="window.history.back();"><i class="glyphicon glyphicon-arrow-left"></i> Back</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+
+{% block css %}
+<link rel="stylesheet" href="/static/core/css/select.css">
+{% endblock css %}
+
+{% block js %}
+<script src="/static/core/js/select.js"></script>
+<script src="/static/cm/checkpoint/js/update-local-user.js"></script>
+{% endblock js %}

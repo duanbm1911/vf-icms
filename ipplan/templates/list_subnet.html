@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block title %} ICMS | List IP subnet {% endblock title %}
+{% block content %}
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <div class="form-group">
+        <legend>List subnet</legend>
+    </div>
+    <div class="form-group">
+        <a href="/ipplan/list-subnet-tree"><img src="/static/ipplan/images/tree-object.png" class="img-responsive" alt="Image" style="width: 20px; height: 20px"></a>
+    </div>
+    <div class="form-group">
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered" id="list-ip-subnet-table">
+                <thead>
+                        <th>Name</th>
+                        <th>Subnet</th>
+                        <th>Vlan</th>
+                        <th>Group</th>
+                        <th>Location</th>
+                        <th>Region</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+    
+                    {% for obj in subnets %}
+                    <tr>
+                        <td>{{ obj.name }}</td>
+                        <td>{{ obj.subnet }}</td>
+                        <td>{{ obj.vlan }}</td>
+                        <td>{{ obj.group }}</td>
+                        <td>{{ obj.group.location }}</td>
+                        <td>{{ obj.group.location.region }}</td>
+                        <td>
+                            <a href="/ipplan/update-subnet/{{obj.id}}"><span class="glyphicon glyphicon-wrench" aria-hidden="true"></span></a>
+                            <a data-toggle="modal" href='#delete-subnet-modal' id="{{ obj.id }}"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a>
+                            <a href="/ipplan/list-ip/{{ obj.id }}"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+    
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="delete-subnet-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action method="post" id='delete-subnet-from'>
+                {% csrf_token %}
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Delete subnet</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure to delete this subnet?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+{% endblock content %}
+
+{% block css %}
+<link rel="stylesheet" href="/static/core/css/jquery-datatable.css">
+{% endblock css %}
+
+{% block js %}
+<script src="/static/core/js/jquery-datatable.js"></script>
+<script src="/static/ipplan/js/list-subnet.js"></script>
+{% endblock js %}

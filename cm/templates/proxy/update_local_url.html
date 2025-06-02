@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %} ICMS | Update Section {% endblock title %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+  <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
+    <form action method="POST" class="form-horizontal" role="form">
+      {% csrf_token %}
+      <div class="form-group">
+        <legend class="form-group">Update section</legend>
+      </div>
+      <div class="form-group">
+        {{ form | crispy }}
+      </div>
+
+      <div class="form-group">
+        <button type="submit" class="btn btn-primary form-group">Update</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock content %}
+
+{% block css %}
+<link rel="stylesheet" href="/static/core/css/selectize.css">
+{% endblock css %}
+
+{% block js %}
+<script src="/static/core/js/selectize.js"></script>
+<script src="/static/core/js/sweet-alert.js"></script>
+{% if messages %}
+{% for message in messages %}
+{% if message.tags == 'error' %}
+<script>
+  Swal.fire({
+    text: "{{ message }}",
+    icon: "error"
+  });
+</script>
+{% else %}
+<script>
+  Swal.fire({
+    text: "{{ message }}",
+    icon: "success"
+  });
+</script>
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endblock js %}

@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  {{ banner }}
+{% endblock %}
+
+{% block content %}
+  <div class="row mb-4 d-flex justify-content-between align-items-center">
+    <div class="col-xs-6">
+      <legend>
+        <h3>{{ banner }}</h3>
+      </legend>
+    </div>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover table-bordered" id="table">
+      <thead>
+        <th>Device ip</th>
+        <th>Interface name</th>
+        <th>Interface desc</th>
+        <th>Interface ip</th>
+        <th>Interface vlan</th>
+        <th>Interface speed</th>
+        <th>Interface type</th>
+        <th>Interface state</th>
+        <th>Neighbor device</th>
+        <th>Neighbor interface</th>
+        <th>User created</th>
+        <th>Action</th>
+      </thead>
+      <tbody>
+        {% for obj in devices %}
+          <tr>
+            <td>{{ obj.device_ip }}</td>
+            <td>{{ obj.interface_name }}</td>
+            <td>{{ obj.interface_desc }}</td>
+            <td>{{ obj.interface_ip }}</td>
+            <td>{{ obj.interface_vlan }}</td>
+            <td>{{ obj.interface_speed }}</td>
+            <td>{{ obj.interface_type }}</td>
+            <td>{{ obj.interface_state }}</td>
+            <td>{{ obj.neighbor_device }}</td>
+            <td>{{ obj.neighbor_interface }}</td>
+            <td>{{ obj.user_created }}</td>
+            <td>
+              <a href="{% url 'detail_device_interface' obj.id %}"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}
+
+{% block js %}
+  <script src="/static/inventory/js/list-device-interface.js"></script>
+  <script src="/static/inventory/js/common.js"></script>
+{% endblock %}

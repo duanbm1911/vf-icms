@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  {{ banner }}
+{% endblock %}
+
+{% block content %}
+  <div class="row mb-4 d-flex justify-content-between align-items-center">
+    <div class="col-xs-6">
+      <legend>
+        <h3>{{ banner }}</h3>
+      </legend>
+    </div>
+    <div class="col-xs-6 text-right">
+      <a href="{% url 'create_device_rack_layout' %}" class="btn btn-success"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create</a>
+    </div>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover table-bordered" id="table">
+      <thead>
+        <th>Branch</th>
+        <th>Province</th>
+        <th>Name</th>
+        <th>Device IP</th>
+        <th>Device rack name</th>
+        <th>Device rack unit</th>
+        <th>Action</th>
+      </thead>
+      <tbody>
+        {% for obj in devices %}
+          <tr>
+            <td>{{ obj.device_ip.device_branch }}</td>
+            <td>{{ obj.device_ip.device_province }}</td>
+            <td>{{ obj.device_ip.device_name }}</td>
+            <td>{{ obj.device_ip.device_ip }}</td>
+            {% if obj.device_rack_name == null %}
+              <td>
+                <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> No data
+              </td>
+            {% else %}
+              <td>{{ obj.device_rack_name }}</td>
+            {% endif %}
+            {% if obj.device_rack_unit == null %}
+              <td>
+                <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> No data
+              </td>
+            {% else %}
+              <td>{{ obj.device_rack_unit }}</td>
+            {% endif %}
+            <td>
+              <a href="{% url 'update_device_rack_layout' obj.id %}"><span class="glyphicon glyphicon-wrench" aria-hidden="true"></span></a>
+              <a data-toggle="modal" href="#delete-modal" id="{{ obj.id }}"><span class="glyphicon glyphicon-trash" aria-hidden="true" id="{{ obj.id }}"></span></a>
+              <a href="{% url 'detail_device_rack_layout' obj.id %}"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="delete-modal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form action method="post" id="delete-form">
+          {% csrf_token %}
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Delete Device</h4>
+          </div>
+          <div class="modal-body">
+            <p>Are you sure to delete this device?</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Delete</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block js %}
+  <script src="/static/inventory/js/list-device-rack-layout.js"></script>
+  <script src="/static/inventory/js/common.js"></script>
+{% endblock %}
