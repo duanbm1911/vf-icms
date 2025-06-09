@@ -1,21 +1,25 @@
-from django.shortcuts import render
-from django.db.models import ProtectedError
-from django.http import HttpResponse
-from cm.models import *
-from cm.forms import *
-from django.db.models import Q
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
-from django.contrib import messages
 from django.contrib.messages import constants
-from django.shortcuts import redirect
 from django.views.generic import CreateView
 from django.views.generic import ListView
 from django.views.generic import UpdateView
 from django.views.generic import DeleteView
 from django.views.generic import DetailView
 from django.views.generic import TemplateView
+from django.views.generic import FormView
+from django.db.utils import IntegrityError
+from django.db.models import ProtectedError
+from django.shortcuts import redirect
+from django.http import HttpResponse
 from django.urls import reverse_lazy
+from django.shortcuts import render
+from django.contrib import messages
+from cm.models import *
+from cm.forms import *
+from django.db.models import Q
+
+from django.db import transaction
 import io, csv, openpyxl
 
 # Create your views here.
@@ -1271,29 +1275,111 @@ class FMCDomainDeleteView(DeleteView):
         return redirect(self.success_url)
 
 ## local user
-
-class CheckpointLocalUserCreateView(CreateView):
-    model = CheckpointLocalUser
-    form_class = CheckpointLocalUserForm
+class CheckpointLocalUserCreateView(FormView):
+    form_class = CheckpointLocalUserBulkForm
     template_name = "checkpoint/local-user/create.html"
     success_url = reverse_lazy("checkpoint_list_task_local_user")
 
-    @method_decorator(login_required)
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.groups.filter(name="ADMIN").exists():
-            return render(request, template_name="checkpoint/common/403.html")
-        return super().dispatch(request, *args, **kwargs)
-
+    @transaction.atomic
     def form_valid(self, form):
-        form.instance.user_created = str(self.request.user)
-        messages.add_message(self.request, constants.SUCCESS, "Create success")
+        data = form.cleaned_data
+        user_names = [name.strip() for name in data['user_names'].splitlines() if name.strip()]
+        
+        created_count = 0
+        updated_count = 0
+        skipped_count = 0
+
+        for username in user_names:
+            try:
+                try:
+                    user = CheckpointLocalUser.objects.get(user_name=username)
+                    created = False
+                except CheckpointLocalUser.DoesNotExist:
+                    if not data.get('email'):
+                        raise IntegrityError("Email là bắt buộc khi tạo user mới")
+                    
+                    user = CheckpointLocalUser(
+                        user_name=username,
+                        user_created=self.request.user.username,
+                        email=data['email']
+                    )
+                    created = True
+
+                if created:
+                    user.template = data['template']
+                    user.is_partner = data['is_partner']
+                    user.password = data['password'] or None
+                    user.phone_number = data['phone_number']
+                    user.expiration_date = data['expiration_date'].strftime("%Y-%m-%d") if data['expiration_date'] else None
+                    user.custom_group = data['custom_group'] or None
+                    user.status = data['status'] or 'Created'
+                    user.save()
+                    
+                    if data['user_group']:
+                        user.user_group.set(data['user_group'])
+                    
+                    created_count += 1
+                else:
+                    update_fields = []
+                    
+                    if data['template'] is not None:
+                        user.template = data['template']
+                        update_fields.append('template')
+                    
+                    if data['is_partner'] is not None:
+                        user.is_partner = data['is_partner']
+                        update_fields.append('is_partner')
+                    
+                    if data['password']:
+                        user.password = data['password']
+                        update_fields.append('password')
+                    
+                    if data['email']:
+                        user.email = data['email']
+                        update_fields.append('email')
+                    
+                    if data['phone_number'] is not None:
+                        user.phone_number = data['phone_number']
+                        update_fields.append('phone_number')
+                    
+                    if data['expiration_date'] is not None:
+                        user.expiration_date = data['expiration_date'].strftime("%Y-%m-%d")
+                        update_fields.append('expiration_date')
+                    
+                    if data['custom_group'] is not None:
+                        user.custom_group = data['custom_group'] or None
+                        update_fields.append('custom_group')
+                    
+                    if data['status']:
+                        user.status = data['status']
+                        update_fields.append('status')
+                    
+                    if update_fields:
+                        user.save(update_fields=update_fields)
+                    
+                    if data['user_group'] is not None:
+                        user.user_group.set(data['user_group'])
+                    
+                    updated_count += 1
+                        
+            except IntegrityError as e:
+                skipped_count += 1
+                messages.warning(self.request, f"Process error with {username}: {str(e)}")
+            except Exception as e:
+                skipped_count += 1
+                messages.warning(self.request, f"Process error with {username}: {str(e)}")
+
+        msg = f"Success: {created_count} Created, {updated_count} Updated"
+        if skipped_count:
+            msg += f", {skipped_count} Skiped"
+        messages.success(self.request, msg)
+        
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['banner'] = f"Create {self.model.__name__}"
+        context['banner'] = f"Create CheckpointLocalUser"
         return context
-
 
 class CheckpointLocalUserListView(ListView):
     model = CheckpointLocalUser

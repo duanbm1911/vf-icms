@@ -26,7 +26,17 @@
                     <td>{{ obj.expiration_date }}</td>
                     <td>{{ obj.user_created }}</td>
                     <td>{{ obj.time_created|date:'h:iA - d/m/Y' }}</td>
-                    <td>{{ obj.status }}</td>
+                    <td>
+                        {% if obj.status == 'Success' %}
+                            <span class="label label-success">Success</span>
+                        {% elif obj.status == 'Processing' %}
+                            <span class="label label-warning">Processing</span>
+                        {% elif obj.status == 'Failed' %}
+                            <span class="label label-danger">Failed</span>
+                        {% else %}
+                            <span class="label label-default">{{ obj.status }}</span>
+                        {% endif %}
+                    </td>
                     <td>
                         <a href="/cm/checkpoint/local-user/update/{{ obj.id }}"><span
                                 class="glyphicon glyphicon-wrench" aria-hidden="true"></span></a>

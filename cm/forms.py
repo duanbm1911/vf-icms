@@ -1,5 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
+from django.forms import modelformset_factory
 from django import forms
 from cm.models import *
 
@@ -115,7 +116,35 @@ class CheckpointLocalUserForm(forms.ModelForm):
             raise forms.ValidationError("Invalid SMC. Please select a SMC")
             
         return smc
-
+    
+class CheckpointLocalUserBulkForm(forms.Form):
+    user_names = forms.CharField(
+        widget=forms.Textarea,
+        help_text="Enter user names (one per line). Existing users will be updated.",
+        label="User name"
+    )
+    
+    template = forms.ModelChoiceField(
+        queryset=CheckpointLocalUserTemplate.objects.all(),
+        required=False
+    )
+    is_partner = forms.BooleanField(required=False, initial=False)
+    password = forms.CharField(widget=forms.PasswordInput, required=False)
+    email = forms.EmailField(required=False)
+    phone_number = forms.IntegerField(required=False)
+    expiration_date = forms.DateField(
+        widget=forms.TextInput(attrs={"type": "date"}),
+        required=False
+    )
+    user_group = forms.ModelMultipleChoiceField(
+        queryset=CheckpointLocalUserGroup.objects.all(),
+        required=False
+    )
+    custom_group = forms.CharField(max_length=200, required=False)
+    status = forms.ChoiceField(
+        choices=CHECKPOINT_LOCAL_USER_STATUS, 
+        required=False
+    )
 
 class FMCPolicyForm(forms.ModelForm):
     class Meta:
