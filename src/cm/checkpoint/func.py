@@ -28,9 +28,9 @@ def is_domain(domain):
         return False
 
 
-def is_user(user):
-    obj = user.split("/")
-    if len(obj) == 2 and "user" == obj[0] or "partner" == obj[0]:
+def is_access_role(role):
+    obj = role.split("@")
+    if len(obj) == 2 and "role" == obj[1]:
         return True
     return False
 
@@ -104,7 +104,7 @@ def check_list_object(datalist):
             pass
         elif item != "any" and is_domain(item) is True:
             pass
-        elif item != "any" and is_user(item) is True:
+        elif item != "any" and is_access_role(item) is True:
             pass
         elif item == "any" and len(datalist) == 1:
             pass
