@@ -73,7 +73,6 @@ class CheckpointLocalUserTemplateForm(forms.ModelForm):
         model = CheckpointLocalUserTemplate
         fields = [
             "name",
-            "site",
             "default_group",
             "radius_group_server"
         ]
@@ -88,6 +87,7 @@ class CheckpointLocalUserForm(forms.ModelForm):
 
         model = CheckpointLocalUser
         fields = [
+            "site",
             "template", 
             "user_name", 
             "is_partner",
