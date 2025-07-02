@@ -1463,7 +1463,8 @@ def cm_checkpoint_get_list_local_user(request):
                         "user_group": [str(i.group) for i in item.user_group.all()],
                         "custom_group": "" if not item.custom_group else item.custom_group,
                         "default_group": item.template.default_group,
-                        "radius_group": item.template.radius_group_server
+                        "radius_group": item.template.radius_group_server,
+                        "skip_send_alert_email": item.template.skip_send_alert_email
                     })
 
                 datalist.append({

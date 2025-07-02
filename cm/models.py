@@ -26,6 +26,7 @@ class CheckpointLocalUserTemplate(models.Model):
     site = models.ForeignKey('CheckpointSite', on_delete=models.CASCADE)
     default_group = models.CharField(max_length=100, blank=True, null=True)
     radius_group_server = models.CharField(max_length=100, blank=True, null=True)
+    skip_send_alert_email = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
@@ -76,7 +77,7 @@ class CheckpointLocalUser(models.Model):
     user_name = models.CharField(max_length=200, unique=True)
     is_partner = models.BooleanField(default=False)
     password = models.CharField(max_length=200, blank=True, null=True)
-    email = models.CharField(max_length=200)
+    email = models.CharField(max_length=200, blank=True, null=True)
     phone_number = models.IntegerField(blank=True, null=True)
     expiration_date = models.CharField(max_length=200, blank=True, null=True)
     user_group = models.ManyToManyField("CheckpointLocalUserGroup", blank=True, null=True)

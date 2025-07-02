@@ -73,8 +73,10 @@ class CheckpointLocalUserTemplateForm(forms.ModelForm):
         model = CheckpointLocalUserTemplate
         fields = [
             "name",
+            "site",
             "default_group",
-            "radius_group_server"
+            "radius_group_server",
+            "skip_send_alert_email"
         ]
     
 
@@ -87,7 +89,6 @@ class CheckpointLocalUserForm(forms.ModelForm):
 
         model = CheckpointLocalUser
         fields = [
-            "site",
             "template", 
             "user_name", 
             "is_partner",
@@ -103,7 +104,10 @@ class CheckpointLocalUserForm(forms.ModelForm):
         email = self.cleaned_data.get('email')
         
         try:
-            validate_email(email)
+            if email is not None:
+                validate_email(email)
+            else:
+                pass
         except ValidationError:
             raise forms.ValidationError("Invalid email. Please enter correct format.")
             

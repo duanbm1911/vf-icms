@@ -1295,13 +1295,9 @@ class CheckpointLocalUserCreateView(FormView):
                     user = CheckpointLocalUser.objects.get(user_name=username)
                     created = False
                 except CheckpointLocalUser.DoesNotExist:
-                    if not data.get('email'):
-                        raise IntegrityError("Email là bắt buộc khi tạo user mới")
-                    
                     user = CheckpointLocalUser(
                         user_name=username,
-                        user_created=self.request.user.username,
-                        email=data['email']
+                        user_created=self.request.user.username
                     )
                     created = True
 
@@ -1309,6 +1305,7 @@ class CheckpointLocalUserCreateView(FormView):
                     user.template = data['template']
                     user.is_partner = data['is_partner']
                     user.password = data['password'] or None
+                    user.email = data['email'] or None
                     user.phone_number = data['phone_number']
                     user.expiration_date = data['expiration_date'].strftime("%Y-%m-%d") if data['expiration_date'] else None
                     user.custom_group = data['custom_group'] or None
