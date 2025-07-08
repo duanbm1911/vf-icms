@@ -28,6 +28,11 @@ F5_VIRTUAL_SERVER_STATUS = (
     ("Failed", "Failed"),
 )
 
+EMAIL_ALERT_TEMPLATE = (
+    ("UserExpiring", "UserExpiring"),
+    ("UserLocked", "UserLocked"),
+    ("UserActivity", "UserActivity")
+)
 
 class CheckpointPolicyForm(forms.ModelForm):
     class Meta:
@@ -78,6 +83,21 @@ class CheckpointLocalUserTemplateForm(forms.ModelForm):
             "radius_group_server",
             "skip_send_alert_email"
         ]
+    
+
+class CheckpointEmailAlertTemplateForm(forms.ModelForm):
+    template_name = forms.ChoiceField(choices=EMAIL_ALERT_TEMPLATE)
+    email_body = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'id': 'code-editor', 
+            'class': 'form-control'
+        }),
+        label="Email Body (Code)"
+    )
+
+    class Meta:
+        model = CheckpointEmailAlertTemplate
+        fields = ['template_name', 'email_title', 'email_body']
     
 
 class CheckpointLocalUserForm(forms.ModelForm):

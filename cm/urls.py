@@ -74,6 +74,10 @@ urlpatterns = [
     path("checkpoint/local-user-template/create",CheckpointLocalUserTemplateCreateView.as_view(),name="checkpoint_create_local_user_template"),
     path("checkpoint/local-user-template/update/<int:pk>",CheckpointLocalUserTemplateUpdateView.as_view(),name="checkpoint_update_local_user_template"),
     path("checkpoint/local-user-template/delete/<int:pk>",CheckpointLocalUserTemplateDeleteView.as_view(),name="checkpoint_delete_local_user_template"),
-    path("checkpoint/local-user-template/detail/<int:pk>",CheckpointLocalUserTemplateDetailView.as_view(),name="checkpoint_detail_local_user_template")
-
+    path("checkpoint/local-user-template/detail/<int:pk>",CheckpointLocalUserTemplateDetailView.as_view(),name="checkpoint_detail_local_user_template"),
+    path("checkpoint/email-alert-template/create", CheckpointEmailAlertTemplateCreateView.as_view(), name="checkpoint_create_email_alert_template"),
+    path("checkpoint/email-alert-template/list", CheckpointEmailAlertTemplateListView.as_view(), name="checkpoint_list_email_alert_template"),
+    path("checkpoint/email-alert-template/update/<int:pk>", CheckpointEmailAlertTemplateUpdateView.as_view(), name="checkpoint_update_email_alert_template"),
+    path("checkpoint/email-alert-template/delete/<int:pk>", CheckpointEmailAlertTemplateDeleteView.as_view(), name="checkpoint_delete_email_alert_template"),
+    path("checkpoint/email-alert-template/detail/<int:pk>", CheckpointEmailAlertTemplateDetailView.as_view(), name="checkpoint_detail_email_alert_template")
 ]

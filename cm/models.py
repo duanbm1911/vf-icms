@@ -55,6 +55,15 @@ class CheckpointGateway(models.Model):
         return self.gateway
 
 
+class CheckpointEmailAlertTemplate(models.Model):
+    template_name = models.CharField(max_length=500, unique=True)
+    email_title = models.CharField(max_length=500)
+    email_body = models.CharField(max_length=3000)
+    
+    def __str__(self):
+        return self.template_name
+    
+
 class CheckpointRule(models.Model):
     policy = models.ForeignKey("CheckpointPolicy", on_delete=models.CASCADE)
     gateway = models.CharField(max_length=500)
