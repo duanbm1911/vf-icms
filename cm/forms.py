@@ -92,7 +92,7 @@ class CheckpointEmailAlertTemplateForm(forms.ModelForm):
             'id': 'code-editor', 
             'class': 'form-control'
         }),
-        label="Email Body (Code)"
+        label="Email Body"
     )
 
     class Meta:
