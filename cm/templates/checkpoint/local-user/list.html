@@ -9,7 +9,6 @@
         </div>
         <table class="table table-hover table-bordered" id="list-local-user-table">
             <thead>
-                <th>Site</th>
                 <th>UserName</th>
                 <th>Mail</th>
                 <th>PhoneNumber</th>
@@ -23,7 +22,6 @@
 
                 {% for obj in objects %}
                 <tr>
-                    <td>{{ obj.template.site.site }}</td>
                     <td>{{ obj.user_name }}</td>
                     <td>{{ obj.email }}</td>
                     <td>{{ obj.phone_number }}</td>
