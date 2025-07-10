@@ -29,9 +29,9 @@ F5_VIRTUAL_SERVER_STATUS = (
 )
 
 EMAIL_ALERT_TEMPLATE = (
-    ("UserExpiring", "UserExpiring"),
-    ("UserLocked", "UserLocked"),
-    ("UserActivity", "UserActivity")
+    ("AlertUserExpiring", "Warning VPN user is about to expire"),
+    ("AlertUserLocked", "Warning VPN user is locked"),
+    ("AlertUserActivity", "Warning VPN user is being logged in")
 )
 
 class CheckpointPolicyForm(forms.ModelForm):
@@ -98,6 +98,17 @@ class CheckpointEmailAlertTemplateForm(forms.ModelForm):
     class Meta:
         model = CheckpointEmailAlertTemplate
         fields = ['template_name', 'email_title', 'email_body']
+
+    def clean_template_name(self):
+        template_name = self.cleaned_data.get('template_name')
+        allowed_values = ['AlertUserExpiring', 'AlertUserLocked', 'AlertUserActivity']
+        
+        if template_name not in allowed_values:
+            raise forms.ValidationError(
+                f"Template name must be one of: {', '.join(allowed_values)}"
+            )
+        
+        return template_name
     
 
 class CheckpointLocalUserForm(forms.ModelForm):

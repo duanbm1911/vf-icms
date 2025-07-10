@@ -33,6 +33,7 @@ urlpatterns = [
     path("cm/checkpoint/gateway", views.cm_checkpoint_get_list_gateway),
     path("cm/checkpoint/local-user", views.cm_checkpoint_get_list_local_user),
     path("cm/checkpoint/update/local-user", views.cm_checkpoint_update_local_user),
+    path("cm/checkpoint/alert-email-template", views.cm_checkpoint_get_alert_email_template),
     path("cm/f5/get/device", views.cm_f5_get_list_device),
     path("cm/f5/get/client-ssl-profile", views.cm_f5_get_list_client_ssl_profile),
     path("cm/f5/get/server-ssl-profile", views.cm_f5_get_list_server_ssl_profile),

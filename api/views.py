@@ -1551,6 +1551,22 @@ def cm_fmc_get_list_rule_category(request):
         return JsonResponse({"status": "success", "datalist": list(datalist)})
     else:
         return JsonResponse({"erorr": "Method is not allowed"}, status=405)
+    
+
+@logged_in_or_basicauth()
+def cm_checkpoint_get_alert_email_template(request):
+    if request.method == "GET":
+        template = request.GET.get("template")
+        if template:
+            if CheckpointEmailAlertTemplate.objects.filter(template_name=template).exists():
+                email_body = CheckpointEmailAlertTemplate.objects.get(template_name=template).email_body
+                return JsonResponse({"status": "success", "email_body": email_body})
+            else:
+                return JsonResponse({"status": "error", "message": "Template name is not exists"})
+        else:
+            return JsonResponse({"status": "error", "message": "Request parameter is required"})
+    else:
+        return JsonResponse({"erorr": "Method is not allowed"}, status=405)
 
 
 @logged_in_or_basicauth()
