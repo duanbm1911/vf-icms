@@ -64,5 +64,9 @@ urlpatterns = [
     path("cm/fmc/site", views.cm_fmc_get_list_site),
     path("cm/fmc/gateway", views.cm_fmc_get_list_gateway),
     path("cm/fmc/dashboard-01", views.fmc_dashboard_01),
-    path("cm/fmc/dashboard-02", views.fmc_dashboard_02)
+    path("cm/fmc/dashboard-02", views.fmc_dashboard_02),
+    path('cm/checkpoint/user-groups', views.cm_checkpoint_get_user_groups, name='api_user_groups'),
+    path('cm/checkpoint/create-local-user', views.cm_checkpoint_create_local_user, name='api_create_local_user'),
+    path('cm/checkpoint/user-template', views.cm_checkpoint_get_user_template, name='api_get_user_template'),
+
 ]

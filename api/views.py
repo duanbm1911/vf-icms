@@ -1662,3 +1662,217 @@ def cm_fmc_update_rule_status(request):
         return JsonResponse({"status": "success"})
     else:
         return JsonResponse({"erorr": "Method is not allowed"}, status=405)
+
+
+@logged_in_or_basicauth()
+def cm_checkpoint_get_user_groups(request):
+    if request.user.groups.filter(name="ADMIN").exists():
+        datalist = []
+        if request.method == "GET":
+            try:
+                objects = CheckpointLocalUserGroup.objects.all().values_list('group', flat=True)
+                for item in list(objects):
+                    datalist.append({"id": item, "label": item})
+                    
+                return JsonResponse({"datalist": list(datalist)}, status=200)
+            except Exception as e:
+                return JsonResponse({"error": f"Error fetching user groups: {str(e)}"}, status=500)
+        else:
+            return JsonResponse({"error": "Method is not allowed"}, status=405)
+    else:
+        return JsonResponse({"error": "forbidden"}, status=403)
+    
+
+@logged_in_or_basicauth()
+@csrf_exempt
+def cm_checkpoint_create_local_user(request):
+    try:
+        if request.user.groups.filter(name="ADMIN").exists():
+            if request.method == "POST":
+                datalist = request.POST.get('datalist', [])
+                if isinstance(datalist, str):
+                    datalist = json.loads(datalist)
+                
+                created_count = 0
+                updated_count = 0
+                skipped_count = 0
+                error_messages = []
+                
+                with transaction.atomic():
+                    for index, row_data in enumerate(datalist):
+                        try:
+                            # Skip empty rows
+                            if not any(row_data) or not row_data[0].strip():
+                                continue
+                                
+                            username = row_data[0].strip()
+                            template = row_data[1] if row_data[1] else None
+                            is_partner = row_data[2].lower() == 'true' if row_data[2] else False
+                            password = row_data[3] if row_data[3] else None
+                            email = row_data[4] if row_data[4] else None
+                            phone_number = row_data[5] if row_data[5] else None
+                            expiration_date = row_data[6] if row_data[6] else None
+                            user_group_names = row_data[7].split(',') if row_data[7] else []
+                            custom_group = row_data[8] if len(row_data) > 8 and row_data[8] else None
+                            
+                            # Validate required fields
+                            if not username:
+                                error_messages.append(f"Row {index + 1}: Username is required")
+                                continue
+                                
+                            # Validate email format if provided
+                            if email and not re.match(r'^[^@]+@[^@]+\.[^@]+$', email):
+                                error_messages.append(f"Row {index + 1}: Invalid email format")
+                                continue
+                                
+                            # Parse expiration date
+                            parsed_expiration_date = None
+                            if expiration_date:
+                                try:
+                                    parsed_expiration_date = datetime.strptime(expiration_date, "%Y-%m-%d").date()
+                                except ValueError:
+                                    error_messages.append(f"Row {index + 1}: Invalid date format, use YYYY-MM-DD")
+                                    continue
+                            
+                            # Check if user exists
+                            try:
+                                user = CheckpointLocalUser.objects.get(user_name=username)
+                                created = False
+                            except CheckpointLocalUser.DoesNotExist:
+                                user = CheckpointLocalUser(
+                                    user_name=username,
+                                    user_created=request.user.username
+                                )
+                                created = True
+                            
+                            # Set user attributes
+                            if created:
+                                user.template = template
+                                user.is_partner = is_partner
+                                user.password = password
+                                user.email = email
+                                user.phone_number = phone_number
+                                user.expiration_date = parsed_expiration_date
+                                user.custom_group = custom_group
+                                user.status = 'Created'  # Default status
+                                user.save()
+                                
+                                # Set user groups
+                                if user_group_names:
+                                    user_groups = []
+                                    for group_name in user_group_names:
+                                        group_name = group_name.strip()
+                                        if group_name:
+                                            try:
+                                                group = UserGroup.objects.get(name=group_name)
+                                                user_groups.append(group)
+                                            except UserGroup.DoesNotExist:
+                                                error_messages.append(f"Row {index + 1}: User group '{group_name}' not found")
+                                    
+                                    if user_groups:
+                                        user.user_group.set(user_groups)
+                                
+                                created_count += 1
+                            else:
+                                # Update existing user
+                                update_fields = []
+                                
+                                if template is not None:
+                                    user.template = template
+                                    update_fields.append('template')
+                                
+                                if is_partner is not None:
+                                    user.is_partner = is_partner
+                                    update_fields.append('is_partner')
+                                
+                                if password:
+                                    user.password = password
+                                    update_fields.append('password')
+                                
+                                if email:
+                                    user.email = email
+                                    update_fields.append('email')
+                                
+                                if phone_number is not None:
+                                    user.phone_number = phone_number
+                                    update_fields.append('phone_number')
+                                
+                                if parsed_expiration_date is not None:
+                                    user.expiration_date = parsed_expiration_date
+                                    update_fields.append('expiration_date')
+                                
+                                if custom_group is not None:
+                                    user.custom_group = custom_group
+                                    update_fields.append('custom_group')
+                                
+                                if update_fields:
+                                    user.save(update_fields=update_fields)
+                                
+                                # Update user groups
+                                if user_group_names:
+                                    user_groups = []
+                                    for group_name in user_group_names:
+                                        group_name = group_name.strip()
+                                        if group_name:
+                                            try:
+                                                group = UserGroup.objects.get(name=group_name)
+                                                user_groups.append(group)
+                                            except UserGroup.DoesNotExist:
+                                                error_messages.append(f"Row {index + 1}: User group '{group_name}' not found")
+                                    
+                                    if user_groups:
+                                        user.user_group.set(user_groups)
+                                
+                                updated_count += 1
+                                
+                        except IntegrityError as e:
+                            skipped_count += 1
+                            error_messages.append(f"Row {index + 1}: Database integrity error - {str(e)}")
+                        except Exception as e:
+                            skipped_count += 1
+                            error_messages.append(f"Row {index + 1}: {str(e)}")
+                
+                # Prepare response message
+                success_msg = f"Success: {created_count} Created, {updated_count} Updated"
+                if skipped_count > 0:
+                    success_msg += f", {skipped_count} Skipped"
+                
+                if error_messages:
+                    return JsonResponse({
+                        "status": "failed", 
+                        "message": f"{success_msg}\n\nErrors:\n" + "\n".join(error_messages)
+                    }, status=200)
+                else:
+                    return JsonResponse({
+                        "status": "success", 
+                        "message": success_msg
+                    }, status=200)
+            else:
+                return JsonResponse({
+                    "status": "failed", 
+                    "message": "Request method is not allowed"
+                }, status=405)
+        else:
+            return JsonResponse({"error": "forbidden"}, status=403)
+    except Exception as error:
+        return JsonResponse({
+            "status": "failed", 
+            "message": f"Exception error: {error}"
+        }, status=500)
+    
+@logged_in_or_basicauth()
+def cm_checkpoint_get_user_template(request):
+    try:
+        templates = list(CheckpointLocalUserTemplate.objects.all().values_list('name', flat=True))
+        
+        return JsonResponse({
+            'status': 'success',
+            'data': templates
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': f'Failed to fetch templates: {e}',
+            'data': []
+        }, status=500)

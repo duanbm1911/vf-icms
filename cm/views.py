@@ -1274,104 +1274,14 @@ class FMCDomainDeleteView(DeleteView):
             messages.add_message(self.request, constants.ERROR, error)
         return redirect(self.success_url)
 
-## local user
-class CheckpointLocalUserCreateView(FormView):
-    form_class = CheckpointLocalUserBulkForm
+class CheckpointLocalUserCreateView(TemplateView):
     template_name = "checkpoint/local-user/create.html"
-    success_url = reverse_lazy("checkpoint_list_task_local_user")
 
-    @transaction.atomic
-    def form_valid(self, form):
-        data = form.cleaned_data
-        user_names = [name.strip() for name in data['user_names'].splitlines() if name.strip()]
-        
-        created_count = 0
-        updated_count = 0
-        skipped_count = 0
-
-        for username in user_names:
-            try:
-                try:
-                    user = CheckpointLocalUser.objects.get(user_name=username)
-                    created = False
-                except CheckpointLocalUser.DoesNotExist:
-                    user = CheckpointLocalUser(
-                        user_name=username,
-                        user_created=self.request.user.username
-                    )
-                    created = True
-
-                if created:
-                    user.template = data['template']
-                    user.is_partner = data['is_partner']
-                    user.password = data['password'] or None
-                    user.email = data['email'] or None
-                    user.phone_number = data['phone_number']
-                    user.expiration_date = data['expiration_date'].strftime("%Y-%m-%d") if data['expiration_date'] else None
-                    user.custom_group = data['custom_group'] or None
-                    user.status = data['status'] or 'Created'
-                    user.save()
-                    
-                    if data['user_group']:
-                        user.user_group.set(data['user_group'])
-                    
-                    created_count += 1
-                else:
-                    update_fields = []
-                    
-                    if data['template'] is not None:
-                        user.template = data['template']
-                        update_fields.append('template')
-                    
-                    if data['is_partner'] is not None:
-                        user.is_partner = data['is_partner']
-                        update_fields.append('is_partner')
-                    
-                    if data['password']:
-                        user.password = data['password']
-                        update_fields.append('password')
-                    
-                    if data['email']:
-                        user.email = data['email']
-                        update_fields.append('email')
-                    
-                    if data['phone_number'] is not None:
-                        user.phone_number = data['phone_number']
-                        update_fields.append('phone_number')
-                    
-                    if data['expiration_date'] is not None:
-                        user.expiration_date = data['expiration_date'].strftime("%Y-%m-%d")
-                        update_fields.append('expiration_date')
-                    
-                    if data['custom_group'] is not None:
-                        user.custom_group = data['custom_group'] or None
-                        update_fields.append('custom_group')
-                    
-                    if data['status']:
-                        user.status = data['status']
-                        update_fields.append('status')
-                    
-                    if update_fields:
-                        user.save(update_fields=update_fields)
-                    
-                    if data['user_group'] is not None:
-                        user.user_group.set(data['user_group'])
-                    
-                    updated_count += 1
-                        
-            except IntegrityError as e:
-                skipped_count += 1
-                messages.warning(self.request, f"Process error with {username}: {str(e)}")
-            except Exception as e:
-                skipped_count += 1
-                messages.warning(self.request, f"Process error with {username}: {str(e)}")
-
-        msg = f"Success: {created_count} Created, {updated_count} Updated"
-        if skipped_count:
-            msg += f", {skipped_count} Skiped"
-        messages.success(self.request, msg)
-        
-        return super().form_valid(form)
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.groups.filter(name="ADMIN").exists():
+            return render(request, template_name="checkpoint/common/403.html")
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
