@@ -68,5 +68,4 @@ urlpatterns = [
     path('cm/checkpoint/user-groups', views.cm_checkpoint_get_user_groups, name='api_user_groups'),
     path('cm/checkpoint/create-local-user', views.cm_checkpoint_create_local_user, name='api_create_local_user'),
     path('cm/checkpoint/user-template', views.cm_checkpoint_get_user_template, name='api_get_user_template'),
-
 ]
