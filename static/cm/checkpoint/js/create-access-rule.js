@@ -80,7 +80,6 @@ $(document).ready(function () {
       type: "GET",
       url: '/api/cm/checkpoint/gateway?policy=' + policy,
       success: function (response) {
-        console.log(response)
         cellProperties.chosenOptions.data = response.datalist
       }
     })
