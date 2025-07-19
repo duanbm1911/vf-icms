@@ -3,9 +3,10 @@ $(document).ready(function () {
   var container = document.getElementById('dataTable');
   
   function customUserGroupRenderer(instance, td, row, col, prop, value, cellProperties) {
+    var template = instance.getDataAtRow(row)[1]
     $.ajax({
       type: "GET",
-      url: '/api/cm/checkpoint/user-groups',
+      url: '/api/cm/checkpoint/user-groups?template=' + template,
       success: function (response) {
         cellProperties.chosenOptions.data = response.datalist || [];
       }

@@ -50,7 +50,7 @@ urlpatterns = [
     path("cm/f5/update/server-ssl-profile", views.cm_f5_update_server_ssl_profile),
     path("cm/f5/update/irule-profile", views.cm_f5_update_irule_profile),
     path("cm/f5/update/waf-profile", views.cm_f5_update_waf_profile),
-    path("cm/f5/update/pool-monitor", views.cm_f5_update_pool_monitor),
+    path("cm/f5/update/pool-monitor", views.cm_f5_get_list_pool_monitor),
     path("cm/f5/update/virtual-server", views.cm_f5_update_virtual_server),
     path("cm/f5/task/get/virtual-server", views.cm_f5_get_list_task_create_virtual_server),
     path("cm/f5/task/get/limit-connection", views.cm_f5_get_list_task_limit_connection),

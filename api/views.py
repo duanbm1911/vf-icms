@@ -18,7 +18,7 @@ from ipaddress import ip_network
 from django.db.models import Count
 from operator import itemgetter
 from dotenv import load_dotenv
-from django.db import transaction, IntegrityError
+from django.db import transaction
 import datetime
 import base64
 import json
@@ -797,422 +797,441 @@ def cm_checkpoint_update_rule_status(request):
 
 @logged_in_or_basicauth()
 def cm_f5_get_list_device(request):
-    if request.user.groups.filter(name="ADMIN").exists():
-        if request.method == "GET":
-            datalist = F5Device.objects.all().values_list("f5_device_ip", flat=True)
-            return JsonResponse(
-                {"status": "success", "datalist": list(datalist)}, status=200
-            )
-        else:
-            return JsonResponse(
-                {"status": "failed", "erorr": "Method is not allowed"}, status=405
-            )
-    else:
-        return JsonResponse({"status": "failed", "erorr": "forbidden"}, status=403)
+    if not request.user.groups.filter(name="ADMIN").exists():
+        return JsonResponse({"error": "Forbidden"}, status=403)
+    
+    if request.method != "GET":
+        return JsonResponse({"error": "Method not allowed"}, status=405)
+    
+    try:
+        datalist = list(F5Device.objects.all().values_list("f5_device_ip", flat=True))
+        return JsonResponse({"status": "success", "datalist": datalist})
+    except Exception as e:
+        return JsonResponse({"error": "Database error"}, status=500)
 
 
 @csrf_exempt
 @logged_in_or_basicauth()
 def cm_f5_create_task_virtual_server(request):
+    if not request.user.groups.filter(name="ADMIN").exists():
+        return JsonResponse({"error": "Forbidden"}, status=403)
+    
+    if request.method != "POST":
+        return JsonResponse({"error": "Method not allowed"}, status=405)
+    
     try:
-        if request.user.groups.filter(name="ADMIN").exists():
-            if request.method == "POST":
-                list_obj = list(request.POST)
-                list_error_message = str()
-                datalist = list()
-                status = "Created"
-                user_created = request.user
-                for obj in list_obj:
-                    index = list_obj.index(obj)
-                    data = request.POST.getlist(obj)
-                    error_message = check_create_vs_input(data, index)
-                    if not error_message:
-                        f5_device_ip = data[0]
-                        service_name = data[1]
-                        virtual_server = data[2]
-                        pool_member = [
-                            i.replace(" ", "").replace("\r", "")
-                            for i in data[3].split("\n")
-                        ]
-                        pool_monitor = data[4]
-                        pool_lb_method = data[5]
-                        client_ssl_profile = data[6]
-                        server_ssl_profile = data[7]
-                        irules = []
-                        if data[8]:
-                            irules = [i for i in data[8].split(",")]
-                        waf_profile = data[9]
-                        f5_template = data[10]
-                        datalist.append(
-                            [
-                                f5_device_ip,
-                                service_name,
-                                virtual_server,
-                                json.dumps(pool_member),
-                                pool_monitor,
-                                pool_lb_method,
-                                client_ssl_profile,
-                                server_ssl_profile,
-                                json.dumps(irules),
-                                waf_profile,
-                                f5_template,
-                            ]
-                        )
-                    else:
-                        list_error_message += error_message + "\n"
-                if list_error_message:
-                    return JsonResponse(
-                        {"status": "failed", "message": list_error_message}, status=200
-                    )
-                else:
-                    for item in datalist:
-                        vs_ip = item[2].split(":")[0]
-                        vs_port = item[2].split(":")[1]
-                        model = F5CreateVirtualServer(
-                            f5_device_ip=F5Device.objects.get(
-                                f5_device_ip=item[0]),
-                            service_name=item[1],
-                            vs_ip=vs_ip,
-                            vs_port=vs_port,
-                            vs_name=f"{service_name}-{vs_ip}-{vs_port}-vs",
-                            pool_name=f"{service_name}-{vs_ip}-{vs_port}-pool",
-                            pool_member=item[3],
-                            pool_monitor=item[4],
-                            pool_lb_method=item[5],
-                            client_ssl_profile=item[6],
-                            server_ssl_profile=item[7],
-                            irules=item[8],
-                            waf_profile=item[9],
-                            f5_template=F5Template.objects.get(
-                                template_name=item[10]),
-                            status=status,
-                            user_created=user_created,
-                        )
-                        model.save()
-                    return JsonResponse(
-                        {
-                            "status": "success",
-                            "message": "Create virtual server success",
-                        },
-                        status=200,
-                    )
-            else:
-                return JsonResponse(
-                    {"status": "failed", "message": "Request method is not allowed"},
-                    status=405,
-                )
-        else:
-            return JsonResponse({"erorr": "forbidden"}, status=403)
-    except Exception as error:
-        return JsonResponse(
-            {"status": "failed", "message": f"Exception error: {error}"}, status=500
-        )
+        datalist = []
+        error_messages = []
+        
+        for obj in request.POST:
+            data = request.POST.getlist(obj)
+            error_message = check_create_vs_input(data, list(request.POST).index(obj))
+            
+            if error_message:
+                error_messages.append(error_message)
+                continue
+            
+            pool_member = [
+                member.strip() for member in data[3].split("\n") 
+                if member.strip()
+            ]
+            irules = [rule.strip() for rule in data[8].split(",") if rule.strip()] if data[8] else []
+            
+            datalist.append({
+                'f5_device_ip': data[0],
+                'service_name': data[1],
+                'virtual_server': data[2],
+                'pool_member': pool_member,
+                'pool_monitor': data[4],
+                'pool_lb_method': data[5],
+                'client_ssl_profile': data[6],
+                'server_ssl_profile': data[7],
+                'irules': irules,
+                'waf_profile': data[9],
+                'f5_template': data[10],
+            })
+        
+        if error_messages:
+            return JsonResponse({
+                "status": "failed", 
+                "message": "\n".join(error_messages)
+            })
+        
+        f5_devices = {item['f5_device_ip']: F5Device.objects.get(f5_device_ip=item['f5_device_ip']) for item in datalist}
+        f5_templates = {item['f5_template']: F5Template.objects.get(template_name=item['f5_template']) for item in datalist}
+        
+        virtual_servers = []
+        for item in datalist:
+            vs_ip, vs_port = item['virtual_server'].split(":")
+            service_name = item['service_name']
+            
+            virtual_servers.append(F5CreateVirtualServer(
+                f5_device_ip=f5_devices[item['f5_device_ip']],
+                service_name=service_name,
+                vs_ip=vs_ip,
+                vs_port=vs_port,
+                vs_name=f"{service_name}-{vs_ip}-{vs_port}-vs",
+                pool_name=f"{service_name}-{vs_ip}-{vs_port}-pool",
+                pool_member=json.dumps(item['pool_member']),
+                pool_monitor=item['pool_monitor'],
+                pool_lb_method=item['pool_lb_method'],
+                client_ssl_profile=item['client_ssl_profile'],
+                server_ssl_profile=item['server_ssl_profile'],
+                irules=json.dumps(item['irules']),
+                waf_profile=item['waf_profile'],
+                f5_template=f5_templates[item['f5_template']],
+                status="Created",
+                user_created=request.user,
+            ))
+        
+        F5CreateVirtualServer.objects.bulk_create(virtual_servers)
+        
+        return JsonResponse({
+            "status": "success",
+            "message": "Create virtual server success"
+        })
+        
+    except F5Device.DoesNotExist:
+        return JsonResponse({"error": "F5 device not found"}, status=400)
+    except F5Template.DoesNotExist:
+        return JsonResponse({"error": "F5 template not found"}, status=400)
+    except Exception as e:
+        return JsonResponse({"error": "Database error"}, status=500)
 
 
 @logged_in_or_basicauth()
 def cm_f5_get_list_client_ssl_profile(request):
-    if request.method == "GET":
-        f5_device_ip = request.GET.get("f5_device_ip", None)
-        datalist = F5ClientSSLProfile.objects.filter(
+    if request.method != "GET":
+        return JsonResponse({"error": "Method not allowed"}, status=405)
+    
+    f5_device_ip = request.GET.get("f5_device_ip")
+    if not f5_device_ip:
+        return JsonResponse({"error": "f5_device_ip parameter required"}, status=400)
+    
+    try:
+        datalist = list(F5ClientSSLProfile.objects.filter(
             f5_device_ip__f5_device_ip=f5_device_ip
-        ).values_list("profile_name", flat=True)
-        return JsonResponse({"status": "success", "datalist": list(datalist)})
-    else:
-        return JsonResponse({"erorr": "Method is not allowed"}, status=405)
+        ).values_list("profile_name", flat=True))
+        
+        return JsonResponse({"status": "success", "datalist": datalist})
+    except Exception as e:
+        return JsonResponse({"error": "Database error"}, status=500)
 
 
 @logged_in_or_basicauth()
 def cm_f5_get_list_virtual_server(request):
-    if request.method == "GET":
-        datalist = list()
-        f5_device_ip = request.GET.get("f5_device_ip", None)
+    if request.method != "GET":
+        return JsonResponse({"error": "Method not allowed"}, status=405)
+    
+    f5_device_ip = request.GET.get("f5_device_ip")
+    if not f5_device_ip:
+        return JsonResponse({"error": "f5_device_ip parameter required"}, status=400)
+    
+    try:
+        user_groups = set(request.user.groups.all())
         objects = F5VirtualServer.objects.filter(
             f5_device_ip__f5_device_ip=f5_device_ip
-        )
-        for object in objects:
-            if set(object.group_permission.all()) & set(request.user.groups.all()):
-                datalist.append(object.vs_name)
-        return JsonResponse({"status": "success", "datalist": list(datalist)})
-    else:
-        return JsonResponse({"erorr": "Method is not allowed"}, status=405)
+        ).prefetch_related('group_permission')
+        
+        datalist = [
+            obj.vs_name for obj in objects
+            if set(obj.group_permission.all()) & user_groups
+        ]
+        
+        return JsonResponse({"status": "success", "datalist": datalist})
+    except Exception as e:
+        return JsonResponse({"error": "Database error"}, status=500)
 
 
 @logged_in_or_basicauth()
 def cm_f5_get_list_server_ssl_profile(request):
-    if request.method == "GET":
-        f5_device_ip = request.GET.get("f5_device_ip", None)
-        datalist = F5ServerSSLProfile.objects.filter(
+    if request.method != "GET":
+        return JsonResponse({"error": "Method not allowed"}, status=405)
+    
+    f5_device_ip = request.GET.get("f5_device_ip")
+    if not f5_device_ip:
+        return JsonResponse({"error": "f5_device_ip parameter required"}, status=400)
+    
+    try:
+        datalist = list(F5ServerSSLProfile.objects.filter(
             f5_device_ip__f5_device_ip=f5_device_ip
-        ).values_list("profile_name", flat=True)
-        return JsonResponse({"status": "success", "datalist": list(datalist)})
-    else:
-        return JsonResponse({"erorr": "Method is not allowed"}, status=405)
+        ).values_list("profile_name", flat=True))
+        
+        return JsonResponse({"status": "success", "datalist": datalist})
+    except Exception as e:
+        return JsonResponse({"error": "Database error"}, status=500)
 
 
 @logged_in_or_basicauth()
 def cm_f5_get_list_pool_monitor(request):
-    if request.method == "GET":
-        f5_device_ip = request.GET.get("f5_device_ip", None)
-        datalist = F5PoolMemberMonitor.objects.filter(
-            f5_device_ip__f5_device_ip=f5_device_ip
-        ).values_list("pool_monitor", flat=True)
-        return JsonResponse({"status": "success", "datalist": list(datalist)})
-    else:
-        return JsonResponse({"erorr": "Method is not allowed"}, status=405)
+    if request.method != "GET":
+        return JsonResponse({"error": "Method is not allowed"}, status=405)
+    
+    f5_device_ip = request.GET.get("f5_device_ip")
+    if not f5_device_ip:
+        return JsonResponse({"error": "f5_device_ip is required"}, status=400)
+    
+    datalist = F5PoolMemberMonitor.objects.filter(
+        f5_device_ip__f5_device_ip=f5_device_ip
+    ).values_list("pool_monitor", flat=True)
+    
+    return JsonResponse({"status": "success", "datalist": list(datalist)})
 
 
 @logged_in_or_basicauth()
 def cm_f5_get_list_pool_lb_method(request):
-    if request.method == "GET":
-        datalist = F5PoolMemberMethod.objects.all().values_list(
-            "pool_method", flat=True
-        )
-        return JsonResponse({"status": "success", "datalist": list(datalist)})
-    else:
-        return JsonResponse({"erorr": "Method is not allowed"}, status=405)
+    if request.method != "GET":
+        return JsonResponse({"error": "Method is not allowed"}, status=405)
+    
+    datalist = F5PoolMemberMethod.objects.all().values_list(
+        "pool_method", flat=True
+    )
+    
+    return JsonResponse({"status": "success", "datalist": list(datalist)})
 
 
 @logged_in_or_basicauth()
 def cm_f5_get_list_template(request):
-    if request.method == "GET":
-        datalist = F5Template.objects.all().values_list("template_name", flat=True)
-        return JsonResponse({"status": "success", "datalist": list(datalist)})
-    else:
-        return JsonResponse({"erorr": "Method is not allowed"}, status=405)
+    if request.method != "GET":
+        return JsonResponse({"error": "Method is not allowed"}, status=405)
+    
+    datalist = F5Template.objects.all().values_list("template_name", flat=True)
+    
+    return JsonResponse({"status": "success", "datalist": list(datalist)})
 
 
 @logged_in_or_basicauth()
 def cm_f5_get_list_waf_profile(request):
-    if request.method == "GET":
-        f5_device_ip = request.GET.get("f5_device_ip", None)
-        datalist = F5WafProfile.objects.filter(
-            f5_device_ip__f5_device_ip=f5_device_ip
-        ).values_list("waf_profile", flat=True)
-        return JsonResponse({"status": "success", "datalist": list(datalist)})
-    else:
-        return JsonResponse({"erorr": "Method is not allowed"}, status=405)
+    if request.method != "GET":
+        return JsonResponse({"error": "Method is not allowed"}, status=405)
+    
+    f5_device_ip = request.GET.get("f5_device_ip")
+    if not f5_device_ip:
+        return JsonResponse({"error": "f5_device_ip is required"}, status=400)
+    
+    datalist = F5WafProfile.objects.filter(
+        f5_device_ip__f5_device_ip=f5_device_ip
+    ).values_list("waf_profile", flat=True)
+    
+    return JsonResponse({"status": "success", "datalist": list(datalist)})
 
 
 @logged_in_or_basicauth()
 def cm_f5_get_list_irule_profile(request):
-    if request.method == "GET":
-        datalist = list()
-        f5_device_ip = request.GET.get("f5_device_ip", None)
-        objects = F5Irule.objects.filter(
-            f5_device_ip__f5_device_ip=f5_device_ip
-        ).values_list("irule_name", flat=True)
-        for item in list(objects):
-            datalist.append({"id": item, "label": item})
-        return JsonResponse({"status": "success", "datalist": list(datalist)})
-    else:
-        return JsonResponse({"erorr": "Method is not allowed"}, status=405)
+    if request.method != "GET":
+        return JsonResponse({"error": "Method is not allowed"}, status=405)
+    
+    f5_device_ip = request.GET.get("f5_device_ip")
+    if not f5_device_ip:
+        return JsonResponse({"error": "f5_device_ip is required"}, status=400)
+    
+    irule_names = F5Irule.objects.filter(
+        f5_device_ip__f5_device_ip=f5_device_ip
+    ).values_list("irule_name", flat=True)
+    
+    datalist = [{"id": name, "label": name} for name in irule_names]
+    
+    return JsonResponse({"status": "success", "datalist": datalist})
 
 
 @csrf_exempt
 @logged_in_or_basicauth()
 def cm_f5_update_client_ssl_profile(request):
-    if request.method == "POST":
-        dataset = json.loads(request.body.decode("utf-8"))
-        for f5_device_ip, list_client_ssl_profile in dataset.items():
-            checklist = F5Device.objects.filter(
-                f5_device_ip=f5_device_ip).count()
-            if checklist > 0:
-                for client_ssl_profile in list_client_ssl_profile:
-                    f5_device_obj = F5Device.objects.get(
-                        f5_device_ip=f5_device_ip)
-                    F5ClientSSLProfile.objects.update_or_create(
-                        f5_device_ip=f5_device_obj, profile_name=client_ssl_profile
-                    )
-        return JsonResponse({"status": "success"}, status=200)
-    else:
+    if request.method != "POST":
         return JsonResponse({"error_message": "method not allowed"}, status=405)
+    
+    try:
+        dataset = json.loads(request.body.decode("utf-8"))
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return JsonResponse({"error_message": "invalid JSON"}, status=400)
+    
+    f5_devices = {ip: device for ip, device in F5Device.objects.filter(
+        f5_device_ip__in=dataset.keys()).values_list('f5_device_ip', 'id')}
+    
+    for f5_device_ip, list_client_ssl_profile in dataset.items():
+        if f5_device_ip not in f5_devices:
+            continue
+            
+        device_obj = F5Device.objects.get(pk=f5_devices[f5_device_ip])
+        
+        for client_ssl_profile in list_client_ssl_profile:
+            F5ClientSSLProfile.objects.update_or_create(
+                f5_device_ip=device_obj, profile_name=client_ssl_profile
+            )
+    
+    return JsonResponse({"status": "success"}, status=200)
 
 
 @csrf_exempt
 @logged_in_or_basicauth()
 def cm_f5_update_server_ssl_profile(request):
-    if request.method == "POST":
-        dataset = json.loads(request.body.decode("utf-8"))
-        for f5_device_ip, list_server_ssl_profile in dataset.items():
-            checklist = F5Device.objects.filter(
-                f5_device_ip=f5_device_ip).count()
-            if checklist > 0:
-                for server_ssl_profile in list_server_ssl_profile:
-                    f5_device_obj = F5Device.objects.get(
-                        f5_device_ip=f5_device_ip)
-                    F5ServerSSLProfile.objects.update_or_create(
-                        f5_device_ip=f5_device_obj, profile_name=server_ssl_profile
-                    )
-        return JsonResponse({"status": "success"}, status=200)
-    else:
+    if request.method != "POST":
         return JsonResponse({"error_message": "method not allowed"}, status=405)
+    
+    try:
+        dataset = json.loads(request.body.decode("utf-8"))
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return JsonResponse({"error_message": "invalid JSON"}, status=400)
+    
+    f5_devices = {ip: device for ip, device in F5Device.objects.filter(
+        f5_device_ip__in=dataset.keys()).values_list('f5_device_ip', 'id')}
+    
+    for f5_device_ip, list_server_ssl_profile in dataset.items():
+        if f5_device_ip not in f5_devices:
+            continue
+            
+        device_obj = F5Device.objects.get(pk=f5_devices[f5_device_ip])
+        
+        for server_ssl_profile in list_server_ssl_profile:
+            F5ServerSSLProfile.objects.update_or_create(
+                f5_device_ip=device_obj, profile_name=server_ssl_profile
+            )
+    
+    return JsonResponse({"status": "success"}, status=200)
 
 
 @csrf_exempt
 @logged_in_or_basicauth()
 def cm_f5_update_irule_profile(request):
-    if request.method == "POST":
-        dataset = json.loads(request.body.decode("utf-8"))
-        for f5_device_ip, list_irule_profile in dataset.items():
-            checklist = F5Device.objects.filter(
-                f5_device_ip=f5_device_ip).count()
-            if checklist > 0:
-                for irule_profile in list_irule_profile:
-                    f5_device_obj = F5Device.objects.get(
-                        f5_device_ip=f5_device_ip)
-                    F5Irule.objects.update_or_create(
-                        f5_device_ip=f5_device_obj, irule_name=irule_profile
-                    )
-        return JsonResponse({"status": "success"}, status=200)
-    else:
+    if request.method != "POST":
         return JsonResponse({"error_message": "method not allowed"}, status=405)
+    
+    try:
+        dataset = json.loads(request.body.decode("utf-8"))
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return JsonResponse({"error_message": "invalid JSON"}, status=400)
+    
+    f5_devices = {ip: device for ip, device in F5Device.objects.filter(
+        f5_device_ip__in=dataset.keys()).values_list('f5_device_ip', 'id')}
+    
+    for f5_device_ip, list_irule_profile in dataset.items():
+        if f5_device_ip not in f5_devices:
+            continue
+            
+        device_obj = F5Device.objects.get(pk=f5_devices[f5_device_ip])
+        
+        for irule_profile in list_irule_profile:
+            F5Irule.objects.update_or_create(
+                f5_device_ip=device_obj, irule_name=irule_profile
+            )
+    
+    return JsonResponse({"status": "success"}, status=200)
 
 
 @csrf_exempt
 @logged_in_or_basicauth()
 def cm_f5_update_waf_profile(request):
-    if request.method == "POST":
-        dataset = json.loads(request.body.decode("utf-8"))
-        for f5_device_ip, list_waf_profile in dataset.items():
-            checklist = F5Device.objects.filter(
-                f5_device_ip=f5_device_ip).count()
-            if checklist > 0:
-                for waf_profile in list_waf_profile:
-                    f5_device_obj = F5Device.objects.get(
-                        f5_device_ip=f5_device_ip)
-                    F5WafProfile.objects.update_or_create(
-                        f5_device_ip=f5_device_obj, waf_profile=waf_profile
-                    )
-        return JsonResponse({"status": "success"}, status=200)
-    else:
+    if request.method != "POST":
         return JsonResponse({"error_message": "method not allowed"}, status=405)
-
-
-@csrf_exempt
-@logged_in_or_basicauth()
-def cm_f5_update_pool_monitor(request):
-    if request.method == "POST":
+    
+    try:
         dataset = json.loads(request.body.decode("utf-8"))
-        for f5_device_ip, list_pool_monitor in dataset.items():
-            checklist = F5Device.objects.filter(
-                f5_device_ip=f5_device_ip).count()
-            if checklist > 0:
-                for pool_monitor in list_pool_monitor:
-                    f5_device_obj = F5Device.objects.get(
-                        f5_device_ip=f5_device_ip)
-                    F5PoolMemberMonitor.objects.update_or_create(
-                        f5_device_ip=f5_device_obj, pool_monitor=pool_monitor
-                    )
-        return JsonResponse({"status": "success"}, status=200)
-    else:
-        return JsonResponse({"error_message": "method not allowed"}, status=405)
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return JsonResponse({"error_message": "invalid JSON"}, status=400)
+    
+    f5_devices = {ip: device for ip, device in F5Device.objects.filter(
+        f5_device_ip__in=dataset.keys()).values_list('f5_device_ip', 'id')}
+    
+    for f5_device_ip, list_waf_profile in dataset.items():
+        if f5_device_ip not in f5_devices:
+            continue
+            
+        device_obj = F5Device.objects.get(pk=f5_devices[f5_device_ip])
+        
+        for waf_profile in list_waf_profile:
+            F5WafProfile.objects.update_or_create(
+                f5_device_ip=device_obj, waf_profile=waf_profile
+            )
+    
+    return JsonResponse({"status": "success"}, status=200)
 
 
 @csrf_exempt
 @logged_in_or_basicauth()
 def cm_f5_update_task_virtual_server(request):
-    if request.method == "POST":
-        dataset = json.loads(request.body.decode("utf-8"))
-        for task_id, data in dataset.items():
-            checklist = F5CreateVirtualServer.objects.filter(
-                id=task_id).count()
-            if checklist > 0:
-                status = data[0]
-                message = data[1]
-                F5CreateVirtualServer.objects.update_or_create(
-                    id=task_id, defaults={"status": status, "message": message}
-                )
-        return JsonResponse({"status": "success"}, status=200)
-    else:
+    if request.method != "POST":
         return JsonResponse({"error_message": "method not allowed"}, status=405)
+    
+    try:
+        dataset = json.loads(request.body.decode("utf-8"))
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return JsonResponse({"error_message": "invalid JSON"}, status=400)
+    
+    task_ids = list(dataset.keys())
+    existing_ids = set(F5CreateVirtualServer.objects.filter(
+        id__in=task_ids).values_list('id', flat=True))
+    
+    for task_id, (status, message) in dataset.items():
+        if int(task_id) in existing_ids:
+            F5CreateVirtualServer.objects.filter(id=task_id).update(
+                status=status, message=message)
+    
+    return JsonResponse({"status": "success"}, status=200)
 
 
 @csrf_exempt
 @logged_in_or_basicauth()
 def cm_f5_update_task_limit_connection(request):
-    if request.method == "POST":
-        dataset = json.loads(request.body.decode("utf-8"))
-        for task_id, data in dataset.items():
-            checklist = F5LimitConnection.objects.filter(id=task_id).count()
-            if checklist > 0:
-                status = data[0]
-                message = data[1]
-                F5LimitConnection.objects.update_or_create(
-                    id=task_id, defaults={"status": status, "message": message}
-                )
-        return JsonResponse({"status": "success"}, status=200)
-    else:
+    if request.method != "POST":
         return JsonResponse({"error_message": "method not allowed"}, status=405)
+    
+    try:
+        dataset = json.loads(request.body.decode("utf-8"))
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return JsonResponse({"error_message": "invalid JSON"}, status=400)
+    
+    task_ids = list(dataset.keys())
+    existing_ids = set(F5LimitConnection.objects.filter(
+        id__in=task_ids).values_list('id', flat=True))
+    
+    for task_id, (status, message) in dataset.items():
+        if int(task_id) in existing_ids:
+            F5LimitConnection.objects.filter(id=task_id).update(
+                status=status, message=message)
+    
+    return JsonResponse({"status": "success"}, status=200)
 
 
 @csrf_exempt
 @logged_in_or_basicauth()
 def cm_f5_get_list_task_create_virtual_server(request):
-    datalist = list()
-    if request.method == "GET":
-        objects = F5CreateVirtualServer.objects.filter(status="Created")
-        for object in objects:
-            task_id = object.id
-            f5_device_ip = str(object.f5_device_ip)
-            f5_template = object.f5_template
-            vs_name = object.vs_name
-            vs_ip = object.vs_ip
-            vs_port = object.vs_port
-            pool_name = object.pool_name
-            pool_member = json.loads(object.pool_member)
-            pool_monitor = object.pool_monitor
-            pool_lb_method = object.pool_lb_method
-            client_ssl_profile = object.client_ssl_profile
-            server_ssl_profile = object.server_ssl_profile
-            f5_temp_obj = F5Template.objects.get(template_name=f5_template)
-            partition = f5_temp_obj.partition
-            protocol = f5_temp_obj.protocol
-            client_protocol_profile = f5_temp_obj.client_protocol_profile
-            server_protocol_profile = f5_temp_obj.server_protocol_profile
-            client_http_profile = f5_temp_obj.client_http_profile
-            server_http_profile = f5_temp_obj.server_http_profile
-            snat_name = f5_temp_obj.snat_name
-            http_analytics_profile = f5_temp_obj.http_analytics_profile
-            tcp_analytics_profile = f5_temp_obj.tcp_analytics_profile
-            http_compression_profile = f5_temp_obj.http_compression_profile
-            web_acceleration_profile = f5_temp_obj.web_acceleration_profile
-            web_socket_profile = f5_temp_obj.web_socket_profile
-            waf_profile = object.waf_profile
-            irules = []
-            if object.irules is not None:
-                irules = json.loads(object.irules)
-            datalist.append(
-                {
-                    "task_id": task_id,
-                    "f5_device_ip": f5_device_ip,
-                    "vs_name": vs_name,
-                    "vs_ip": vs_ip,
-                    "vs_port": vs_port,
-                    "pool_name": pool_name,
-                    "pool_member": pool_member,
-                    "pool_monitor": pool_monitor,
-                    "pool_lb_method": pool_lb_method,
-                    "client_ssl_profile": client_ssl_profile,
-                    "server_ssl_profile": server_ssl_profile,
-                    "partition": partition,
-                    "protocol": protocol,
-                    "client_protocol_profile": client_protocol_profile,
-                    "server_protocol_profile": server_protocol_profile,
-                    "client_http_profile": client_http_profile,
-                    "server_http_profile": server_http_profile,
-                    "snat_name": snat_name,
-                    "http_analytics_profile": http_analytics_profile,
-                    "tcp_analytics_profile": tcp_analytics_profile,
-                    "http_compression_profile": http_compression_profile,
-                    "web_acceleration_profile": web_acceleration_profile,
-                    "web_socket_profile": web_socket_profile,
-                    "waf_profile": waf_profile,
-                    "irules": irules,
-                }
-            )
-        return JsonResponse({"status": "success", "datalist": datalist})
-    else:
-        return JsonResponse({"erorr": "Method is not allowed"}, status=405)
+    if request.method != "GET":
+        return JsonResponse({"error": "Method is not allowed"}, status=405)
+    
+    objects = F5CreateVirtualServer.objects.select_related('f5_template').filter(status="Created")
+    
+    datalist = [
+        {
+            "task_id": obj.id,
+            "f5_device_ip": str(obj.f5_device_ip),
+            "vs_name": obj.vs_name,
+            "vs_ip": obj.vs_ip,
+            "vs_port": obj.vs_port,
+            "pool_name": obj.pool_name,
+            "pool_member": json.loads(obj.pool_member),
+            "pool_monitor": obj.pool_monitor,
+            "pool_lb_method": obj.pool_lb_method,
+            "client_ssl_profile": obj.client_ssl_profile,
+            "server_ssl_profile": obj.server_ssl_profile,
+            "partition": obj.f5_template.partition,
+            "protocol": obj.f5_template.protocol,
+            "client_protocol_profile": obj.f5_template.client_protocol_profile,
+            "server_protocol_profile": obj.f5_template.server_protocol_profile,
+            "client_http_profile": obj.f5_template.client_http_profile,
+            "server_http_profile": obj.f5_template.server_http_profile,
+            "snat_name": obj.f5_template.snat_name,
+            "http_analytics_profile": obj.f5_template.http_analytics_profile,
+            "tcp_analytics_profile": obj.f5_template.tcp_analytics_profile,
+            "http_compression_profile": obj.f5_template.http_compression_profile,
+            "web_acceleration_profile": obj.f5_template.web_acceleration_profile,
+            "web_socket_profile": obj.f5_template.web_socket_profile,
+            "waf_profile": obj.waf_profile,
+            "irules": json.loads(obj.irules) if obj.irules else [],
+        }
+        for obj in objects
+    ]
+    
+    return JsonResponse({"status": "success", "datalist": datalist})
 
 
 @csrf_exempt
@@ -1238,35 +1257,39 @@ def cm_f5_get_list_task_limit_connection(request):
 @csrf_exempt
 @logged_in_or_basicauth()
 def cm_f5_update_virtual_server(request):
-    if request.method == "POST":
-        dataset = json.loads(request.body.decode("utf-8"))
-        for f5_device_ip, datalist in dataset.items():
-            checklist = F5Device.objects.filter(
-                f5_device_ip=f5_device_ip).count()
-            if checklist > 0:
-                for data in datalist:
-                    vs_name = data[0]
-                    vs_ip = data[1]
-                    vs_port = data[2]
-                    client_ssl_profile = data[3]
-                    server_ssl_profile = data[4]
-                    object, created = F5VirtualServer.objects.update_or_create(
-                        f5_device_ip=F5Device.objects.get(
-                            f5_device_ip=f5_device_ip),
-                        vs_name=vs_name,
-                        defaults={
-                            'vs_ip': vs_ip,
-                            'vs_port': vs_port,
-                            'client_ssl_profile': client_ssl_profile,
-                            'server_ssl_profile': server_ssl_profile
-                        }
-                    )
-                    object.group_permission.set(
-                        Group.objects.filter(name="ADMIN"))
-                    object.save()
-        return JsonResponse({"status": "success"}, status=200)
-    else:
+    if request.method != "POST":
         return JsonResponse({"error_message": "method not allowed"}, status=405)
+    
+    try:
+        dataset = json.loads(request.body.decode("utf-8"))
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return JsonResponse({"error_message": "invalid JSON"}, status=400)
+    
+    f5_devices = {ip: device for ip, device in F5Device.objects.filter(
+        f5_device_ip__in=dataset.keys()).values_list('f5_device_ip', 'id')}
+    
+    admin_group = Group.objects.get(name="ADMIN")
+    
+    for f5_device_ip, datalist in dataset.items():
+        if f5_device_ip not in f5_devices:
+            continue
+            
+        device_obj = F5Device.objects.get(pk=f5_devices[f5_device_ip])
+        
+        for vs_name, vs_ip, vs_port, client_ssl_profile, server_ssl_profile in datalist:
+            obj, created = F5VirtualServer.objects.update_or_create(
+                f5_device_ip=device_obj,
+                vs_name=vs_name,
+                defaults={
+                    'vs_ip': vs_ip,
+                    'vs_port': vs_port,
+                    'client_ssl_profile': client_ssl_profile,
+                    'server_ssl_profile': server_ssl_profile
+                }
+            )
+            obj.group_permission.set([admin_group])
+    
+    return JsonResponse({"status": "success"}, status=200)
 
 
 @login_required()
@@ -1303,8 +1326,6 @@ def checkpoint_dashboard_02(request):
             }
         )
     return JsonResponse({"data": results})
-
-#####
 
 
 @login_required()
@@ -1346,344 +1367,492 @@ def fmc_dashboard_02(request):
 @login_required()
 @csrf_exempt
 def cm_fmc_create_rule(request):
+    if not request.user.groups.filter(name="ADMIN").exists():
+        return JsonResponse({"error": "forbidden"}, status=403)
+    
+    if request.method != "POST":
+        return JsonResponse({"error": "Method is not allowed"}, status=405)
+    
     try:
-        if request.user.groups.filter(name="ADMIN").exists():
-            if request.method == "POST":
-                list_obj = list(request.POST)
-                list_error_message = str()
-                datalist = list()
-                user_created = request.user
-                for obj in list_obj:
-                    index = list_obj.index(obj)
-                    data = request.POST.getlist(obj)
-                    error_message = check_fmc_access_rule_input(data, index)
-                    if not error_message:
-                        policy = data[1]
-                        description = data[2].replace(" ", "-")
-                        source = [
-                            i.replace(" ", "").replace("\r", "")
-                            for i in data[3].split("\n")
-                        ]
-                        destination = [
-                            i.replace(" ", "").replace("\r", "")
-                            for i in data[4].split("\n")
-                        ]
-                        protocol = [
-                            i.replace(" ", "").replace("\r", "")
-                            for i in data[5].split("\n")
-                        ]
-                        schedule = data[6]
-                        category = data[7]
-                        gateway = FMCGateway.objects.filter(
-                            policy__policy=policy).values_list('gateway', flat=True)
-                        datalist.append(
-                            [
-                                policy,
-                                json.dumps(list(gateway)),
-                                description,
-                                json.dumps(source),
-                                json.dumps(destination),
-                                json.dumps(protocol),
-                                category,
-                                schedule,
-                                user_created,
-                            ]
-                        )
-                    else:
-                        list_error_message += error_message + "\n"
-                if list_error_message:
-                    return JsonResponse(
-                        {"status": "failed", "message": list_error_message}, status=200
-                    )
-                else:
-                    for item in datalist:
-                        model = FMCRule(
-                            policy=FMCPolicy.objects.get(policy=item[0]),
-                            gateway=item[1],
-                            description=item[2],
-                            source=item[3],
-                            destination=item[4],
-                            protocol=item[5],
-                            category=item[6],
-                            schedule=item[7],
-                            user_created=item[8],
-                        )
-                        model.save()
-                    return JsonResponse(
-                        {"status": "success", "message": "Create rule success"},
-                        status=200,
-                    )
-            else:
-                return JsonResponse(
-                    {"status": "failed", "message": "Request method is not allowed"},
-                    status=405,
-                )
-        else:
-            return JsonResponse({"erorr": "forbidden"}, status=403)
-    except Exception as error:
-        return JsonResponse(
-            {"status": "failed", "message": f"Exception error: {error}"}, status=500
-        )
+        post_keys = list(request.POST)
+        error_messages = []
+        validated_rules = []
+        user_created = request.user
+        
+        for i, key in enumerate(post_keys):
+            data = request.POST.getlist(key)
+            error_message = check_fmc_access_rule_input(data, i)
+            
+            if error_message:
+                error_messages.append(error_message)
+                continue
+            
+            policy_name = data[1]
+            description = data[2].replace(" ", "-")
+            source = [
+                item.replace(" ", "").replace("\r", "")
+                for item in data[3].split("\n")
+            ]
+            destination = [
+                item.replace(" ", "").replace("\r", "")
+                for item in data[4].split("\n")
+            ]
+            protocol = [
+                item.replace(" ", "").replace("\r", "")
+                for item in data[5].split("\n")
+            ]
+            schedule = data[6]
+            category = data[7]
+            
+            gateways = FMCGateway.objects.filter(
+                policy__policy=policy_name
+            ).values_list('gateway', flat=True)
+            
+            validated_rules.append({
+                'policy_name': policy_name,
+                'gateway': json.dumps(list(gateways)),
+                'description': description,
+                'source': json.dumps(source),
+                'destination': json.dumps(destination),
+                'protocol': json.dumps(protocol),
+                'category': category,
+                'schedule': schedule,
+                'user_created': user_created,
+            })
+        
+        if error_messages:
+            return JsonResponse({
+                "status": "failed", 
+                "message": "\n".join(error_messages)
+            }, status=400)
+        
+        rules_to_create = []
+        for rule_data in validated_rules:
+            try:
+                policy_obj = FMCPolicy.objects.get(policy=rule_data['policy_name'])
+            except FMCPolicy.DoesNotExist:
+                return JsonResponse({
+                    "error": f"Policy '{rule_data['policy_name']}' not found"
+                }, status=404)
+            
+            rules_to_create.append(FMCRule(
+                policy=policy_obj,
+                gateway=rule_data['gateway'],
+                description=rule_data['description'],
+                source=rule_data['source'],
+                destination=rule_data['destination'],
+                protocol=rule_data['protocol'],
+                category=rule_data['category'],
+                schedule=rule_data['schedule'],
+                user_created=rule_data['user_created'],
+            ))
+        
+        FMCRule.objects.bulk_create(rules_to_create)
+        
+        return JsonResponse({
+            "status": "success", 
+            "message": "Rules created successfully"
+        }, status=200)
+        
+    except Exception as e:
+        return JsonResponse({
+            "error": f"Error creating rules: {str(e)}"
+        }, status=500)
 
 
 @login_required()
 def cm_fmc_get_list_policy(request):
-    if request.user.groups.filter(name="ADMIN").exists():
-        if request.method == "GET":
-            site = request.GET.get("site", None)
-            datalist = []
-            if site:
-                datalist = FMCPolicy.objects.filter(
-                    domain__site__site=site).values_list("policy", flat=True)
-            return JsonResponse({"data": list(datalist)}, status=200)
-        else:
-            return JsonResponse({"erorr": "Method is not allowed"}, status=405)
-    else:
-        return JsonResponse({"erorr": "forbidden"}, status=403)
+    if not request.user.groups.filter(name="ADMIN").exists():
+        return JsonResponse({"error": "forbidden"}, status=403)
+    
+    if request.method != "GET":
+        return JsonResponse({"error": "Method is not allowed"}, status=405)
+    
+    try:
+        site = request.GET.get("site")
+        
+        if not site:
+            return JsonResponse({"error": "Site parameter is required"}, status=400)
+        
+        policies = FMCPolicy.objects.filter(
+            domain__site__site=site
+        ).values_list("policy", flat=True)
+        
+        return JsonResponse({"data": list(policies)}, status=200)
+        
+    except Exception as e:
+        return JsonResponse({"error": f"Error fetching policies: {str(e)}"}, status=500)
 
 
 @logged_in_or_basicauth()
 def cm_checkpoint_get_list_local_user(request):
-    if request.user.groups.filter(name="ADMIN").exists():
-        if request.method == "GET":
-            datalist = []
-            sites = CheckpointSite.objects.all()
-            for site in sites:
-                users = []
-                items = CheckpointLocalUser.objects.filter(
-                    Q(status="Created") | Q(status="Install-Only"), template__site=site)
-                for item in items:
-                    users.append({
-                        "id": item.id,
-                        "user_name": item.user_name,
-                        "is_partner": item.is_partner,
-                        "password": item.password,
-                        "phone_number": item.phone_number,
-                        "email": item.email,
-                        "expiration_date": item.expiration_date,
-                        "user_group": [str(i.group) for i in item.user_group.all()],
-                        "custom_group": "" if not item.custom_group else item.custom_group,
-                        "default_group": item.template.default_group,
-                        "radius_group": item.template.radius_group_server,
-                        "skip_send_alert_email": item.template.skip_send_alert_email
-                    })
+    if not request.user.groups.filter(name="ADMIN").exists():
+        return JsonResponse({"error": "forbidden"}, status=403)
+    
+    if request.method != "GET":
+        return JsonResponse({"error": "Method is not allowed"}, status=405)
+    
+    try:
+        datalist = []
+        sites = CheckpointSite.objects.all()
+        
+        for site in sites:
+            users = CheckpointLocalUser.objects.filter(
+                Q(status="Created") | Q(status="Install-Only"), 
+                template__site=site
+            ).select_related('template')
+            
+            user_list = []
+            for user in users:
+                user_groups = [str(group.group) for group in user.user_group.all()]
+                
+                user_list.append({
+                    "id": user.id,
+                    "user_name": user.user_name,
+                    "is_partner": user.is_partner,
+                    "password": user.password,
+                    "phone_number": user.phone_number,
+                    "email": user.email,
+                    "expiration_date": user.expiration_date,
+                    "user_group": user_groups,
+                    "custom_group": user.custom_group or "",
+                    "default_group": user.template.default_group,
+                    "radius_group": user.template.radius_group_server,
+                    "skip_send_alert_email": user.template.skip_send_alert_email
+                })
 
-                datalist.append({
-                    "smc": site.smc,
-                    "smc_hostname": site.smc_hostname,
-                    "users": users
-                    })
-            return JsonResponse({"data": datalist}, status=200)
-        else:
-            return JsonResponse({"erorr": "Method is not allowed"}, status=405)
-    else:
-        return JsonResponse({"erorr": "forbidden"}, status=403)
+            datalist.append({
+                "smc": site.smc,
+                "smc_hostname": site.smc_hostname,
+                "users": user_list
+            })
+            
+        return JsonResponse({"data": datalist}, status=200)
+        
+    except Exception as e:
+        return JsonResponse({"error": f"Error fetching users: {str(e)}"}, status=500)
 
 
 @csrf_exempt
 @logged_in_or_basicauth()
 def cm_checkpoint_update_local_user(request):
-    if request.method == "POST":
+    if not request.user.groups.filter(name="ADMIN").exists():
+        return JsonResponse({"error": "forbidden"}, status=403)
+    
+    if request.method != "POST":
+        return JsonResponse({"error": "Method is not allowed"}, status=405)
+    
+    try:
         dataset = request.POST.dict()
-        if dataset:
-            user_id = dataset["user_id"]
-            status = dataset["status"]
-            message = dataset["message"]
-            model = CheckpointLocalUser.objects.filter(id=user_id)
-            model.update(status=status, message=message)
+        
+        if not dataset:
+            return JsonResponse({"error": "No data provided"}, status=400)
+        
+        user_id = dataset.get("user_id")
+        status = dataset.get("status")
+        message = dataset.get("message")
+        
+        if not all([user_id, status is not None, message is not None]):
+            return JsonResponse({"error": "Missing required parameters"}, status=400)
+        
+        updated_count = CheckpointLocalUser.objects.filter(id=user_id).update(
+            status=status, 
+            message=message
+        )
+        
+        if updated_count == 0:
+            return JsonResponse({"error": "User not found"}, status=404)
+            
         return JsonResponse({"status": "success"})
-    else:
-        return JsonResponse({"erorr": "Method is not allowed"}, status=405)
+        
+    except Exception as e:
+        return JsonResponse({"error": f"Error updating user: {str(e)}"}, status=500)
 
 
 @login_required()
 def cm_fmc_get_list_gateway(request):
-    if request.user.groups.filter(name="ADMIN").exists():
-        datalist = []
-        if request.method == "GET":
-            policy = request.GET.get("policy", None)
-            if policy:
-                try:
-                    object = FMCPolicy.objects.get(policy=policy)
-                    domain = object.gateway.domain.domain
-                except FMCPolicy.DoesNotExist:
-                    return JsonResponse({"erorr": f"Policy name: {policy} dose not exists"}, status=401)
-                else:
-                    objects = FMCGateway.objects.filter(
-                        domain__domain=domain).values_list('gateway', flat=True)
-
-                    for item in list(objects):
-                        datalist.append({"id": item, "label": item})
-                    return JsonResponse({"datalist": list(datalist)}, status=200)
-            else:
-                return JsonResponse({"erorr": f"Policy parameter is missing"}, status=401)
-        else:
-            return JsonResponse({"erorr": "Method is not allowed"}, status=405)
-    else:
-        return JsonResponse({"erorr": "forbidden"}, status=403)
+    if not request.user.groups.filter(name="ADMIN").exists():
+        return JsonResponse({"error": "forbidden"}, status=403)
+    
+    if request.method != "GET":
+        return JsonResponse({"error": "Method is not allowed"}, status=405)
+    
+    policy = request.GET.get("policy")
+    if not policy:
+        return JsonResponse({"error": "Policy parameter is required"}, status=400)
+    
+    try:
+        policy_obj = FMCPolicy.objects.get(policy=policy)
+        domain = policy_obj.gateway.domain.domain
+        
+        gateways = FMCGateway.objects.filter(
+            domain__domain=domain
+        ).values_list('gateway', flat=True)
+        
+        datalist = [{"id": gateway, "label": gateway} for gateway in gateways]
+        return JsonResponse({"datalist": datalist}, status=200)
+        
+    except FMCPolicy.DoesNotExist:
+        return JsonResponse({"error": f"Policy '{policy}' not found"}, status=404)
+    except Exception as e:
+        return JsonResponse({"error": f"Error fetching gateways: {str(e)}"}, status=500)
 
 
 @csrf_exempt
 @logged_in_or_basicauth()
 def cm_fmc_update_rule_category(request):
-    if request.method == "POST":
+    if not request.user.groups.filter(name="ADMIN").exists():
+        return JsonResponse({"error": "forbidden"}, status=403)
+    
+    if request.method != "POST":
+        return JsonResponse({"error": "Method is not allowed"}, status=405)
+    
+    try:
         dataset = json.loads(request.body.decode("utf-8"))
-        for policy, list_rule_category in dataset.items():
-            checklist = FMCPolicy.objects.filter(policy=policy).count()
-            if checklist > 0:
-                for rule_category in list_rule_category:
-                    obj = FMCPolicy.objects.get(policy=policy)
-                    FMCRuleCategory.objects.update_or_create(
-                        policy=obj, category=rule_category
-                    )
+        
+        if not isinstance(dataset, dict):
+            return JsonResponse({"error": "Invalid data format"}, status=400)
+        
+        for policy_name, rule_categories in dataset.items():
+            if not rule_categories or not isinstance(rule_categories, list):
+                continue
+            
+            try:
+                policy_obj = FMCPolicy.objects.get(policy=policy_name)
+            except FMCPolicy.DoesNotExist:
+                return JsonResponse({"error": f"Policy '{policy_name}' not found"}, status=404)
+            
+            for category in rule_categories:
+                FMCRuleCategory.objects.update_or_create(
+                    policy=policy_obj,
+                    category=category
+                )
+        
         return JsonResponse({"status": "success"}, status=200)
-    else:
-        return JsonResponse({"error_message": "method not allowed"}, status=405)
+        
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON format"}, status=400)
+    except Exception as e:
+        return JsonResponse({"error": f"Error updating rule categories: {str(e)}"}, status=500)
 
 
 @logged_in_or_basicauth()
 def cm_fmc_get_list_rule_category(request):
-    if request.method == "GET":
-        datalist = list()
-        policy = request.GET.get("policy", None)
-        datalist = FMCRuleCategory.objects.filter(
+    if not request.user.groups.filter(name="ADMIN").exists():
+        return JsonResponse({"error": "forbidden"}, status=403)
+    
+    if request.method != "GET":
+        return JsonResponse({"error": "Method is not allowed"}, status=405)
+    
+    policy = request.GET.get("policy")
+    if not policy:
+        return JsonResponse({"error": "Policy parameter is required"}, status=400)
+    
+    try:
+        categories = FMCRuleCategory.objects.filter(
             policy__policy=policy
         ).values_list("category", flat=True)
-        return JsonResponse({"status": "success", "datalist": list(datalist)})
-    else:
-        return JsonResponse({"erorr": "Method is not allowed"}, status=405)
+        
+        return JsonResponse({"status": "success", "datalist": list(categories)})
+        
+    except Exception as e:
+        return JsonResponse({"error": f"Error fetching rule categories: {str(e)}"}, status=500)
     
 
 @logged_in_or_basicauth()
 def cm_checkpoint_get_alert_email_template(request):
-    if request.method == "GET":
-        template = request.GET.get("template")
-        if template:
-            if CheckpointEmailAlertTemplate.objects.filter(template_name=template).exists():
-                obj = CheckpointEmailAlertTemplate.objects.get(template_name=template)
-                email_body = obj.email_body
-                email_subject = obj.email_title
-                return JsonResponse({"status": "success", "email_subject": email_subject, "email_body": email_body})
-            else:
-                return JsonResponse({"status": "error", "message": "Template name is not exists"})
-        else:
-            return JsonResponse({"status": "error", "message": "Request parameter is required"})
-    else:
-        return JsonResponse({"erorr": "Method is not allowed"}, status=405)
+    if not request.user.groups.filter(name="ADMIN").exists():
+        return JsonResponse({"error": "forbidden"}, status=403)
+    
+    if request.method != "GET":
+        return JsonResponse({"error": "Method is not allowed"}, status=405)
+    
+    template = request.GET.get("template")
+    if not template:
+        return JsonResponse({"error": "Template parameter is required"}, status=400)
+    
+    try:
+        obj = CheckpointEmailAlertTemplate.objects.get(template_name=template)
+        return JsonResponse({
+            "status": "success",
+            "email_subject": obj.email_title,
+            "email_body": obj.email_body
+        })
+        
+    except CheckpointEmailAlertTemplate.DoesNotExist:
+        return JsonResponse({"error": "Template not found"}, status=404)
+    except Exception as e:
+        return JsonResponse({"error": f"Error fetching template: {str(e)}"}, status=500)
 
 
 @logged_in_or_basicauth()
 def cm_fmc_get_list_domain(request):
-    if request.method == "GET":
-        datalist = list()
-        site = request.GET.get("site", None)
+    if not request.user.groups.filter(name="ADMIN").exists():
+        return JsonResponse({"error": "forbidden"}, status=403)
+    
+    if request.method != "GET":
+        return JsonResponse({"error": "Method is not allowed"}, status=405)
+    
+    try:
+        site = request.GET.get("site")
+        
         if site:
-            datalist = FMCDomain.objects.filter(
-                site__site=site).values_list("domain", flat=True)
+            domains = FMCDomain.objects.filter(site__site=site).values_list("domain", flat=True)
         else:
-            datalist = FMCDomain.objects.all().values_list("domain", flat=True)
-        return JsonResponse({"status": "success", "datalist": list(datalist)})
-    else:
-        return JsonResponse({"erorr": "Method is not allowed"}, status=405)
+            domains = FMCDomain.objects.values_list("domain", flat=True)
+        
+        return JsonResponse({"status": "success", "datalist": list(domains)})
+        
+    except Exception as e:
+        return JsonResponse({"error": f"Error fetching domains: {str(e)}"}, status=500)
+
 
 @csrf_exempt
 @logged_in_or_basicauth()
 def cm_checkpoint_update_local_user_group(request):
-    if request.method == "POST":
+    if not request.user.groups.filter(name="ADMIN").exists():
+        return JsonResponse({"error": "forbidden"}, status=403)
+    
+    if request.method != "POST":
+        return JsonResponse({"error": "Method is not allowed"}, status=405)
+    
+    try:
         dataset = json.loads(request.body.decode("utf-8"))
+        
+        if not isinstance(dataset, dict):
+            return JsonResponse({"error": "Invalid data format"}, status=400)
+        
         for smc, groups in dataset.items():
+            if not groups or not isinstance(groups, list):
+                continue
+                
+            try:
+                site = CheckpointSite.objects.get(smc=smc)
+            except CheckpointSite.DoesNotExist:
+                return JsonResponse({"error": f"Site with SMC '{smc}' not found"}, status=404)
+            
             for group in groups:
                 CheckpointLocalUserGroup.objects.update_or_create(
-                    site=CheckpointSite.objects.get(smc=smc),
+                    site=site,
                     group=group
                 )
+        
         return JsonResponse({"status": "success"})
-    else:
-        return JsonResponse({"erorr": "Method is not allowed"}, status=405)
+        
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON format"}, status=400)
+    except Exception as e:
+        return JsonResponse({"error": f"Error updating user groups: {str(e)}"}, status=500)
 
 
 @logged_in_or_basicauth()
 def cm_fmc_get_list_site(request):
-    if request.method == "GET":
-        datalist = list()
-        datalist = FMCSite.objects.all().values_list("site", flat=True)
-        return JsonResponse({"status": "success", "datalist": list(datalist)})
-    else:
-        return JsonResponse({"erorr": "Method is not allowed"}, status=405)
+    if not request.user.groups.filter(name="ADMIN").exists():
+        return JsonResponse({"error": "forbidden"}, status=403)
+    
+    if request.method != "GET":
+        return JsonResponse({"error": "Method is not allowed"}, status=405)
+    
+    try:
+        sites = FMCSite.objects.values_list("site", flat=True)
+        return JsonResponse({"status": "success", "datalist": list(sites)})
+        
+    except Exception as e:
+        return JsonResponse({"error": f"Error fetching sites: {str(e)}"}, status=500)
 
 
 @logged_in_or_basicauth()
 def cm_fmc_get_list_rule(request):
-    if request.method == "GET":
-        data = dict()
-        list_site = FMCSite.objects.all().values_list(
-            "site", "fmc"
-        )
-        list_site = [list(i) for i in list_site]
-        if list_site:
-            for item in list_site:
-                rules = FMCRule.objects.filter(
-                    Q(status="Created") | Q(status="Install-Only"),
-                    policy__domain__site__site=item[0],
-                ).values_list(
-                    "id",
-                    "policy__domain__domain_id",
-                    "policy__policy",
-                    "gateway",
-                    "description",
-                    "source",
-                    "destination",
-                    "protocol",
-                    "category",
-                    "schedule",
-                    "status",
-                )
-                rules = [list(i) for i in rules]
-                if rules:
-                    for obj in rules:
-                        obj[3] = json.loads(obj[3])
-                        obj[5] = json.loads(obj[5])
-                        obj[6] = json.loads(obj[6])
-                        obj[7] = json.loads(obj[7])
-                site = item[0]
-                data[site] = {"fmc": item[1], "rules": rules}
+    if not request.user.groups.filter(name="ADMIN").exists():
+        return JsonResponse({"error": "forbidden"}, status=403)
+    
+    if request.method != "GET":
+        return JsonResponse({"error": "Method is not allowed"}, status=405)
+    
+    try:
+        data = {}
+        sites = FMCSite.objects.all().values_list("site", "fmc")
+        
+        for site_name, fmc in sites:
+            rules = FMCRule.objects.filter(
+                Q(status="Created") | Q(status="Install-Only"),
+                policy__domain__site__site=site_name,
+            ).values_list(
+                "id", "policy__domain__domain_id", "policy__policy",
+                "gateway", "description", "source", "destination",
+                "protocol", "category", "schedule", "status",
+            )
+            
+            rule_list = []
+            for rule in rules:
+                rule_data = list(rule)
+                for idx in [3, 5, 6, 7]:
+                    rule_data[idx] = json.loads(rule_data[idx]) if rule_data[idx] else None
+                rule_list.append(rule_data)
+            
+            if rule_list:
+                data[site_name] = {"fmc": fmc, "rules": rule_list}
+        
         return JsonResponse({"data": data}, status=200)
-    else:
-        return JsonResponse({"erorr": "Method is not allowed"}, status=405)
+        
+    except Exception as e:
+        return JsonResponse({"error": f"Error fetching rules: {str(e)}"}, status=500)
 
 
 @csrf_exempt
 @logged_in_or_basicauth()
 def cm_fmc_update_rule_status(request):
-    if request.method == "POST":
-        dataset = request.POST.dict()
-        rule_id = dataset["rule_id"]
-        status = dataset["status"]
-        message = dataset["message"]
-        model = FMCRule.objects.filter(id=rule_id)
-        model.update(status=status, message=message)
-        return JsonResponse({"status": "success"})
-    else:
-        return JsonResponse({"erorr": "Method is not allowed"}, status=405)
-
-
-@logged_in_or_basicauth()
-def cm_checkpoint_get_user_groups(request):
-    if request.user.groups.filter(name="ADMIN").exists():
-        datalist = []
-        if request.method == "GET":
-            try:
-                objects = CheckpointLocalUserGroup.objects.all().values_list('group', flat=True)
-                for item in list(objects):
-                    datalist.append({"id": item, "label": item})
-                    
-                return JsonResponse({"datalist": list(datalist)}, status=200)
-            except Exception as e:
-                return JsonResponse({"error": f"Error fetching user groups: {str(e)}"}, status=500)
-        else:
-            return JsonResponse({"error": "Method is not allowed"}, status=405)
-    else:
+    if not request.user.groups.filter(name="ADMIN").exists():
         return JsonResponse({"error": "forbidden"}, status=403)
+    
+    if request.method != "POST":
+        return JsonResponse({"error": "Method is not allowed"}, status=405)
+    
+    try:
+        dataset = request.POST.dict()
+        rule_id = dataset.get("rule_id")
+        status = dataset.get("status")
+        message = dataset.get("message")
+        
+        updated_count = FMCRule.objects.filter(id=rule_id).update(
+            status=status, 
+            message=message
+        )
+        
+        if updated_count == 0:
+            return JsonResponse({"error": "Rule not found"}, status=404)
+            
+        return JsonResponse({"status": "success"})
+        
+    except Exception as e:
+        return JsonResponse({"error": f"Error updating rule: {str(e)}"}, status=500)
+
+
+@login_required()
+def cm_checkpoint_get_user_groups(request):
+    if not request.user.groups.filter(name="ADMIN").exists():
+        return JsonResponse({"error": "forbidden"}, status=403)
+    
+    if request.method != "GET":
+        return JsonResponse({"error": "Method is not allowed"}, status=405)
+    
+    template = request.GET.get("template")
+    if not template:
+        return JsonResponse({"error": "Parameter is required"}, status=401)
+    
+    try:
+        obj = CheckpointLocalUserTemplate.objects.get(name=template)
+        groups = CheckpointLocalUserGroup.objects.filter(
+            site=obj.site
+        ).values_list('group', flat=True)
+        
+        datalist = [{"id": group, "label": group} for group in groups]
+        return JsonResponse({"datalist": datalist}, status=200)
+        
+    except CheckpointLocalUserTemplate.DoesNotExist:
+        return JsonResponse({"error": "Template not found"}, status=404)
+    except Exception as e:
+        return JsonResponse({"error": f"Error fetching user groups: {str(e)}"}, status=500)
     
 
 @csrf_exempt
@@ -1812,14 +1981,18 @@ def cm_checkpoint_create_local_user(request):
     
 @logged_in_or_basicauth()
 def cm_checkpoint_get_user_template(request):
+    if not request.user.groups.filter(name="ADMIN").exists():
+        return JsonResponse({"error": "forbidden"}, status=403)
+    
+    if request.method != "GET":
+        return JsonResponse({"error": "Method is not allowed"}, status=405)
+    
     try:
-        templates = list(CheckpointLocalUserTemplate.objects.all().values_list('name', flat=True))
-        
+        templates = CheckpointLocalUserTemplate.objects.values_list('name', flat=True)
         return JsonResponse({
             'status': 'success',
-            'data': templates
+            'data': list(templates)
         })
-        
     except Exception as e:
         return JsonResponse({
             'status': 'error',

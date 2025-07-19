@@ -89,7 +89,7 @@ class CheckpointLocalUser(models.Model):
     email = models.CharField(max_length=200, blank=True, null=True)
     phone_number = models.IntegerField(blank=True, null=True)
     expiration_date = models.CharField(max_length=200, blank=True, null=True)
-    user_group = models.ManyToManyField("CheckpointLocalUserGroup", blank=True, null=True)
+    user_group = models.ManyToManyField("CheckpointLocalUserGroup", blank=True)
     custom_group = models.CharField(max_length=200, blank=True, null=True)
     user_created = models.CharField(max_length=200)
     time_created = models.DateTimeField(auto_now=True)
