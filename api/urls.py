@@ -22,7 +22,7 @@ urlpatterns = [
     path("ipplan/ipaddress", views.ipplan_get_list_ip_available),
     path("ipplan/subnet", views.ipplan_get_list_subnet),
     path("ipplan/update/ipaddress", views.ipplan_update_ip_status),
-    path("cm/checkpoint/create-rule", views.cm_checkpoint_create_rule),
+    path("cm/checkpoint/create/rule", views.cm_checkpoint_create_rule),
     path("cm/checkpoint/policy", views.cm_checkpoint_get_list_policy),
     path("cm/checkpoint/rule", views.cm_checkpoint_get_list_rule),
     path("cm/checkpoint/update/rule-status", views.cm_checkpoint_update_rule_status),
@@ -34,6 +34,9 @@ urlpatterns = [
     path("cm/checkpoint/local-user", views.cm_checkpoint_get_list_local_user),
     path("cm/checkpoint/update/local-user", views.cm_checkpoint_update_local_user),
     path("cm/checkpoint/alert-email-template", views.cm_checkpoint_get_alert_email_template),
+    path('cm/checkpoint/user-groups', views.cm_checkpoint_get_user_groups),
+    path('cm/checkpoint/create/local-user', views.cm_checkpoint_create_local_user),
+    path('cm/checkpoint/user-template', views.cm_checkpoint_get_user_template),
     path("cm/f5/get/device", views.cm_f5_get_list_device),
     path("cm/f5/get/client-ssl-profile", views.cm_f5_get_list_client_ssl_profile),
     path("cm/f5/get/server-ssl-profile", views.cm_f5_get_list_server_ssl_profile),
@@ -64,8 +67,5 @@ urlpatterns = [
     path("cm/fmc/site", views.cm_fmc_get_list_site),
     path("cm/fmc/gateway", views.cm_fmc_get_list_gateway),
     path("cm/fmc/dashboard-01", views.fmc_dashboard_01),
-    path("cm/fmc/dashboard-02", views.fmc_dashboard_02),
-    path('cm/checkpoint/user-groups', views.cm_checkpoint_get_user_groups, name='api_user_groups'),
-    path('cm/checkpoint/create-local-user', views.cm_checkpoint_create_local_user, name='api_create_local_user'),
-    path('cm/checkpoint/user-template', views.cm_checkpoint_get_user_template, name='api_get_user_template'),
+    path("cm/fmc/dashboard-02", views.fmc_dashboard_02)
 ]

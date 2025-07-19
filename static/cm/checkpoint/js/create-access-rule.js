@@ -113,7 +113,7 @@ $(document).ready(function () {
     console.log(datalist);
     $.ajax({
       type: "POST",
-      url: '/api/cm/checkpoint/create-rule',
+      url: '/api/cm/checkpoint/create/rule',
       dataType: "json",
       data: {
         'datalist': datalist
@@ -124,7 +124,7 @@ $(document).ready(function () {
             text: response.message,
             icon: "success"
           }).then(function () {
-            window.location = '/cm/checkpoint/access-rule/list';
+            window.location = '/cm/checkpoint/access-rule';
           })
         }
         else {

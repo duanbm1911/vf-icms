@@ -229,7 +229,7 @@ $(document).ready(function () {
     
     $.ajax({
       type: "POST",
-      url: '/api/cm/checkpoint/create-local-user',
+      url: '/api/cm/checkpoint/create/local-user',
       dataType: "json",
       data: {
         'datalist': filteredData
