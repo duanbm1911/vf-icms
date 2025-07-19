@@ -1559,8 +1559,10 @@ def cm_checkpoint_get_alert_email_template(request):
         template = request.GET.get("template")
         if template:
             if CheckpointEmailAlertTemplate.objects.filter(template_name=template).exists():
-                email_body = CheckpointEmailAlertTemplate.objects.get(template_name=template).email_body
-                return JsonResponse({"status": "success", "email_body": email_body})
+                obj = CheckpointEmailAlertTemplate.objects.get(template_name=template)
+                email_body = obj.email_body
+                email_subject = obj.email_title
+                return JsonResponse({"status": "success", "email_subject": email_subject, "email_body": email_body})
             else:
                 return JsonResponse({"status": "error", "message": "Template name is not exists"})
         else:
