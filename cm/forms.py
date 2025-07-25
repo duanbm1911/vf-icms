@@ -151,6 +151,35 @@ class CheckpointLocalUserForm(forms.ModelForm):
             raise forms.ValidationError("Invalid SMC. Please select a SMC")
             
         return smc
+
+class CheckpointLocalUserFormV2(forms.Form):
+    user_names = forms.CharField(
+        widget=forms.Textarea,
+        help_text="Enter user names (one per line). Existing users will be updated.",
+        label="User name"
+    )
+    
+    template = forms.ModelChoiceField(
+        queryset=CheckpointLocalUserTemplate.objects.all(),
+        required=False
+    )
+    is_partner = forms.BooleanField(required=False, initial=False)
+    password = forms.CharField(widget=forms.PasswordInput, required=False)
+    email = forms.EmailField(required=False)
+    phone_number = forms.IntegerField(required=False)
+    expiration_date = forms.DateField(
+        widget=forms.TextInput(attrs={"type": "date"}),
+        required=False
+    )
+    user_group = forms.ModelMultipleChoiceField(
+        queryset=CheckpointLocalUserGroup.objects.all(),
+        required=False
+    )
+    custom_group = forms.CharField(max_length=200, required=False)
+    status = forms.ChoiceField(
+        choices=CHECKPOINT_LOCAL_USER_STATUS, 
+        required=False
+    )
     
 class CheckpointLocalUserBulkForm(forms.Form):
     user_names = forms.CharField(
