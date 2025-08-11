@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block title %}ICMS | List local-user-template{% endblock title %}
+{% block content %}
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <div class="table-responsive">
+        <table class="table table-hover table-bordered" id="list-local-user-template-table">
+            <thead>
+                <th>Name</th>
+                <th>SMC</th>
+                <th>SMC IP</th>
+                <th>RadiusGroupName</th>
+                <th>DefaultGroup</th>
+                <th>SkipSendAlert</th>
+                <th>Action</th>
+            </thead>
+            <tbody>
+                {% for obj in objects %}
+                <tr>
+                    <td>{{ obj.name }}</td>
+                    <td>{{ obj.site.site }}</td>
+                    <td>{{ obj.site.smc }}</td>
+                    <td>{{ obj.radius_group_server }}</td>
+                    <td>{{ obj.default_group }}</td>
+                    <td>{{ obj.skip_send_alert_email }}</td>
+                    <td>
+                        <a href="/cm/checkpoint/local-user-template/update/{{ obj.id }}"><span
+                                class="glyphicon glyphicon-wrench" aria-hidden="true"></span></a>
+                        <a data-toggle="modal" href='#delete-local-user-template-modal' id="{{ obj.id }}"><span
+                                class="glyphicon glyphicon-trash" aria-hidden="true" id="{{ obj.id }}"></span></a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <a href="{% url 'checkpoint_create_local_user_template' %}"><button type="button" class="btn btn-primary">Create</button></a>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="delete-local-user-template-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action method="post" id='delete-local-user-template-from'>
+                {% csrf_token %}
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Delete local-user-template</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure to delete this local-user-template template?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+{% endblock content %}
+
+{% block css %}
+<link rel="stylesheet" href="/static/core/css/jquery-datatable.css">
+{% endblock css %}
+
+{% block js %}
+<script src="/static/core/js/jquery-datatable.js"></script>
+<script src="/static/cm/checkpoint/js/list-local-user-template.js"></script>
+{% endblock js %}

@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% load l10n %}
+{% block title %}
+ICMS | List IP Address
+{% endblock title %}
+
+{% block content %}
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <meta id="id-subnet" data-subnet="{{ subnet }}">
+    <div class="form-group">
+        <legend>List IP address</legend>
+    </div>
+    <div class="form-group">
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered" id="list-ip-table">
+                <thead>
+                    <tr>
+                        <th>IP</th>
+                        <th>Subnet</th>
+                        <th>Subnet name</th>
+                        <th>Group name</th>
+                        <th>Status</th> 
+                        <th>In-used</th> 
+                        <th>Description</th>
+                        <th>Time update</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for obj in ips %}
+                    <tr>
+                        <td id="ip">{{ obj.ip }}</td>
+                        <td id="subnet">{{ obj.subnet }}</td>
+                        <td id="subnet-name">{{ obj.subnet.name }}</td>
+                        <td id="subnet-group">{{ obj.subnet.group }}</td>
+                        {% if obj.status == 'success' %}
+                        <td style="text-align: center;" id="ip-status">🟢</td>
+                        {% else %}
+                        <td style="text-align: center;" id="ip-status">🔴</td>
+                        {% endif %}
+                        <td id="in-used">{{ obj.inused }}</td>
+                        <td id="description">{{ obj.description }}</td>
+                        <td id="time-created">{{ obj.time_created|date:'h:iA - d/m/Y' }}</td>
+                        <td>
+                            <a href="/ipplan/list-ip/{{obj.subnet.id}}/update-ip/{{obj.id}}"><span
+                                    class="glyphicon glyphicon-wrench"
+                                    aria-hidden="true"></span></a>
+                            <a data-toggle="modal" href='#delete-ip-modal'
+                                subnet-id="{{ obj.subnet.id }}" ip-id="{{ obj.id }}"><span
+                                    class="glyphicon glyphicon-trash"
+                                    aria-hidden="true"></span></a>
+                            <a href="/ipplan/list-ip/{{obj.subnet.id}}/detail-ip/{{obj.id}}"><span
+                                    class="glyphicon glyphicon-search"
+                                    aria-hidden="true"></span></a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="form-group">
+        <a href="/ipplan/list-subnet">
+            <button type="button" class="btn btn-warning">Back</button>
+        </a>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="delete-ip-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action method="post" id='delete-ip-from'>
+                {% csrf_token %}
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"
+                        aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Delete IP</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure to delete this IP?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default"
+                        data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block css %}
+<link rel="stylesheet" href="/static/core/css/jquery-datatable.css">
+{% endblock css %}
+
+{% block js %}
+<script src="/static/core/js/jquery-datatable.js"></script>
+<script src="/static/core/js/sweet-alert.js"></script>
+<script src="/static/ipplan/js/list-ip.js"></script>
+{% endblock js %}

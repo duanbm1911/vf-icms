@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block title %} ICMS | List Location {% endblock title %}
+{% block content %}
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <div class="form-group">
+        <legend>List location</legend>
+    </div>
+    <div class="form-group">
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered" id="list-ip-location-table">
+                <thead>
+                        <th>Location</th>
+                        <th>Region</th>
+                        <th>User update</th>
+                        <th>Time update</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+    
+                    {% for obj in objects %}
+                    <tr>
+                        <td>{{ obj.location }}</td>
+                        <td>{{ obj.region }}</td>
+                        <td>{{ obj.user_created }}</td>
+                        <td>{{ obj.time_created }}</td>
+                        <td>
+                            <a href="/ipplan/update-location/{{obj.id}}"><span class="glyphicon glyphicon-wrench" aria-hidden="true"></span></a>
+                            <a data-toggle="modal" href='#delete-location-modal' id="{{ obj.id }}"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="delete-location-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action method="post" id='delete-location-from'>
+                {% csrf_token %}
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Delete location</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure to delete this location?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+{% endblock content %}
+
+{% block css %}
+<link rel="stylesheet" href="/static/core/css/jquery-datatable.css">
+{% endblock css %}
+
+{% block js %}
+<script src="/static/core/js/jquery-datatable.js"></script>
+<script src="/static/ipplan/js/list-location.js"></script>
+{% endblock js %}

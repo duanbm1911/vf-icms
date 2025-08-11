@@ -1,0 +1,7 @@
+.tree { background-color:white; color: green}
+.tree li,
+.tree li > a,
+.tree li > span {
+    padding: 4pt;
+    border-radius: 4px;
+}

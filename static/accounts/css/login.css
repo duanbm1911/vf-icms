@@ -1,0 +1,64 @@
+/* Tổng quát */
+body {
+    background-color: #f0f2f5;
+    font-family: 'Arial', sans-serif;
+  }
+  
+.panel {
+border-radius: 10px;
+box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.login-panel {
+animation: fadeIn 2s ease-in-out;
+}
+
+.panel-heading {
+border-top-left-radius: 10px;
+border-top-right-radius: 10px;
+}
+
+.panel-body {
+background-color: white;
+border-bottom-left-radius: 10px;
+border-bottom-right-radius: 10px;
+}
+
+input:focus {
+border-color: #28A745;
+box-shadow: 0 0 5px #28A745;
+}
+
+/* Nút đăng nhập */
+.login-btn {
+background-color: #28A745;
+border: none;
+transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.login-btn:hover {
+background-color: #218838;
+transform: translateY(-2px);
+}
+
+input.input-field {
+border-radius: 30px;
+padding: 10px 20px;
+font-size: 16px;
+transition: box-shadow 0.3s ease, border 0.3s ease;
+}
+
+input.input-field:hover {
+box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Hiệu ứng */
+@keyframes fadeIn {
+from { opacity: 0; }
+to { opacity: 1; }
+}
+
+@keyframes slideIn {
+from { transform: translateY(50px); opacity: 0; }
+to { transform: translateY(0); opacity: 1; }
+}

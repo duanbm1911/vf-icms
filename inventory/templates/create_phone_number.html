@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  {{ banner }}
+{% endblock %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <div class="panel panel-primary" style="border-color: #28A745;">
+      <div class="panel-heading" style="background-color: #28A745; color: white;">
+        <h3 class="panel-title"><i class="glyphicon glyphicon-plus"></i> {{ banner }}</h3>
+      </div>
+      <div class="panel-body">
+        <form action="{% url 'create_phone_number' %}" method="POST" class="form-horizontal" role="form">
+          {% csrf_token %}
+
+          <fieldset>
+            <div class="row container-fluid">
+              <!-- Prefix -->
+              <div class="col-md-5">{{ form.prefix|as_crispy_field }}</div>
+              <!-- Provider -->
+              <div class="col-md-5 col-md-offset-2">{{ form.provider|as_crispy_field }}</div>
+            </div>
+
+            <div class="row container-fluid">
+              <!-- Contract -->
+              <div class="col-md-5">{{ form.contract|as_crispy_field }}</div>
+              <!-- User Object -->
+              <div class="col-md-5 col-md-offset-2">{{ form.user_object|as_crispy_field }}</div>
+            </div>
+
+            <div class="row container-fluid">
+              <!-- Main Number -->
+              <div class="col-md-5">{{ form.main_ip|as_crispy_field }}</div>
+              <!-- Backup Number -->
+              <div class="col-md-5 col-md-offset-2">{{ form.backup_ip|as_crispy_field }}</div>
+            </div>
+
+            <div class="row container-fluid">
+              <!-- Note -->
+              <div class="col-md-5">{{ form.note|as_crispy_field }}</div>
+              <!-- Contact VPBank -->
+              <div class="col-md-5 col-md-offset-2">{{ form.contact_vpbank|as_crispy_field }}</div>
+            </div>
+
+            <div class="row container-fluid">
+              <!-- Contact Partner -->
+              <div class="col-md-5">{{ form.contact_partner|as_crispy_field }}</div>
+              <!-- Caller -->
+              <div class="col-md-5 col-md-offset-2">{{ form.caller|as_crispy_field }}</div>
+            </div>
+
+            <div class="row container-fluid">
+              <!-- Translate Inbound -->
+              <div class="col-md-5">{{ form.translate_inbound|as_crispy_field }}</div>
+            </div>
+          </fieldset>
+
+          <!-- Buttons -->
+          <div class="form-group">
+            <div class="col-sm-12 text-center">
+              <button type="submit" class="btn btn-success"><i class="glyphicon glyphicon-ok"></i> Create</button>
+              <button type="button" id="back-btn" class="btn btn-warning" onclick="window.history.back();"><i class="glyphicon glyphicon-arrow-left"></i> Back</button>
+              <a href="{% url 'create_multiple_phone_number' %}" class="btn btn-info"><i class="glyphicon glyphicon-file"></i> Create from file</a>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}

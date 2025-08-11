@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+{% load l10n %}
+{% block title %}
+  ICMS | List Tasks
+{% endblock %}
+{% block content %}
+<div class="form-group">
+  <legend style="color: brown;"><strong>Processing</strong></legend>
+    <div class="table-responsive">
+      <table class="table table-hover table-bordered" id="list-process-table">
+        <thead>
+          <th>Task name</th>
+          <th>F5 Device</th>
+          <th>Virtual server name</th>
+          <th>Status</th>
+          <th>Error message</th>
+          <th>Time created</th>
+          <th>User created</th>
+          <th>Action</th>
+        </thead>
+        <tbody>
+          {% for obj in list_task %}
+          {% if obj.status == 'Created' %}
+            <tr>
+              <td><span class="badge {{ obj.tag }}">{{ obj.task_name }}</span></td>
+              <td>{{ obj.f5_device_ip }}</td>
+              <td>{{ obj.vs_name }}</td>
+              {% if obj.status == 'Created' %}
+                <td style="color: blue">
+                  <strong>{{ obj.status }}</strong>
+                </td>
+              {% elif obj.status == 'Failed' %}
+                <td style="color: red">
+                  <strong>{{ obj.status }}</strong>
+                </td>
+                {% elif obj.status == 'Success' %}
+                <td style="color: green">
+                  <strong>{{ obj.status }}</strong>
+                </td>
+              {% else %}
+                <td>
+                  <strong>{{ obj.status }}</strong>
+                </td>
+              {% endif %}
+              <td style="color: red;">{{ obj.message }}</td>
+              <td>{{ obj.time_created|date:'h:iA - d/m/Y' }}</td>
+              <td>{{ obj.user_created }}</td>
+              <td>
+                <a href="{% url 'f5_update_task' obj.task_name obj.id %}"><span class="glyphicon glyphicon-wrench" aria-hidden="true"></span></a>
+                <a data-toggle="modal" href="#delete-task-modal" name="{{ obj.task_name }}" id="{{ obj.id }}"><span class="glyphicon glyphicon-trash" aria-hidden="true" id="{{ obj.id }}"></span></a>
+              </td>
+            </tr>
+          {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</br>
+</br>
+  <div class="form-group">
+    <legend style="color: blue;"><strong>Result</strong></legend>
+    <div class="table-responsive">
+      <table class="table table-hover table-bordered" id="list-result-table">
+        <thead>
+          <th>Task name</th>
+          <th>F5 Device</th>
+          <th>Virtual server name</th>
+          <th>Status</th>
+          <th>Error message</th>
+          <th>Time created</th>
+          <th>User created</th>
+          <th>Action</th>
+        </thead>
+        <tbody>
+          {% for obj in list_task %}
+          {% if obj.status == 'Success' or  obj.status == 'Failed' %}
+            <tr>
+              <td><span class="badge {{ obj.tag }}">{{ obj.task_name }}</span></td>
+              <td>{{ obj.f5_device_ip }}</td>
+              <td>{{ obj.vs_name }}</td>
+              {% if obj.status == 'Created' %}
+                <td style="color: blue">
+                  <strong>{{ obj.status }}</strong>
+                </td>
+              {% elif obj.status == 'Failed' %}
+                <td style="color: red">
+                  <strong>{{ obj.status }}</strong>
+                </td>
+                {% elif obj.status == 'Success' %}
+                <td style="color: green">
+                  <strong>{{ obj.status }}</strong>
+                </td>
+              {% else %}
+                <td>
+                  <strong>{{ obj.status }}</strong>
+                </td>
+                {% endif %}
+              <td style="color: red;">{{ obj.message }}</td>
+              <td>{{ obj.time_created|date:'h:iA - d/m/Y' }}</td>
+              <td>{{ obj.user_created }}</td>
+              <td>
+                <a href="{% url 'f5_update_task' obj.task_name obj.id %}"><span class="glyphicon glyphicon-wrench" aria-hidden="true"></span></a>
+                <a data-toggle="modal" href="#delete-task-modal" name="{{ obj.task_name }}" id="{{ obj.id }}"><span class="glyphicon glyphicon-trash" aria-hidden="true" id="{{ obj.id }}"></span></a>
+              </td>
+            </tr>
+          {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+
+  <!-- Modal -->
+  <div class="modal fade" id="delete-task-modal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form action method="post" id="delete-task-form">
+          {% csrf_token %}
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Delete this task</h4>
+          </div>
+          <div class="modal-body">
+            <p>Are you sure to delete this task?</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Delete</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block css %}
+  <link rel="stylesheet" href="/static/core/css/jquery-datatable.css" />
+{% endblock %}
+
+{% block js %}
+  <script src="/static/core/js/jquery-datatable.js"></script>
+  <script src="/static/cm/f5/js/list-task.js"></script>
+  <script src="/static/core/js/sweet-alert.js"></script>
+  {% if messages %}
+    {% for message in messages %}
+      {% if message.tags == 'error' %}
+        <script>
+          Swal.fire({
+            text: '{{ message }}',
+            icon: 'error'
+          })
+        </script>
+      {% else %}
+        <script>
+          Swal.fire({
+            text: '{{ message }}',
+            icon: 'success'
+          })
+        </script>
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+{% endblock %}

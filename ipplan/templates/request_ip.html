@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+ICMS | Request IP
+{% endblock title %}
+
+{% block content %}
+<div class="form-group">
+    <legend>Request IP</legend>
+</div>
+<div class="col-xs-12 col-sm-12 col-md-5 col-lg-5">
+    <div class="from-group">
+        <form action method="POST" role="form" id="request-ip-form">
+            {% csrf_token %} 
+            <div class="form-group">
+                {{ form | crispy }}
+            </div>
+            <div class="form-group" id="ip-available"></div>
+            <div class="form-group">
+                <button type="submit" id="submit" class="btn btn-primary">Request</button>
+            </div>
+        </form>
+    </div>
+    <div class="form-group">
+        <a href="/ipplan/request-multiple-ip">Request multiple IP</a>
+    </div>
+    <div class="form-group" id="check-ip-result"></div>
+</div>
+
+
+{% endblock content %}
+
+
+{% block css %}
+<link rel="stylesheet" href="/static/core/css/select.css">
+{% endblock css %}
+    
+
+{% block js %}
+<script src="/static/core/js/select.js"></script>
+<script src="/static/ipplan/js/request-ip.js"></script>
+{% endblock js %}
+    

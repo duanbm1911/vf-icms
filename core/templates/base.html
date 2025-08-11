@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>
+    {% block title %}
+
+    {% endblock %}
+  </title>
+  <link rel="shortcut icon" href="/static/core/images/logo.ico" />
+  <link rel="stylesheet" href="/static/core/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="/static/core/css/jquery-datatable.css" />
+  <link rel="stylesheet" href="/static/core/css/selectize.css" />
+  <link rel="stylesheet" href="/static/core/css/core.css" />
+  {% block css %}
+
+  {% endblock %}
+</head>
+
+<body>
+  <div id="loader-overlay">
+    <div class="spinner"></div>
+  </div>
+  <div class="container-fluid" style="display: none;" id="main-content">
+    <div class="main-nav">
+      <nav class="navbar navbar-default" role="navigation">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/"><strong>ICMS</strong></a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        {% if user.is_authenticated %}
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                aria-expanded="false">
+                INVENTORY
+                <span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu">
+                <li>
+                  <a href="{% url 'device_dashboard' %}">Dashboard</a>
+                </li>
+                <li class="dropdown-submenu">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                    aria-expanded="false">Objects</a>
+                  <ul class="dropdown-menu">
+                    <li>
+                      <a href="{% url 'list_device_branch' %}">Branch</a>
+                    </li>
+                    <li>
+                      <a href="{% url 'list_device_province' %}">P&L</a>
+                    </li>
+                    <li>
+                      <a href="{% url 'list_device_type' %}">Type</a>
+                    </li>
+                    <li>
+                      <a href="{% url 'list_device_group' %}">Group</a>
+                    </li>
+                    <li>
+                      <a href="{% url 'list_device_category' %}">Category</a>
+                    </li>
+                    <li>
+                      <a href="{% url 'list_device_vendor' %}">Vendor</a>
+                    </li>
+                    <li>
+                      <a href="{% url 'list_device_os' %}">Device OS</a>
+                    </li>
+                    <li>
+                      <a href="{% url 'list_device_firmware' %}">Firmware</a>
+                    </li>
+                  </ul>
+                </li>
+                <li class="dropdown-submenu">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                    aria-expanded="false">List device</a>
+                  <ul class="dropdown-menu">
+                    <li>
+                      <a href="{% url 'list_device' %}">Device</a>
+                    </li>
+                    <li>
+                      <a href="{% url 'list_device_management' %}">Management</a>
+                    </li>
+                    <li>
+                      <a href="{% url 'list_device_rack_layout' %}">Rack Layout</a>
+                    </li>
+                  </ul>
+                </li>
+                <li>
+                  <a href="{% url 'device_export' %}">Export</a>
+                </li>
+              </ul>
+            </li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                aria-expanded="false">
+                IP PLAN
+                <span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu">
+                <li>
+                  <a href="/ipplan/dashboard">Dashboard</a>
+                </li>
+                <li class="dropdown-submenu">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                    aria-expanded="false">Create</a>
+                  <ul class="dropdown-menu">
+                    <li>
+                      <a href="/ipplan/create-region">Region</a>
+                    </li>
+                    <li>
+                      <a href="/ipplan/create-location">Location</a>
+                    </li>
+                    <li>
+                      <a href="/ipplan/create-subnet-group">Group</a>
+                    </li>
+                    <li>
+                      <a href="/ipplan/create-subnet">Subnet</a>
+                    </li>
+                  </ul>
+                </li>
+                <li class="dropdown-submenu">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                    aria-expanded="false">Objects</a>
+                  <ul class="dropdown-menu">
+                    <li>
+                      <a href="{% url 'list_region' %}">Region</a>
+                    </li>
+                    <li>
+                      <a href="{% url 'list_location' %}">Location</a>
+                    </li>
+                    <li>
+                      <a href="{% url 'list_subnet_group' %}">Group</a>
+                    </li>
+                  </ul>
+                </li>
+                <li>
+                  <a href="/ipplan/list-subnet">List IP subnet</a>
+                </li>
+                <li>
+                  <a href="/ipplan/request-ip">Request IP</a>
+                </li>
+                <li>
+                  <a href="{% url 'ipplan_export' %}">Export</a>
+                </li>
+              </ul>
+            </li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                aria-expanded="false">
+                CHECKPOINT
+                <span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu">
+                <li>
+                  <a href="{% url 'checkpoint_dashboard' %}">Dashboard</a>
+                </li>
+                <li class="dropdown-submenu">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                    aria-expanded="false">Objects</a>
+                  <ul class="dropdown-menu">
+                    <li>
+                      <a href="{% url 'checkpoint_list_site' %}">Site</a>
+                    </li>
+                    <li>
+                      <a href="{% url 'checkpoint_list_policy' %}">Policy</a>
+                    </li>
+                    <li>
+                      <a href="{% url 'checkpoint_list_gateway' %}">Gateway</a>
+                    </li>
+                    <li>
+                      <a href="{% url 'checkpoint_list_local_user_template' %}">Local user template</a>
+                    </li>
+                    <li>
+                      <a href="{% url 'checkpoint_list_email_alert_template' %}">Email alert template</a>
+                    </li>
+                  </ul>
+                </li>
+                <li class="dropdown-submenu">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                    aria-expanded="false">List tasks</a>
+                  <ul class="dropdown-menu">
+                    <li>
+                      <a href="{% url 'checkpoint_list_task_access_rule' %}">Access rule</a>
+                    </li>
+                    <li>
+                      <a href="{% url 'checkpoint_list_task_local_user' %}">Local user</a>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                aria-expanded="false">
+                FMC
+                <span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu">
+                <li>
+                  <a href="{% url 'fmc_dashboard' %}">Dashboard</a>
+                </li>
+                <li class="dropdown-submenu">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                    aria-expanded="false">Create</a>
+                  <ul class="dropdown-menu">
+                    <li>
+                      <a href="{% url 'fmc_create_task_access_rule' %}">Access rule</a>
+                    </li>
+                  </ul>
+                </li>
+                <li class="dropdown-submenu">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                    aria-expanded="false">Objects</a>
+                  <ul class="dropdown-menu">
+                    <li>
+                      <a href="{% url 'fmc_list_site' %}">Site</a>
+                    </li>
+                    <li>
+                      <a href="{% url 'fmc_list_domain' %}">Domain</a>
+                    </li>
+                    <li>
+                      <a href="{% url 'fmc_list_policy' %}">Policy</a>
+                    </li>
+                    <li>
+                      <a href="{% url 'fmc_list_gateway' %}">Gateway</a>
+                    </li>
+                  </ul>
+                </li>
+                <li>
+                  <a href="{% url 'fmc_list_task_access_rule' %}">List tasks</a>
+                </li>
+              </ul>
+            </li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                aria-expanded="false">
+                F5
+                <span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu">
+                <li class="dropdown-submenu">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                    aria-expanded="false">Create</a>
+                  <ul class="dropdown-menu">
+                    <li>
+                      <a href="{% url 'f5_create_virtual_server' %}">Virtual server</a>
+                    </li>
+                    <li>
+                      <a href="{% url 'f5_create_limit_connection' %}">Limit connection</a>
+                    </li>
+                  </ul>
+                </li>
+                <li class="dropdown-submenu">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                    aria-expanded="false">Objects</a>
+                  <ul class="dropdown-menu">
+                    <li>
+                      <a href="{% url 'f5_list_device' %}">Device</a>
+                    </li>
+                    <li>
+                      <a href="{% url 'f5_list_template' %}">Template</a>
+                    </li>
+                    <li>
+                      <a href="{% url 'f5_list_permission' %}">Permission</a>
+                    </li>
+                    <li>
+                      <a href="{% url 'f5_list_virtual_server' %}">Virtual server</a>
+                    </li>
+                  </ul>
+                </li>
+                <li>
+                  <a href="{% url 'f5_list_task' %}">List tasks</a>
+                </li>
+                <li>
+                  <a href="{% url 'f5_export_database' %}">Export</a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Welcome: <strong>{{ request.user|upper }}</strong><b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                {% if user.is_superuser %}
+                <li>
+                  <a href="/icms-admin/">Admin site</a>
+                </li>
+                <li>
+                  <a href="{% url 'list_user' %}">Users</a>
+                </li>
+                <li>
+                  <a href="{% url 'get_qrcode' %}">User QR code</a>
+                </li>
+                {% endif %}
+                <li>
+                  <a href="/accounts/change_password">Change password</a>
+                </li>
+                <li>
+                  <a href="/accounts/logout">Logout</a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+        {% endif %}
+        <!-- /.navbar-collapse -->
+      </nav>
+    </div>
+
+    <div class="panel panel-default">
+      <div class="panel-body">
+        {% if messages %}
+        <div class="alert-container">
+          {% for message in messages %}
+          <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+        {% endif %}
+        {% block content %}
+
+        {% endblock %}
+      </div>
+      <div class="panel-footer">
+        <center>
+          Infrastructure Centralized Management System ©️ 2025
+        </center>
+      </div>
+    </div>
+  </div>
+  <script src="/static/core/js/jquery.js"></script>
+  <script src="/static/core/js/bootstrap.js"></script>
+  <script src="/static/core/js/jquery-datatable.js"></script>
+  <script src="/static/core/js/selectize.js"></script>
+  <script src="/static/core/js/core.js"></script>
+  {% block js %}
+
+  {% endblock %}
+</body>
+
+</html>
